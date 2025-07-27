@@ -57,19 +57,21 @@ class SignUpView extends ConsumerWidget{
                           urls: []             
                         );
                         final supabase = Supabase.instance.client;
+                        late var query;
                         try {
-                          await supabase
+                          query =  await supabase
                             .from('restaurants')
                             .insert(restaurant.toJson())
                             .select()
                             .single();
+                          print(query['id']);
                           // You can return or use the insertedClient if needed
                         } on PostgrestException catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
                         }
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> GallerySettingView()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> GallerySettingView(query['id'])));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Sign-in failed. Please check your credentials."));
                       }

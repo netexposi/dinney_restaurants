@@ -1,15 +1,19 @@
 import 'dart:io';
+import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
+import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final imagesProvider = StateProvider<List<File?>>((ref) => [null, null, null, null]);
 
 class GallerySettingView extends ConsumerWidget {
-  const GallerySettingView({super.key});
+  final int restaurantId;
+  const GallerySettingView(this.restaurantId, {super.key});
 
   Future<void> _pickImage({
     required WidgetRef ref,
@@ -112,7 +116,13 @@ class GallerySettingView extends ConsumerWidget {
                       var url = await uploadImageToSupabase(imageFile!);
                       urls.add(url!);
                     }
-                    print(urls);
+                    try{
+                      final response = await Supabase.instance.client.from('restaurants').update({'urls': urls}).eq('id', restaurantId);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(restaurantId)));
+                    } catch (e){
+                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
+                    }
+
                   }, 
                   child: Text("Next")
                 ),
