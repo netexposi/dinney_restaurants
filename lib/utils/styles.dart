@@ -1,0 +1,25 @@
+import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
+
+final Color backgroundColor = const Color(0xffefeef3);
+final Color primaryColor = const Color(0xff222222);
+final Color secondaryColor = const Color(0xffcba76a);
+// all good
+final ButtonStyle blackButton = ButtonStyle(
+    backgroundColor: WidgetStateProperty.all<Color>(Colors.black),
+    foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+    fixedSize: WidgetStateProperty.all<Size>(Size(80.w, 6.h)),
+    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.sp)),
+    )
+  );
+// to adjust
+final ButtonStyle outlinedBeige = ButtonStyle(
+  backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+  foregroundColor: WidgetStateProperty.all<Color>(Colors.black),
+  fixedSize: WidgetStateProperty.all<Size>(Size(80.w, 6.h)),
+  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.sp))),
+  side: WidgetStateProperty.all(BorderSide(color: secondaryColor, width: 2.0)),
+  overlayColor: WidgetStateProperty.all<Color>(secondaryColor.withOpacity(0.5))
+);
