@@ -15,6 +15,7 @@ dependencies:
   supabase_flutter: any
   image_picker: any
   uuid: any
+  hugeicons: ^0.0.9
   #google_maps_flutter: any
   # iconsax: any
   # image_picker: any

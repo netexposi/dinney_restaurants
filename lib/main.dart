@@ -1,4 +1,5 @@
 import 'package:dinney_restaurant/pages/authentication/login_view.dart';
+import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
 import 'package:dinney_restaurant/pages/authentication/sign_up_view.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
@@ -32,13 +33,14 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
           secondary: secondaryColor,
           onSecondary: Colors.black,
+          tertiary: tertiaryColor,
+          onTertiary: Colors.white,
           error: Colors.red,
           onError: Colors.white,
-          background: backgroundColor,
-          onBackground: Colors.black,
           surface: Colors.white,
           onSurface: Colors.black,
         ),
+        scaffoldBackgroundColor: backgroundColor,
         textTheme: TextTheme(
           headlineLarge: TextStyle(
             fontSize: 24.sp,
@@ -66,8 +68,16 @@ class MyApp extends StatelessWidget {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: outlinedBeige,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: WidgetStateProperty.all<Color>(secondaryColor),
+            textStyle: WidgetStateProperty.all<TextStyle>(
+              Theme.of(context).textTheme.labelSmall!
+          )
         )
       ),
+      )
     );
     },);
   }
@@ -111,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async{
                 setState(() {
                   toLogIn = true;
+                  //Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(7)));
                 });
               }, 
               child: Text("Proceed")

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
+import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,30 @@ class GallerySettingView extends ConsumerWidget {
     final images = ref.watch(imagesProvider);
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.sp),
+          width: 25.w,
+          height: 10.w,
+          decoration: BoxDecoration(
+            color: secondaryColor,
+            borderRadius: BorderRadius.circular(24.sp)
+          ),
+          child: Row(
+            spacing: 8.sp,
+            children: [
+              CircleAvatar(
+                radius: 16.sp,
+                backgroundColor: backgroundColor,
+                child: Center(
+                  child: Text("${ref.watch(signUpProvider)}", style: Theme.of(context).textTheme.bodyLarge,),
+                ),
+              ),
+              Text("Menu", style: Theme.of(context).textTheme.headlineMedium,)
+            ],
+          ),
+        ),
+      ),
       body: SizedBox(
         height: 100.h,
         width: 100.w,
@@ -118,6 +143,7 @@ class GallerySettingView extends ConsumerWidget {
                     }
                     try{
                       final response = await Supabase.instance.client.from('restaurants').update({'urls': urls}).eq('id', restaurantId);
+                      ref.read(signUpProvider.notifier).state = 2; // update the sign up state to 3
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(restaurantId)));
                     } catch (e){
                       ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));

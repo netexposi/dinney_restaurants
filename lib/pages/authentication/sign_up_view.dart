@@ -1,6 +1,7 @@
 import 'package:dinney_restaurant/pages/authentication/gallery_setting_view.dart';
 import 'package:dinney_restaurant/services/models/restaurant_model.dart';
-import 'package:dinney_restaurant/utils/app_navigation.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
+import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,30 @@ class SignUpView extends ConsumerWidget{
     TextEditingController passwordController = TextEditingController();
     TextEditingController confirmPasswordController = TextEditingController();
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.sp),
+          width: 25.w,
+          height: 10.w,
+          decoration: BoxDecoration(
+            color: secondaryColor,
+            borderRadius: BorderRadius.circular(24.sp)
+          ),
+          child: Row(
+            spacing: 8.sp,
+            children: [
+              CircleAvatar(
+                radius: 16.sp,
+                backgroundColor: backgroundColor,
+                child: Center(
+                  child: Text("${ref.watch(signUpProvider)}", style: Theme.of(context).textTheme.bodyLarge,),
+                ),
+              ),
+              Text("Menu", style: Theme.of(context).textTheme.headlineMedium,)
+            ],
+          ),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(16.sp),
         child: SizedBox(
@@ -51,12 +75,16 @@ class SignUpView extends ConsumerWidget{
                       );
                       final user = response.user;
                       if (user != null) {
+                        final supabase = Supabase.instance.client;
+                        await supabase.auth.signInWithPassword(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
                         var restaurant= Restaurant(
                           name: nameController.text.trim(), 
                           email: emailController.text.trim(),
                           urls: []             
                         );
-                        final supabase = Supabase.instance.client;
                         late var query;
                         try {
                           query =  await supabase
@@ -71,6 +99,7 @@ class SignUpView extends ConsumerWidget{
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
                         }
+                        ref.read(signUpProvider.notifier).state = 1;
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> GallerySettingView(query['id'])));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Sign-in failed. Please check your credentials."));

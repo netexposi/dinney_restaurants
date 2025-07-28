@@ -1,5 +1,6 @@
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
+import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class LoginView extends ConsumerWidget{
                         return;
                       }else {
                         // fetch data 
+                        ref.read(userDocumentsProvider.notifier).state = response[0];
                         AppNavigation.navRouter.go("/home");
                         ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("You have signed in successfully!"));
                       }

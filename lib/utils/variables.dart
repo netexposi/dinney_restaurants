@@ -1,9 +1,7 @@
-// import 'dart:async';
-// import 'dart:math';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // //FIX Change user data storing system
-// late Map<String, dynamic> userDocument;
+// final user  Map<String, dynamic> userDocument;
+final userDocumentsProvider = StateProvider<Map<String, dynamic>>((ref) => {});
 // String distanceUnit = 'Km';
 // String paceUnit = 'min/Km';
 // String? token;
