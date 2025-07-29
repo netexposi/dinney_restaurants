@@ -63,7 +63,7 @@ class HomeView extends ConsumerWidget{
                     )
                 ],
               ),
-              Text(ref.watch(userDocumentsProvider)["name"])
+              Text(ref.watch(userDocumentsProvider)["urls"][0])
             ],
           ),
         ),

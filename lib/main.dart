@@ -1,5 +1,4 @@
 import 'package:dinney_restaurant/pages/authentication/login_view.dart';
-import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
 import 'package:dinney_restaurant/pages/authentication/sign_up_view.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
@@ -41,6 +40,10 @@ class MyApp extends StatelessWidget {
           onSurface: Colors.black,
         ),
         scaffoldBackgroundColor: backgroundColor,
+        appBarTheme: AppBarTheme(
+          backgroundColor: backgroundColor,
+        ),
+        dialogBackgroundColor: Colors.white,
         textTheme: TextTheme(
           headlineLarge: TextStyle(
             fontSize: 24.sp,
@@ -129,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(7)));
                 });
               }, 
-              child: Text("Proceed")
+              child: Text("Proceed"),
             ),
           ),
           AnimatedPositioned(

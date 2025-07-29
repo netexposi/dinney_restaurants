@@ -30,3 +30,6 @@ final BoxShadow dropShadow = BoxShadow(
     blurRadius: 6, // 20% blur interpreted as 4px
     spreadRadius: 0, // No spread for a clean drop shadow
   );
+
+
+

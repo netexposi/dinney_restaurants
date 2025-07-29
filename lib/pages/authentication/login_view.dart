@@ -40,13 +40,14 @@ class LoginView extends ConsumerWidget{
                       final response = await supabase
                         .from("restaurants")
                         .select()
-                        .eq("email", emailController.text.trim());
+                        .eq("email", emailController.text.trim())
+                        .single();
                       if(response.isEmpty){
                         ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("You are not registered as a restaurant!"));
                         return;
                       }else {
                         // fetch data 
-                        ref.read(userDocumentsProvider.notifier).state = response[0];
+                        ref.read(userDocumentsProvider.notifier).state = response;
                         AppNavigation.navRouter.go("/home");
                         ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("You have signed in successfully!"));
                       }

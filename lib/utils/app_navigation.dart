@@ -1,13 +1,14 @@
 import 'package:dinney_restaurant/main.dart';
 import 'package:dinney_restaurant/main_wrapper.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
+import 'package:dinney_restaurant/pages/menu_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AppNavigation {
   AppNavigation._();
   static final _shellNavigatorHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
-  static final _shellNavigatorCommunity = GlobalKey<NavigatorState>(debugLabel: 'shellCommunity');
+  static final _shellNavigatorMenu = GlobalKey<NavigatorState>(debugLabel: 'shellMenu');
   static final _shellNavigatorBoard = GlobalKey<NavigatorState>(debugLabel: 'shellBoard');
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -46,19 +47,19 @@ class AppNavigation {
                     //   }
                     // ),
                   ]),
-              // Branch Community
-              // StatefulShellBranch(
-              //   navigatorKey: _shellNavigatorCommunity, 
-              // routes: <RouteBase>[
-              //   GoRoute(
-              //     path: '/community',
-              //     name: 'community',
-              //     pageBuilder: (context, state) =>CustomTransitionPage(
-              //             child: const CommunitySearchView(), 
-              //             transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              //                 FadeTransition(opacity: animation, child: child),
-              //       ))
-              // ]),
+              //Branch Menu
+              StatefulShellBranch(
+                navigatorKey: _shellNavigatorMenu, 
+              routes: <RouteBase>[
+                GoRoute(
+                  path: '/menu',
+                  name: 'menu',
+                  pageBuilder: (context, state) =>CustomTransitionPage(
+                          child: MenuView(), 
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                              FadeTransition(opacity: animation, child: child),
+                    ))
+              ]),
               // // Branch Board
               // StatefulShellBranch(
               //     navigatorKey: _shellNavigatorBoard,
