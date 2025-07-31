@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
           style: ButtonStyle(
             foregroundColor: WidgetStateProperty.all<Color>(secondaryColor),
             textStyle: WidgetStateProperty.all<TextStyle>(
-              Theme.of(context).textTheme.labelSmall!
+              Theme.of(context).textTheme.bodySmall!
           )
         )
       ),

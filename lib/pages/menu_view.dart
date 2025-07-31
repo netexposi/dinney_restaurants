@@ -1,47 +1,70 @@
+import 'package:dinney_restaurant/services/models/menu_model.dart';
+import 'package:dinney_restaurant/utils/app_navigation.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
+import 'package:dinney_restaurant/widgets/blurry_container.dart';
+import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-final SupabaseClient supabase = Supabase.instance.client;
-final fetchDataProvider = FutureProvider((ref) async {
-  // Your async fetch logic
-  return await supabase
-    .from('menu')
-    .select().
-    eq('restaurantId', ref.watch(userDocumentsProvider)['id']).single();
-});
 
 class MenuView extends ConsumerWidget {
   MenuView({super.key});
-
+  
+  final fetchDataProvider = FutureProvider((ref) async {
+    final supabase = Supabase.instance.client;
+    return await supabase
+      .from('menu')
+      .select().
+      eq('restaurantId', ref.watch(userDocumentsProvider)['id']).single();
+  });
   final menuProvider = StateProvider<List<Map<String, dynamic>>>((ref) => []);
+  final saveProvider = StateProvider<bool>((ref)=> false);
+  final SupabaseClient supabase = Supabase.instance.client;
   
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = ref.watch(fetchDataProvider);
-    
-    return data.when(
-      error: (e, _) => Text('Error: $e'),
-      loading: () => const CircularProgressIndicator(),
-      data:(value) {
-        final menu = value['menu'];
-        //ref.read(menuProvider.notifier).state = List<Map<String, dynamic>>.from(menu ?? []);
-        final bo = false;
-        print(menu);
+    ref.listen(fetchDataProvider, (previous, next) {
+      next.when(
+        data: (value) {
+          final menu = List<Map<String, dynamic>>.from(value['menu'] ?? []);
+          ref.read(menuProvider.notifier).state = menu;
+        },
+        error: (e, _) {}, // Do nothing on error
+        loading: () {}, // Do nothing while loading
+      );
+    });
+
+    final menu = ref.watch(menuProvider);
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.sp),
-          child: Column(
-            spacing: 16.sp,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              menu.isEmpty
-                  ? Text("Menu is empty")
+        child: Column(
+          spacing: 16.sp,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Menu", style: Theme.of(context).textTheme.headlineLarge,),
+                  TextButton(
+                    onPressed: (){
+                      _showAddCategoryDialog(context, ref);
+                    },
+                    child: Text("Add Category"),
+                  )
+                ],
+              ),
+            ),
+                Padding(
+                  padding:  EdgeInsets.only(left: 16.sp, right: 16.sp),
+                  child: menu.isEmpty? Text("Menu is empty")
+                
                   : GridView.builder(
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -67,50 +90,66 @@ class MenuView extends ConsumerWidget {
                         );
                       },
                     ),
-              Align(
-                alignment: Alignment.center,
-                child: OutlinedButton(
-                  onPressed: () {
-                    _showAddCategoryDialog(context, ref);
-                  },
-                  child: Text("Add Category"),
                 ),
+            Padding(
+              padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Tags", style: Theme.of(context).textTheme.headlineLarge,),
+                  TextButton(
+                    onPressed: (){
+                      showDialog(
+                        context: context, 
+                        builder: (context){
+                          return RefDialog();
+                        }
+                        );
+                    }, 
+                    child: Text("Edit")
+                    )
+                ],
               ),
-              if(ref.watch(menuProvider).isNotEmpty) Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () async{
-                    // print(ref.watch(menuProvider)); 
-                    // final table = MenuModel(
-                    //   restaurantId: restaurantId, 
-                    //   menu: menu);
-                    // final supabase = Supabase.instance.client;
-                    //     late var query;
-                    //     try {
-                    //       query =  await supabase
-                    //         .from('menu')
-                    //         .insert(table.toJson())
-                    //         .select()
-                    //         .single();
-                    //       print(query['id']);
-                    //       // You can return or use the insertedClient if needed
-                    //     } on PostgrestException catch (e) {
-                    //       ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
-                    //     } catch (e) {
-                    //       ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
-                    //     }
-                    //     ref.read(signUpProvider.notifier).state = 0; // update the sign up state to 3
-                    //     AppNavigation.navRouter.go("/home");
-                  }, 
-                  child: Text("Save Menu")
+            ),
+            SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+              child: Row(
+              children: List.generate(ref.watch(userDocumentsProvider)['tags'].length,(index){
+                return Container(
+                  alignment: Alignment.bottomCenter,
+                  width: 30.w,
+                  height: 30.w,
+                  margin: EdgeInsets.only(left: 16.sp),
+                  decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24.sp),
+                  image: DecorationImage(image: AssetImage(tagImages[ref.watch(userDocumentsProvider)['tags'][index]]!))
                   ),
-              )
-            ],
-          ),
+                  child: Padding(
+                    padding: EdgeInsets.all(8.sp),
+                    child: BlurryContainer(
+                      width: 24.w,
+                      height: 10.w,
+                      borderRadius: BorderRadius.circular(24.sp),
+                      child: Center(
+                        child: Text(
+                          "${ref.watch(userDocumentsProvider)['tags'][index]}",
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.4),
+                              offset: Offset(2, 2),
+                              blurRadius: 24,
+                            ),
+                          ]),
+                          ))
+                      ),
+                  ),
+                );
+              }),
+              ),
+            )
+          ],
         ),
       ),
-    );
-      }
     );
   }
 
@@ -203,6 +242,7 @@ class MenuView extends ConsumerWidget {
                           };
                           //await _saveToSupabase(newCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
+                          ref.read(saveProvider.notifier).state = true;
                           Navigator.pop(context1);
                         },
                         child: Text("Save"),
@@ -322,6 +362,22 @@ class MenuView extends ConsumerWidget {
                             newState[categoryIndex] = updatedCategory;
                             return newState;
                           });
+                          print(ref.watch(menuProvider));
+                          print("the id of restaurant: ${ref.watch(userDocumentsProvider)['id']}");
+                          final supabase = Supabase.instance.client;
+                              late var query;
+                              try {
+                                query =  await supabase
+                                  .from('menu')
+                                  .update({'menu': ref.watch(menuProvider)})
+                                  .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
+                                // You can return or use the insertedClient if needed
+                              } on PostgrestException catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                              }
+                              ref.read(saveProvider.notifier).state = false;
                           Navigator.pop(context1);
                         },
                         child: Text("Save"),
@@ -501,4 +557,97 @@ class MenuView extends ConsumerWidget {
       },
     );
   }
+}
+
+class RefDialog extends ConsumerWidget{
+  RefDialog({super.key});
+
+  final supabase = Supabase.instance.client;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Dialog(
+      child: SizedBox(
+        height: 50.h,
+        child: Padding(
+          padding: EdgeInsets.all(16.sp),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16.sp,
+            children: [
+              Text("Tags"),
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 8.sp,
+                    crossAxisSpacing: 8.sp,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: tagImages.entries.length,
+                  itemBuilder: (context, ind) {
+                    final tagKey = tagImages.entries.elementAt(ind).key;
+                    return InkWell(
+                      onTap: () async{
+                        if(ref.watch(userDocumentsProvider)['tags'].contains(tagKey)){
+                          final currentState = ref.read(userDocumentsProvider.notifier).state;
+                          final updatedTags = List<String>.from(currentState['tags'] ?? [])..remove(tagKey);
+                          ref.read(userDocumentsProvider.notifier).state = {
+                            ...currentState,
+                            'tags': updatedTags,
+                          };
+                        } else {
+                          final currentState = ref.read(userDocumentsProvider.notifier).state;
+                          final updatedTags = List<String>.from(currentState['tags'] ?? [])..add(tagKey);
+                          ref.read(userDocumentsProvider.notifier).state = {
+                            ...currentState,
+                            'tags': updatedTags,
+                          };
+                        }
+                        final query = await supabase.from("restaurants").update({"tags" : ref.watch(userDocumentsProvider)['tags']})
+                          .eq('id', ref.watch(userDocumentsProvider)['id']);
+                      },
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        decoration: BoxDecoration(
+                        border: BoxBorder.all(
+                          color: primaryColor,
+                          width: ref.watch(userDocumentsProvider)['tags'].contains(tagKey)? 8.sp : 0.sp,
+                        ),
+                        borderRadius: BorderRadius.circular(24.sp),
+                        image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.sp),
+                          child: BlurryContainer(
+                            width: 19.w,
+                            height: 10.w,
+                            borderRadius: BorderRadius.circular(24.sp),
+                            child: Center(
+                              child: Text(
+                                "${tagImages.entries.elementAt(ind).key}",
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    offset: Offset(2, 2),
+                                    blurRadius: 24,
+                                  ),
+                                ]),
+                                ))
+                            ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }

@@ -25,9 +25,9 @@ final ButtonStyle outlinedBeige = ButtonStyle(
   overlayColor: WidgetStateProperty.all<Color>(secondaryColor.withOpacity(0.5))
 );
 final BoxShadow dropShadow = BoxShadow(
-    color: Color(0x0D000000), // 5% opacity black (#000000 with 0.05 alpha)
-    offset: Offset(23, 3), // x=2, y=2
-    blurRadius: 6, // 20% blur interpreted as 4px
+    color: Color(0x01000000), // 5% opacity black (#000000 with 0.05 alpha)
+    offset: Offset(2, 2), // x=2, y=2
+    blurRadius: 4, // 20% blur interpreted as 4px
     spreadRadius: 0, // No spread for a clean drop shadow
   );
 

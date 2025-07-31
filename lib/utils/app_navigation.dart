@@ -2,6 +2,7 @@ import 'package:dinney_restaurant/main.dart';
 import 'package:dinney_restaurant/main_wrapper.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/pages/menu_view.dart';
+import 'package:dinney_restaurant/pages/stats_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,7 +10,7 @@ class AppNavigation {
   AppNavigation._();
   static final _shellNavigatorHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
   static final _shellNavigatorMenu = GlobalKey<NavigatorState>(debugLabel: 'shellMenu');
-  static final _shellNavigatorBoard = GlobalKey<NavigatorState>(debugLabel: 'shellBoard');
+  static final _shellNavigatorStats = GlobalKey<NavigatorState>(debugLabel: 'shellStats');
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
   static GoRouter navRouter = GoRouter(
@@ -61,21 +62,21 @@ class AppNavigation {
                     ))
               ]),
               // // Branch Board
-              // StatefulShellBranch(
-              //     navigatorKey: _shellNavigatorBoard,
-              //     routes: <RouteBase>[
-              //       GoRoute(
-              //           path: '/board',
-              //           name: 'board',
-              //           pageBuilder: (context, state) {
-              //             return CustomTransitionPage(
-              //               child: ActivityBoard(preDefinedActivity: state.extra,), 
-              //               transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              //                   FadeTransition(opacity: animation, child: child),
-              //             );
-              //             }
-              //           ),
-              //     ]),
+              StatefulShellBranch(
+                  navigatorKey: _shellNavigatorStats,
+                  routes: <RouteBase>[
+                    GoRoute(
+                        path: '/board',
+                        name: 'board',
+                        pageBuilder: (context, state) {
+                          return CustomTransitionPage(
+                            child: StatsView(), 
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                                FadeTransition(opacity: animation, child: child),
+                          );
+                          }
+                        ),
+                  ]),
             ])
       ],
     );
