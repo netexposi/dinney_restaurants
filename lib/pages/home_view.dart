@@ -77,10 +77,16 @@ class HomeView extends ConsumerWidget{
                         if(snapshot.data!.length >=4){
                           ref.read(manyOrders.notifier).state = true;
                         }
-                        final unrespondedOrders = snapshot.data!.where((item) => item['awaiting'] == true && item['validated'] == false && item['suggested'] == false).toList();
-                        print("Unresponded orders: ${unrespondedOrders.length}");
-                        final numAtTable = snapshot.data!.where((item) => item['at_table'] == true).length;
-                        final numToPickUp = snapshot.data!.where((item) => item['at_table'] == false).length;
+                        // filtering to get unresponded orders first
+                        final unrespondedOrders = snapshot.data!.where(
+                          (item) => item['awaiting'] == true && item['validated'] == false && item['suggested'] == false && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
+
+                        // filtering to get confirmed orders
+                        final confirmedOrders = snapshot.data!.where(
+                          (item) => item['validated'] == true && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
+                        
+                        final numAtTable = confirmedOrders.where((item) => item['at_table'] == true).length;
+                        final numToPickUp = confirmedOrders.where((item) => item['at_table'] == false).length;
                         print("Number of orders at table: $numAtTable and to pick up: $numToPickUp");
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,6 +97,7 @@ class HomeView extends ConsumerWidget{
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 16.sp,
                                 children: List.generate(unrespondedOrders.length, (index){
                                   return Container(
@@ -107,38 +114,71 @@ class HomeView extends ConsumerWidget{
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          spacing: 16.sp,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text('${unrespondedOrders[index]['client_name']}', style: Theme.of(context).textTheme.headlineMedium,),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${unrespondedOrders[index]['client_name'].toString().length > 15 
+                                                    ? unrespondedOrders[index]['client_name'].toString().substring(0, 15) + '...'
+                                                    : unrespondedOrders[index]['client_name']}',
+                                                  style: Theme.of(context).textTheme.headlineMedium,
+                                                ),
+                                                Text(unrespondedOrders[index]['at_table']? "At Table" : "To Pick Up", 
+                                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                              ],
+                                            ),
                                             Text(DateFormat.Hm().format(DateTime.parse(unrespondedOrders[index]['delivery_at'])), 
-                                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
                                           ],
                                         ),
                                         //Text("Items:", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
                                         ...List.generate(unrespondedOrders[index]['items'].length, (itemIndex){
                                           return Text("${unrespondedOrders[index]['items'][itemIndex]['category']} ${unrespondedOrders[index]['items'][itemIndex]['name']} ${unrespondedOrders[index]['items'][itemIndex]['size'] ?? ""} x ${unrespondedOrders[index]['items'][itemIndex]['quantity']}");
                                         }),
+                                        // action buttons
                                         Row(
-                                          spacing: 16.sp,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            InkWell(
-                                              onTap: (){},
-                                              child: CircleAvatar(
-                                                radius: 20.sp,
-                                                backgroundColor: Colors.green,
-                                                child: HugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.white, size: 20.sp),
-                                              ),
+                                            // accept and reject buttons
+                                            Row(
+                                              spacing: 16.sp,
+                                              children: [
+                                                // accept
+                                                InkWell(
+                                                  onTap: () async{
+                                                    // Accept the order
+                                                    await supabase.from('orders').update({
+                                                      'validated': true,
+                                                      'awaiting': false,
+                                                    }).eq('id', unrespondedOrders[index]['id']);
+                                                  },
+                                                  child: CircleAvatar(
+                                                    radius: 16.sp,
+                                                    backgroundColor: Colors.green,
+                                                    child: HugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.white, size: 16.sp),
+                                                  ),
+                                                ),
+                                                // reject
+                                                InkWell(
+                                                  onTap: () async{
+                                                    await supabase.from('orders')
+                                                    .delete()
+                                                    .eq('id', unrespondedOrders[index]['id']);
+                                                  },
+                                                  child: CircleAvatar(
+                                                    radius: 16.sp,
+                                                    backgroundColor: Colors.red,
+                                                    child: HugeIcon(icon: HugeIcons.strokeRoundedRemoveCircle, color: Colors.white, size: 16.sp),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            InkWell(
-                                              onTap: (){},
-                                              child: CircleAvatar(
-                                                radius: 20.sp,
-                                                backgroundColor: Colors.red,
-                                                child: HugeIcon(icon: HugeIcons.strokeRoundedRemoveCircle, color: Colors.white, size: 20.sp),
-                                              ),
-                                            ),
+                                            // suggesting button
                                             OutlinedButton(
-                                              style: outlinedBeige.copyWith(fixedSize: WidgetStateProperty.all<Size>(Size(27.w, 6.h))),
+                                              style: outlinedBeige.copyWith(fixedSize: WidgetStateProperty.all<Size>(Size(27.w, 4.h))),
                                               onPressed: (){}, 
                                               child: Text("Suggest")
                                               )
@@ -151,79 +191,80 @@ class HomeView extends ConsumerWidget{
                               ),
                             ),
                             //awaiting orders
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Awaiting Orders", style: Theme.of(context).textTheme.headlineLarge,),
-                                if(ref.watch(manyOrders)) TextButton(
-                                  onPressed: (){
-                                    ref.read(seeMoreOrders.notifier).state = !ref.read(seeMoreOrders);
-                                  }, 
-                                  child: Text(ref.watch(seeMoreOrders)? "See less" : "See more")
-                                  )
-                              ],
-                            ),
-                            AnimatedContainer(
-                              width: 100.w,
-                              padding: EdgeInsets.all(16.sp),
-                              //height: ref.watch(seeMoreOrders)? 80.h : 40.h,
-                              duration: Duration(milliseconds: 300),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(24.sp),
-                                boxShadow: [dropShadow],),
-                              child: Column(
-                                children: List.generate(
-                                  ref.watch(manyOrders) && ref.watch(seeMoreOrders)? snapshot.data!.length : 
-                                  ref.watch(manyOrders) && !ref.watch(seeMoreOrders)? 4 : snapshot.data!.length, 
-                                  (index){
-                                  int numOrders = 0;
-                                  late double totalPrice;
-                                  final DateTime timestamp = DateTime.parse(snapshot.data![index]['delivery_at']);
-                                  for (var item in snapshot.data![index]['items']) {
-                                    numOrders += int.parse(item['quantity']);
-                                  }
-                                  print(numOrders);
-                                  return Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text('${snapshot.data![index]['client_name']}', style: Theme.of(context).textTheme.headlineMedium,),
-                                              Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor.withOpacity(0.5))),
-                                            ],
-                                          ),
-                                          Container(
-                                            alignment: Alignment.center,
-                                            width: 30.w,
-                                            height: 8.w,
-                                            decoration: BoxDecoration(
-                                              color: tertiaryColor.withOpacity(0.5),
-                                              borderRadius: BorderRadius.circular(24.sp),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                                HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
-                                              ],
-                                            )
-                                          )
-                                        ],
-                                      ),
-                                      if(index != snapshot.data!.length - 1) Divider(
-                                        color: tertiaryColor,
-                                        thickness: 1.sp,
-                                      ),
-                                    ],
-                                  );
-                                })
-                              ),
-                            ),
-                            Text("Completed Orders", style: Theme.of(context).textTheme.headlineLarge,),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     Text("Awaiting Orders", style: Theme.of(context).textTheme.headlineLarge,),
+                            //     if(ref.watch(manyOrders)) TextButton(
+                            //       onPressed: (){
+                            //         ref.read(seeMoreOrders.notifier).state = !ref.read(seeMoreOrders);
+                            //       }, 
+                            //       child: Text(ref.watch(seeMoreOrders)? "See less" : "See more")
+                            //       )
+                            //   ],
+                            // ),
+                            // AnimatedContainer(
+                            //   width: 100.w,
+                            //   padding: EdgeInsets.all(16.sp),
+                            //   //height: ref.watch(seeMoreOrders)? 80.h : 40.h,
+                            //   duration: Duration(milliseconds: 300),
+                            //   decoration: BoxDecoration(
+                            //     color: Colors.white,
+                            //     borderRadius: BorderRadius.circular(24.sp),
+                            //     boxShadow: [dropShadow],),
+                            //   child: Column(
+                            //     children: List.generate(
+                            //       // ref.watch(manyOrders) && ref.watch(seeMoreOrders)? snapshot.data!.length : 
+                            //       // ref.watch(manyOrders) && !ref.watch(seeMoreOrders)? 4 : snapshot.data!.length, 
+                            //       1,
+                            //       (index){
+                            //       int numOrders = 0;
+                            //       late double totalPrice;
+                            //       final DateTime timestamp = DateTime.parse(snapshot.data![index]['delivery_at']);
+                            //       for (var item in snapshot.data![index]['items']) {
+                            //         numOrders += int.parse(item['quantity']);
+                            //       }
+                            //       print(numOrders);
+                            //       return Column(
+                            //         children: [
+                            //           Row(
+                            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //             children: [
+                            //               Column(
+                            //                 crossAxisAlignment: CrossAxisAlignment.start,
+                            //                 children: [
+                            //                   Text('${snapshot.data![index]['client_name']}', style: Theme.of(context).textTheme.headlineMedium,),
+                            //                   Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                            //                 ],
+                            //               ),
+                            //               Container(
+                            //                 alignment: Alignment.center,
+                            //                 width: 30.w,
+                            //                 height: 8.w,
+                            //                 decoration: BoxDecoration(
+                            //                   color: tertiaryColor.withOpacity(0.5),
+                            //                   borderRadius: BorderRadius.circular(24.sp),
+                            //                 ),
+                            //                 child: Row(
+                            //                   mainAxisAlignment: MainAxisAlignment.center,
+                            //                   children: [
+                            //                     Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                            //                     HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
+                            //                   ],
+                            //                 )
+                            //               )
+                            //             ],
+                            //           ),
+                            //           if(index != snapshot.data!.length - 1) Divider(
+                            //             color: tertiaryColor,
+                            //             thickness: 1.sp,
+                            //           ),
+                            //         ],
+                            //       );
+                            //     })
+                            //   ),
+                            // ),
+                            Text("Confirmed Orders", style: Theme.of(context).textTheme.headlineLarge,),
                             // Completed Orders
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

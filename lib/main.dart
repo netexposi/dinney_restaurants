@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 100.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/test.png"),
+                  image: AssetImage("assets/images/test.jpeg"),
                   fit: BoxFit.cover
                   )),
             ),
