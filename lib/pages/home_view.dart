@@ -1,6 +1,7 @@
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/blurry_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -179,7 +180,14 @@ class HomeView extends ConsumerWidget{
                                             // suggesting button
                                             OutlinedButton(
                                               style: outlinedBeige.copyWith(fixedSize: WidgetStateProperty.all<Size>(Size(27.w, 4.h))),
-                                              onPressed: (){}, 
+                                              onPressed: (){
+                                                showDialog(
+                                                  context: context, 
+                                                  builder: (context){
+                                                    return suggestionDialog();
+                                                  }
+                                                  );
+                                              }, 
                                               child: Text("Suggest")
                                               )
                                           ],
@@ -332,4 +340,106 @@ class HomeView extends ConsumerWidget{
       ),
     );
   }
+}
+
+class suggestionDialog extends ConsumerWidget{
+  List<String> suggestions = ["At Table", "To Pick Up"];
+  final suggestionProvider = StateProvider<List<bool>>((ref) => [true, false]);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24.sp),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16.sp),
+        child: Column(
+          spacing: 16.sp,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Suggest a change", style: Theme.of(context).textTheme.headlineMedium,),
+            Row(
+              spacing: 16.sp,
+              children: List.generate(2, (index){
+                return OutlinedButton(
+                  onPressed: (){
+                    if(index == 0){
+                      ref.read(suggestionProvider.notifier).state = [true, false];
+                    }else{
+                      ref.read(suggestionProvider.notifier).state = [false, true];
+                    }
+                  },
+                  style: outlinedBeige.copyWith(
+                    fixedSize: WidgetStateProperty.all<Size>(Size(33.w, 4.h)),
+                    backgroundColor: WidgetStateProperty.all<Color>(ref.watch(suggestionProvider)[index]? secondaryColor : Colors.transparent),
+                  ), 
+                  child: Text(suggestions[index], 
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: ref.watch(suggestionProvider)[index]? Colors.white : tertiaryColor,
+                      fontWeight: ref.watch(suggestionProvider)[index]? FontWeight.bold : FontWeight.normal
+                    ))
+                  );
+              }),
+            ),
+            SizedBox(
+              height: 200,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Hour picker
+                  SizedBox(
+                    width: 60,
+                    child: ListWheelScrollView.useDelegate(
+                      itemExtent: 40,
+                      onSelectedItemChanged: (index) => print('Hour: ${9 + index}'),
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        builder: (context, index) => Center(
+                          child: Text(
+                            (9 + index).toString().padLeft(2, '0'),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        childCount: 9, // 9:00 to 17:00
+                      ),
+                    ),
+                  ),
+                  const Text(':', style: TextStyle(fontSize: 18)),
+                  // Minute picker
+                  SizedBox(
+                    width: 60,
+                    child: ListWheelScrollView.useDelegate(
+                      itemExtent: 40,
+                      onSelectedItemChanged: (index) => print('Minute: $index'),
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        builder: (context, index) => Center(
+                          child: Text(
+                            index.toString().padLeft(2, '0'),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        childCount: 60, // 00 to 59
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async{
+                // // Suggest the change
+                // await supabase.from('orders').update({
+                //   'suggested': true,
+                //   'awaiting': false,
+                // }).eq('id', unrespondedOrders[index]['id']);
+                // Navigator.pop(context);
+              },
+              child: Text("Suggest")
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
 }
