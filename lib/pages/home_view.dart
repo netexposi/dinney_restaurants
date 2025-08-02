@@ -392,57 +392,133 @@ class HomeView extends ConsumerWidget{
                                                     spacing: 16.sp,
                                                     children: List.generate(toPickUpOrders.length, (index){
                                                       int numOrders = 0;
-                                                      late double totalPrice;
+                                                      int totalPrice = 0;
                                                       final DateTime timestamp = DateTime.parse(toPickUpOrders[index]['delivery_at']);
                                                       for (var item in toPickUpOrders[index]['items']) {
+                                                        totalPrice += item['price per one']* item['quantity'] as int;
                                                         numOrders += item['quantity'] as int;
                                                       }
                                                       print(numOrders);
-                                                      return Column(
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            children: [
-                                                              Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                children: [
-                                                                  Text(
-                                                                    '${toPickUpOrders[index]['client_name'].toString().length > 15 
-                                                                      ? '${toPickUpOrders[index]['client_name'].toString().substring(0, 15)}...'
-                                                                      : toPickUpOrders[index]['client_name']}',
-                                                                    style: Theme.of(context).textTheme.headlineMedium,
+                                                      return InkWell(
+                                                        onTap: (){
+                                                          //Navigator.of(context).pop();
+                                                          showDialog(context: context, builder: (context){
+                                                            return Dialog(
+                                                              child: IntrinsicWidth(
+                                                                stepWidth: 100.w,
+                                                                child: IntrinsicHeight(
+                                                                  child: Padding(
+                                                                    padding: EdgeInsets.all(16.sp),
+                                                                    child: Column(
+                                                                      spacing: 16.sp,
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        Row(
+                                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            //TODO add a total price text
+                                                                            Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text('${toPickUpOrders[index]['client_name'].toString().length > 15 
+                                                                                  ? '${toPickUpOrders[index]['client_name'].toString().substring(0, 15)}...'
+                                                                                  : toPickUpOrders[index]['client_name']}', 
+                                                                                  style: Theme.of(context).textTheme.headlineMedium),
+                                                                                Text(toPickUpOrders[index]["at_table"]? "At Table" : "To Pick Up", 
+                                                                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                              ],
+                                                                            ),
+                                                                            Text(DateFormat.Hm().format(timestamp), 
+                                                                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                          ],
+                                                                        ),
+                                                                        ...List.generate(toPickUpOrders[index]['items'].length, (itemIndex){
+                                                                          return Text("${toPickUpOrders[index]['items'][itemIndex]['category']} ${toPickUpOrders[index]['items'][itemIndex]['name']} ${toPickUpOrders[index]['items'][itemIndex]['size'] ?? ""} x ${toPickUpOrders[index]['items'][itemIndex]['quantity']}");
+                                                                        }),
+                                                                        Row(
+                                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Text("Total Price", style: Theme.of(context).textTheme.headlineSmall),
+                                                                            Text("$totalPrice DA", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                                                                          ],
+                                                                        ),
+                                                                        Center(
+                                                                          child: TextButton(
+                                                                            style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                              foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                                                                            ),
+                                                                            onPressed: (){
+                                                                              //TODO First we inform the client with a push notification
+                                                                              //TODO Then we remove the row from the database
+                                                                            }, 
+                                                                            child: Text("Cancel Order")
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    ),
                                                                   ),
-                                                                  Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          });
+                                                        },
+                                                        borderRadius: BorderRadius.circular(24.sp),
+                                                        child: Padding(
+                                                          padding: EdgeInsets.all(8.sp),
+                                                          child: Column(
+                                                            children: [
+                                                              Row(
+                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                children: [
+                                                                  Column(
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+                                                                      Text(
+                                                                        '${toPickUpOrders[index]['client_name'].toString().length > 15 
+                                                                          ? '${toPickUpOrders[index]['client_name'].toString().substring(0, 15)}...'
+                                                                          : toPickUpOrders[index]['client_name']}',
+                                                                        style: Theme.of(context).textTheme.headlineMedium,
+                                                                      ),
+                                                                      Row(
+                                                                        spacing: 8.sp,
+                                                                        children: [
+                                                                          Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                          Text(toPickUpOrders[index]["at_table"]? "• At Table" : "• To Pick Up", 
+                                                                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  Column(
+                                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                                    children: [
+                                                                      Container(
+                                                                        alignment: Alignment.center,
+                                                                        width: 30.w,
+                                                                        height: 8.w,
+                                                                        decoration: BoxDecoration(
+                                                                          color: tertiaryColor.withOpacity(0.5),
+                                                                          borderRadius: BorderRadius.circular(24.sp),
+                                                                        ),
+                                                                        child: Row(
+                                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                                          children: [
+                                                                            Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                            HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
+                                                                          ],
+                                                                        )
+                                                                      ),
+                                                                    ],
+                                                                  )
                                                                 ],
                                                               ),
-                                                              Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                                children: [
-                                                                  Container(
-                                                                    alignment: Alignment.center,
-                                                                    width: 30.w,
-                                                                    height: 8.w,
-                                                                    decoration: BoxDecoration(
-                                                                      color: tertiaryColor.withOpacity(0.5),
-                                                                      borderRadius: BorderRadius.circular(24.sp),
-                                                                    ),
-                                                                    child: Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                                      children: [
-                                                                        Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                                                        HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
-                                                                      ],
-                                                                    )
-                                                                  ),
-                                                                ],
-                                                              )
+                                                              if(index != toPickUpOrders.length - 1) Divider(
+                                                                color: tertiaryColor,
+                                                                thickness: 1.sp,
+                                                              ),
                                                             ],
                                                           ),
-                                                          if(index != toPickUpOrders.length - 1) Divider(
-                                                            color: tertiaryColor,
-                                                            thickness: 1.sp,
-                                                          ),
-                                                        ],
+                                                        ),
                                                       );
                                                     }),
                                                   ),
