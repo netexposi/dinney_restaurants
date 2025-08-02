@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Restaurant {
   final int? id;
   final String name;
@@ -7,8 +9,8 @@ class Restaurant {
   final List<String> tags = [];
   final List<String> urls;
   final Map<String, double> rating = {};
-  final String opening = '';
-  final String closing = '';
+  final String opening = "09:30:00";
+  final String closing = "23:15:00";
 
   Restaurant({
     this.id,

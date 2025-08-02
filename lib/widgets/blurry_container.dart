@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-class BlurryContainer extends StatelessWidget {
+class BlurryContainer extends StatefulWidget {
   final Widget child;
   final double? width;
   final double? height;
@@ -15,63 +15,107 @@ class BlurryContainer extends StatelessWidget {
     required this.child,
     this.width,
     this.height,
-    this.blurSigma = 16.0, // Set to 16 as per Figma spec
+    this.blurSigma = 16.0,
     this.color,
     this.borderRadius,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final radius = borderRadius ?? BorderRadius.circular(16.sp);
+  BlurryContainerState createState() => BlurryContainerState();
+}
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          color: Colors.black.withOpacity(0.15), // 15% black fill
-          border: Border.all(
-            width: 1,
-            // Stroke: linear from white → #b2b2b2 → white
-            color: Colors.white.withOpacity(0.8), // fallback for border
-          ),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.8),     // 80% white
-              const Color(0xFFB2B2B2).withOpacity(0.2), // 20% #b2b2b2
-              Colors.white.withOpacity(0.8),     // 80% white
+class BlurryContainerState extends State<BlurryContainer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.15), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.15, end: 0.95), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.02), weight: 20),
+      TweenSequenceItem(tween: Tween(begin: 1.02, end: 1.0), weight: 10),
+    ]).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
+
+  /// Call this from outside using a GlobalKey to trigger the bounce animation.
+  void bounce() {
+    _controller.forward(from: 0.0);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = widget.borderRadius ?? BorderRadius.circular(16.sp);
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            color: Colors.black.withOpacity(0.15),
+            border: Border.all(
+              width: 1,
+              color: Colors.white.withOpacity(0.8),
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.8),
+                const Color(0xFFB2B2B2).withOpacity(0.2),
+                Colors.white.withOpacity(0.8),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.195),
+                offset: const Offset(0, 12),
+                blurRadius: 40,
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.102),
+                offset: const Offset(0, 2),
+                blurRadius: 20,
+                spreadRadius: 6,
+              ),
             ],
-            stops: const [0.0, 0.5, 1.0],
           ),
-          boxShadow: [
-            // Drop shadow
-            BoxShadow(
-              color: Colors.black.withOpacity(0.195),
-              offset: const Offset(0, 12),
-              blurRadius: 40,
-            ),
-            // Simulate inner shadow using inset blur (Flutter doesn’t support real inner shadows natively)
-            BoxShadow(
-              color: Colors.white.withOpacity(0.102),
-              offset: const Offset(0, 2),
-              blurRadius: 20,
-              spreadRadius: 6,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Apply the blur filter
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-              child: Container(color: Colors.transparent),
-            ),
-            Center(child: child),
-          ],
+          child: Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: widget.blurSigma,
+                  sigmaY: widget.blurSigma,
+                ),
+                child: Container(color: Colors.transparent),
+              ),
+              Center(child: widget.child),
+            ],
+          ),
         ),
       ),
     );

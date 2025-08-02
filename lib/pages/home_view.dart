@@ -19,6 +19,9 @@ class HomeView extends ConsumerWidget{
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var id = supabase.auth.currentUser?.id;
+    final List<GlobalKey<BlurryContainerState>> blurryKeys = [
+        GlobalKey<BlurryContainerState>(),
+        GlobalKey<BlurryContainerState>()];
     print(id);
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -85,16 +88,20 @@ class HomeView extends ConsumerWidget{
                         // filtering to get confirmed orders
                         final confirmedOrders = snapshot.data!.where(
                           (item) => item['validated'] == true && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
+                        // this two lists are used to count the number of CONFIRMED orders at table and to pick up
+                        final atTableOrders = confirmedOrders.where((item) => item['at_table'] == true).toList();
+                        final toPickUpOrders = confirmedOrders.where((item) => item['at_table'] == false).toList();
                         
-                        final numAtTable = confirmedOrders.where((item) => item['at_table'] == true).length;
-                        final numToPickUp = confirmedOrders.where((item) => item['at_table'] == false).length;
+                        final numAtTable = atTableOrders.length;
+                        final numToPickUp = toPickUpOrders.length;
                         print("Number of orders at table: $numAtTable and to pick up: $numToPickUp");
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 16.sp,
                           children: [
                             //Responding to orders
-                            Text("Arriving Orders", style: Theme.of(context).textTheme.headlineLarge,),
+                            //TODO make a beautiful emptiness message
+                            if(unrespondedOrders.isNotEmpty) Text("Arriving Orders", style: Theme.of(context).textTheme.headlineLarge,),
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
@@ -184,7 +191,7 @@ class HomeView extends ConsumerWidget{
                                                 showDialog(
                                                   context: context, 
                                                   builder: (context){
-                                                    return suggestionDialog();
+                                                    return suggestionDialog(id: unrespondedOrders[index]['id'], ref.watch(userDocumentsProvider)['opening'], ref.watch(userDocumentsProvider)['closing']);
                                                   }
                                                   );
                                               }, 
@@ -278,52 +285,202 @@ class HomeView extends ConsumerWidget{
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               spacing: 16.sp,
                               children: [
-                                Container(
-                                  alignment: Alignment.bottomCenter,
-                                  padding: EdgeInsets.all(16.sp),
-                                  width: (100.w - 16.sp * 3) / 2,
-                                  height: 70.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(24.sp),
-                                    boxShadow: [dropShadow],
-                                    image: DecorationImage(image: AssetImage("assets/images/at_table.png"), fit: BoxFit.cover)
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text("At Table", 
-                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                      BlurryContainer(
-                                        width: 35.w,
-                                        height: 13.w,
-                                        child: Text("$numAtTable order" + (numAtTable != 1? "s" : ""), 
-                                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
-                                        ),
-                                    ],
+                                InkWell(
+                                  //SECTION At Table
+                                  onTap: (){
+                                    if(numAtTable > 0){
+                                      showDialog(
+                                        context: context, 
+                                        builder: (context){
+                                          return Dialog(
+                                            child: Column(
+                                              spacing: 16.sp,
+                                              children: List.generate(atTableOrders.length, (index){
+                                                int numOrders = 0;
+                                                late double totalPrice;
+                                                final DateTime timestamp = DateTime.parse(atTableOrders[index]['delivery_at']);
+                                                for (var item in atTableOrders[index]['items']) {
+                                                  numOrders += int.parse(item['quantity']);
+                                                }
+                                                print(numOrders);
+                                                return Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text('${snapshot.data![index]['client_name']}', style: Theme.of(context).textTheme.headlineMedium,),
+                                                            Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                          alignment: Alignment.center,
+                                                          width: 30.w,
+                                                          height: 8.w,
+                                                          decoration: BoxDecoration(
+                                                            color: tertiaryColor.withOpacity(0.5),
+                                                            borderRadius: BorderRadius.circular(24.sp),
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                              HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
+                                                            ],
+                                                          )
+                                                        )
+                                                      ],
+                                                    ),
+                                                    if(index != snapshot.data!.length - 1) Divider(
+                                                      color: tertiaryColor,
+                                                      thickness: 1.sp,
+                                                    ),
+                                                  ],
+                                                );
+                                              }),
+                                            ),
+                                          );
+                                        }
+                                      );
+                                    }else{
+                                      blurryKeys[0].currentState?.bounce();
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(24.sp),
+                                  child: Container(
+                                    alignment: Alignment.bottomCenter,
+                                    padding: EdgeInsets.all(16.sp),
+                                    width: (100.w - 16.sp * 3) / 2,
+                                    height: 70.w,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24.sp),
+                                      boxShadow: [dropShadow],
+                                      image: DecorationImage(image: AssetImage("assets/images/at_table.png"), fit: BoxFit.cover)
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("At Table", 
+                                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        BlurryContainer(
+                                          key: blurryKeys[0],
+                                          width: 35.w,
+                                          height: 13.w,
+                                          child: Text("$numAtTable order" + (numAtTable != 1? "s" : ""), 
+                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                Container(
-                                  alignment: Alignment.bottomCenter,
-                                  padding: EdgeInsets.all(16.sp),
-                                  width: (100.w - 16.sp * 3) / 2,
-                                  height: 70.w,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(24.sp),
-                                    boxShadow: [dropShadow],
-                                    image: DecorationImage(image: AssetImage("assets/images/to_pick_up.png"), fit: BoxFit.cover)
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text("To Pick Up", 
-                                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                      BlurryContainer(
-                                        width: 35.w,
-                                        height: 13.w,
-                                        child: Text("$numToPickUp order" + (numToPickUp != 1? "s" : ""), 
-                                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
-                                        ),
-                                    ],
+                                InkWell(
+                                  onTap: (){
+                                    if(numToPickUp > 0){
+                                      showDialog(
+                                        context: context, 
+                                        builder: (context){
+                                          return Dialog(
+                                            child: SizedBox(
+                                              width: 100.w,
+                                              height: 50.h,
+                                              child: Padding(
+                                                padding: EdgeInsets.all(16.sp),
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    spacing: 16.sp,
+                                                    children: List.generate(toPickUpOrders.length, (index){
+                                                      int numOrders = 0;
+                                                      late double totalPrice;
+                                                      final DateTime timestamp = DateTime.parse(toPickUpOrders[index]['delivery_at']);
+                                                      for (var item in toPickUpOrders[index]['items']) {
+                                                        numOrders += item['quantity'] as int;
+                                                      }
+                                                      print(numOrders);
+                                                      return Column(
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  Text(
+                                                                    '${toPickUpOrders[index]['client_name'].toString().length > 15 
+                                                                      ? '${toPickUpOrders[index]['client_name'].toString().substring(0, 15)}...'
+                                                                      : toPickUpOrders[index]['client_name']}',
+                                                                    style: Theme.of(context).textTheme.headlineMedium,
+                                                                  ),
+                                                                  Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                ],
+                                                              ),
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                                children: [
+                                                                  Container(
+                                                                    alignment: Alignment.center,
+                                                                    width: 30.w,
+                                                                    height: 8.w,
+                                                                    decoration: BoxDecoration(
+                                                                      color: tertiaryColor.withOpacity(0.5),
+                                                                      borderRadius: BorderRadius.circular(24.sp),
+                                                                    ),
+                                                                    child: Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                      children: [
+                                                                        Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                        HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
+                                                                      ],
+                                                                    )
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                          if(index != toPickUpOrders.length - 1) Divider(
+                                                            color: tertiaryColor,
+                                                            thickness: 1.sp,
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      );
+                                    }else{
+                                      blurryKeys[1].currentState?.bounce();
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(24.sp),
+                                  child: Container(
+                                    alignment: Alignment.bottomCenter,
+                                    padding: EdgeInsets.all(16.sp),
+                                    width: (100.w - 16.sp * 3) / 2,
+                                    height: 70.w,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24.sp),
+                                      boxShadow: [dropShadow],
+                                      image: DecorationImage(image: AssetImage("assets/images/to_pick_up.png"), fit: BoxFit.cover)
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text("To Pick Up", 
+                                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        BlurryContainer(
+                                          key: blurryKeys[1],
+                                          width: 35.w,
+                                          height: 13.w,
+                                          child: Text("$numToPickUp order${numToPickUp != 1? "s" : ""}", 
+                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -343,10 +500,45 @@ class HomeView extends ConsumerWidget{
 }
 
 class suggestionDialog extends ConsumerWidget{
+  final int id;
+  final String opening;
+  final String closing;
   List<String> suggestions = ["At Table", "To Pick Up"];
   final suggestionProvider = StateProvider<List<bool>>((ref) => [true, false]);
+  final suggestionButton = StateProvider<bool>((ref) => false);
+  int selectedHour = 0;
+  int selectedMinute = 0;
+  TimeOfDay? parseTimeString(String timeString) {
+    try {
+      // Split the time string by ':'
+      final components = timeString.split(':');
+      if (components.length < 2 || components.length > 3) {
+        return null; // Invalid format
+      }
+
+      // Parse hour and minute
+      final hour = int.tryParse(components[0]);
+      final minute = int.tryParse(components[1]);
+
+      // Validate parsed values
+      if (hour == null || minute == null || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+        return null; // Invalid hour or minute
+      }
+
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      return null; // Return null on any parsing error
+    }
+  }
+
+  suggestionDialog(this.opening, this.closing, {super.key, required this.id});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var openingTime = parseTimeString(opening);
+    final closingTime = parseTimeString(closing);
+    if(openingTime!.isBefore(TimeOfDay.now())){
+      openingTime = TimeOfDay.now();
+    }
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.sp),
@@ -356,9 +548,8 @@ class suggestionDialog extends ConsumerWidget{
         child: Column(
           spacing: 16.sp,
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Suggest a change", style: Theme.of(context).textTheme.headlineMedium,),
             Row(
               spacing: 16.sp,
               children: List.generate(2, (index){
@@ -383,41 +574,88 @@ class suggestionDialog extends ConsumerWidget{
               }),
             ),
             SizedBox(
-              height: 200,
+              height: 25.h, // Responsive height using Sizer
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min, // Prevent unnecessary space
                 children: [
                   // Hour picker
                   SizedBox(
-                    width: 60,
+                    width: 20.w, // Responsive width
                     child: ListWheelScrollView.useDelegate(
-                      itemExtent: 40,
-                      onSelectedItemChanged: (index) => print('Hour: ${9 + index}'),
+                      itemExtent: 5.h, // Responsive item height
+                      diameterRatio: 1.5, // Controls the wheel curvature
+                      magnification: 1.3, // Magnify selected item
+                      useMagnifier: true, // Enable magnification effect
+                      onSelectedItemChanged: (index) {
+                        selectedHour = openingTime!.hour + index;
+                        final selectedTime = parseTimeString("$selectedHour:$selectedMinute");
+                        if(selectedTime!.isAfter(openingTime) && selectedTime.isBefore(closingTime)){
+                          ref.read(suggestionButton.notifier).state = true;
+                        }else {
+                          ref.read(suggestionButton.notifier).state = false;
+                        }
+                        //hour =  + index;
+                      },
                       childDelegate: ListWheelChildBuilderDelegate(
-                        builder: (context, index) => Center(
-                          child: Text(
-                            (9 + index).toString().padLeft(2, '0'),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ),
-                        childCount: 9, // 9:00 to 17:00
+                        builder: (context, index) {
+                          var hour = openingTime!.hour + index;
+                          return Center(
+                            child: Text(
+                              hour.toString().padLeft(2, '0'),
+                              style: TextStyle(
+                                fontSize: 14.sp, // Responsive font size
+                                fontWeight: FontWeight.bold, // Bolder for selected
+                                color: Colors.black87,
+                              ),
+                            ),
+                          );
+                        },
+                        childCount: (closingTime!.hour - openingTime.hour) + 1, // 9:00 to 17:00
                       ),
                     ),
                   ),
-                  const Text(':', style: TextStyle(fontSize: 18)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    child: Text(
+                      ':',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   // Minute picker
                   SizedBox(
-                    width: 60,
+                    width: 20.w, // Responsive width
                     child: ListWheelScrollView.useDelegate(
-                      itemExtent: 40,
-                      onSelectedItemChanged: (index) => print('Minute: $index'),
+                      itemExtent: 5.h, // Responsive item height
+                      diameterRatio: 1.5,
+                      magnification: 1.3, // Magnify selected item
+                      useMagnifier: true,
+                      onSelectedItemChanged: (index) { 
+                        print('Minute: $index');
+                        selectedMinute = index;
+                        final selectedTime = parseTimeString("$selectedHour:$selectedMinute:00");
+                        if(selectedTime!.isAfter(openingTime!) && selectedTime.isBefore(closingTime!)){
+                          ref.read(suggestionButton.notifier).state = true;
+                        }else {
+                          ref.read(suggestionButton.notifier).state = false;
+                        }
+                      },
                       childDelegate: ListWheelChildBuilderDelegate(
-                        builder: (context, index) => Center(
-                          child: Text(
-                            index.toString().padLeft(2, '0'),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ),
+                        builder: (context, index) {
+                          return Center(
+                            child: Text(
+                              index.toString().padLeft(2, '0'),
+                              style: TextStyle(
+                                fontSize: 14.sp, // Responsive font size
+                                fontWeight: FontWeight.bold, // Bolder for selected
+                                color: Colors.black87,
+                              ),
+                            ),
+                          );
+                        },
                         childCount: 60, // 00 to 59
                       ),
                     ),
@@ -425,14 +663,22 @@ class suggestionDialog extends ConsumerWidget{
                 ],
               ),
             ),
-            ElevatedButton(
+            if(ref.watch(suggestionButton)) ElevatedButton(
               onPressed: () async{
-                // // Suggest the change
-                // await supabase.from('orders').update({
-                //   'suggested': true,
-                //   'awaiting': false,
-                // }).eq('id', unrespondedOrders[index]['id']);
-                // Navigator.pop(context);
+                // TODO send notification to user;
+                await supabase.from('orders').update(({
+                  'suggested' : true,
+                  'awaiting' : false,
+                  'at_table' : ref.watch(suggestionProvider)[0],
+                  'delivery_at' : DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month,
+                    DateTime.now().day,
+                    selectedHour,
+                    selectedMinute
+                  ).toIso8601String()
+                })).eq('id', id);
+                Navigator.pop(context);
               },
               child: Text("Suggest")
             )
