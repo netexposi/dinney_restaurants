@@ -129,6 +129,7 @@ class MenuCreationView extends ConsumerWidget {
   void _showAddCategoryDialog(BuildContext context, WidgetRef ref) {
     TextEditingController categoryController = TextEditingController();
     bool multiSizes = false;
+    bool notable = false;
     List<Map<String, dynamic>> currentItems = [];
 
     showDialog(
@@ -161,6 +162,19 @@ class MenuCreationView extends ConsumerWidget {
                             onChanged: (value) {
                               setState(() {
                                 multiSizes = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      if(currentItems.isEmpty) Row(
+                        children: [
+                          Text("Multi size"),
+                          Checkbox(
+                            value: notable,
+                            onChanged: (value) {
+                              setState(() {
+                                notable = value!;
                               });
                             },
                           ),
@@ -212,6 +226,7 @@ class MenuCreationView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
+                            "notable": notable
                           };
                           //await _saveToSupabase(newCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
@@ -234,6 +249,7 @@ class MenuCreationView extends ConsumerWidget {
     TextEditingController categoryController = TextEditingController(text: category["name"]);
     final bool multiSizes = category["multiSizes"]; // Make multiSizes immutable
     List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(category["items"] ?? []);
+    final bool notable = category["notable"];
 
     showDialog(
       context: context,
@@ -327,6 +343,7 @@ class MenuCreationView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
+                            "notable": notable
                           };
                           //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) {

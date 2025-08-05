@@ -53,12 +53,17 @@ class MyApp extends StatelessWidget {
           headlineMedium: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
-            color: Colors.black
+            color: Colors.white
+          ),
+          headlineSmall: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.normal,
+            color: Colors.white
           ),
           bodyMedium: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.normal,
-            color: Colors.black
+            color: Colors.white
           ),
           bodySmall: TextStyle(
             fontSize: 14.sp,
@@ -68,7 +73,7 @@ class MyApp extends StatelessWidget {
           labelSmall: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.normal,
-            color: Colors.black
+            color: Colors.white
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(

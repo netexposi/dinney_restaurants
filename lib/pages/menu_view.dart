@@ -82,10 +82,10 @@ class MenuView extends ConsumerWidget {
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.grey[300],
+                              color: tertiaryColor.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(16.sp),
                             ),
-                            child: Text(menu[ind]["name"]),
+                            child: Text(menu[ind]["name"],),
                           ),
                         );
                       },
@@ -156,6 +156,7 @@ class MenuView extends ConsumerWidget {
   void _showAddCategoryDialog(BuildContext context, WidgetRef ref) {
     TextEditingController categoryController = TextEditingController();
     bool multiSizes = false;
+    bool notable = false;
     List<Map<String, dynamic>> currentItems = [];
 
     showDialog(
@@ -188,6 +189,19 @@ class MenuView extends ConsumerWidget {
                             onChanged: (value) {
                               setState(() {
                                 multiSizes = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      if(currentItems.isEmpty) Row(
+                        children: [
+                          Text("Additional note field"),
+                          Checkbox(
+                            value: notable,
+                            onChanged: (value) {
+                              setState(() {
+                                notable = value!;
                               });
                             },
                           ),
@@ -239,10 +253,25 @@ class MenuView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
+                            "notable": notable
                           };
                           //await _saveToSupabase(newCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
                           ref.read(saveProvider.notifier).state = true;
+                          final supabase = Supabase.instance.client;
+                              late var query;
+                              try {
+                                query =  await supabase
+                                  .from('menu')
+                                  .update({'menu': ref.watch(menuProvider)})
+                                  .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
+                                // You can return or use the insertedClient if needed
+                              } on PostgrestException catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                              }
+                              ref.read(saveProvider.notifier).state = false;
                           Navigator.pop(context1);
                         },
                         child: Text("Save"),
@@ -261,6 +290,7 @@ class MenuView extends ConsumerWidget {
   void _showEditCategoryDialog(BuildContext context, WidgetRef ref, int categoryIndex, Map<String, dynamic> category) {
     TextEditingController categoryController = TextEditingController(text: category["name"]);
     final bool multiSizes = category["multiSizes"]; // Make multiSizes immutable
+    final bool notable = category["notable"];
     List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(category["items"] ?? []);
 
     showDialog(
@@ -355,6 +385,7 @@ class MenuView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
+                            "notable": notable ?? false
                           };
                           //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) {
