@@ -165,118 +165,121 @@ class MenuView extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context1, setState) {
             return Dialog(
-              backgroundColor: backgroundColor,
+              backgroundColor: Colors.white,
+              insetPadding: EdgeInsets.all(16.sp),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24.sp),
               ),
-              child: SizedBox(
-                width: 100.w,
-                child: Padding(
-                  padding: EdgeInsets.all(16.sp),
-                  child: Column(
-                    spacing: 16.sp,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InputField(
-                        controller: categoryController,
-                        hintText: "Category Name",
-                      ),
-                      if(currentItems.isEmpty) Row(
-                        children: [
-                          Text("Multi size"),
-                          Checkbox(
-                            value: multiSizes,
-                            onChanged: (value) {
-                              setState(() {
-                                multiSizes = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      if(currentItems.isEmpty) Row(
-                        children: [
-                          Text("Additional note field"),
-                          Checkbox(
-                            value: notable,
-                            onChanged: (value) {
-                              setState(() {
-                                notable = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      currentItems.isEmpty
-                          ? Text("No items")
-                          : Column(
-                              spacing: 16.sp,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: List.generate(currentItems.length, (index) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.sp),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(currentItems[index]["name"]),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          if (multiSizes)
-                                          Text("X    XL    XXL"),
-                                          Text(multiSizes
-                                              ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
-                                              : "${currentItems[index]["sizes"][0]}"),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
+              child: IntrinsicWidth(
+                stepWidth: 100.w,
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.sp),
+                    child: Column(
+                      spacing: 16.sp,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InputField(
+                          controller: categoryController,
+                          hintText: "Category Name",
+                        ),
+                        if(currentItems.isEmpty) Row(
+                          children: [
+                            Text("Multi size"),
+                            Checkbox(
+                              value: multiSizes,
+                              onChanged: (value) {
+                                setState(() {
+                                  multiSizes = value!;
+                                });
+                              },
                             ),
-                      OutlinedButton(
-                        onPressed: () {
-                          _showAddItemDialog(context, setState, multiSizes, currentItems);
-                        },
-                        child: Text("Add Item"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Category name and at least one item are required")),
-                            );
-                            return;
-                          }
-                          final newCategory = {
-                            "name": categoryController.text,
-                            "multiSizes": multiSizes,
-                            "items": currentItems,
-                            "notable": notable
-                          };
-                          //await _saveToSupabase(newCategory, restaurantId);
-                          ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
-                          ref.read(saveProvider.notifier).state = true;
-                          final supabase = Supabase.instance.client;
-                              late var query;
-                              try {
-                                query =  await supabase
-                                  .from('menu')
-                                  .update({'menu': ref.watch(menuProvider)})
-                                  .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
-                                // You can return or use the insertedClient if needed
-                              } on PostgrestException catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
-                              }
-                              ref.read(saveProvider.notifier).state = false;
-                          Navigator.pop(context1);
-                        },
-                        child: Text("Save"),
-                      ),
-                    ],
+                          ],
+                        ),
+                        if(currentItems.isEmpty) Row(
+                          children: [
+                            Text("Additional note field"),
+                            Checkbox(
+                              value: notable,
+                              onChanged: (value) {
+                                setState(() {
+                                  notable = value!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        currentItems.isEmpty
+                            ? Text("No items")
+                            : Column(
+                                spacing: 16.sp,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(currentItems.length, (index) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.sp),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(currentItems[index]["name"]),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            if (multiSizes)
+                                            Text("X    XL    XXL"),
+                                            Text(multiSizes
+                                                ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
+                                                : "${currentItems[index]["sizes"][0]}"),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                        OutlinedButton(
+                          onPressed: () {
+                            _showAddItemDialog(context, setState, multiSizes, currentItems);
+                          },
+                          child: Text("Add Item"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Category name and at least one item are required")),
+                              );
+                              return;
+                            }
+                            final newCategory = {
+                              "name": categoryController.text,
+                              "multiSizes": multiSizes,
+                              "items": currentItems,
+                              "notable": notable
+                            };
+                            //await _saveToSupabase(newCategory, restaurantId);
+                            ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
+                            ref.read(saveProvider.notifier).state = true;
+                            final supabase = Supabase.instance.client;
+                                late var query;
+                                try {
+                                  query =  await supabase
+                                    .from('menu')
+                                    .update({'menu': ref.watch(menuProvider)})
+                                    .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
+                                  // You can return or use the insertedClient if needed
+                                } on PostgrestException catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                                }
+                                ref.read(saveProvider.notifier).state = false;
+                            Navigator.pop(context1);
+                          },
+                          child: Text("Save"),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -299,136 +302,139 @@ class MenuView extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context1, setState) {
             return Dialog(
-              backgroundColor: backgroundColor,
+              insetPadding: EdgeInsets.all(16.sp),
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24.sp),
               ),
-              child: SizedBox(
-                width: 100.w,
-                child: Padding(
-                  padding: EdgeInsets.all(16.sp),
-                  child: Column(
-                    spacing: 16.sp,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InputField(
-                        controller: categoryController,
-                        hintText: "Category Name",
-                      ),
-                      currentItems.isEmpty
-                          ? Text("No items")
-                          : Column(
-                              spacing: 16.sp,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: List.generate(currentItems.length, (index) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.sp),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Expanded(
-                                        child: Text(currentItems[index]["name"]),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          if (multiSizes)
-                                          Text("X    XL    XXL"),
-                                          Text(multiSizes
-                                              ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
-                                              : "${currentItems[index]["sizes"][0]}"),
-                                        ],
-                                      ),
-                                      Switch(
-                                        value: currentItems[index]["isActive"] ?? true,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            currentItems[index]["isActive"] = value;
-                                          });
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.edit, size: 16.sp),
-                                        onPressed: () {
-                                          _showEditItemDialog(context, setState, multiSizes, currentItems, index);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete, size: 16.sp),
-                                        onPressed: () {
-                                          setState(() {
-                                            currentItems.removeAt(index);
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ),
-                      OutlinedButton(
-                        onPressed: () {
-                          _showAddItemDialog(context, setState, multiSizes, currentItems);
-                        },
-                        child: Text("Add Item"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Category name and at least one item are required")),
-                            );
-                            return;
-                          }
-                          final updatedCategory = {
-                            "name": categoryController.text,
-                            "multiSizes": multiSizes,
-                            "items": currentItems,
-                            "notable": notable ?? false
-                          };
-                          //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
-                          ref.read(menuProvider.notifier).update((state) {
-                            final newState = List<Map<String, dynamic>>.from(state);
-                            newState[categoryIndex] = updatedCategory;
-                            return newState;
-                          });
-                          print(ref.watch(menuProvider));
-                          print("the id of restaurant: ${ref.watch(userDocumentsProvider)['id']}");
-                          final supabase = Supabase.instance.client;
-                              late var query;
-                              try {
-                                query =  await supabase
-                                  .from('menu')
-                                  .update({'menu': ref.watch(menuProvider)})
-                                  .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
-                                // You can return or use the insertedClient if needed
-                              } on PostgrestException catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
-                              }
-                              ref.read(saveProvider.notifier).state = false;
-                          Navigator.pop(context1);
-                        },
-                        child: Text("Save"),
-                      ),
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.red),
+              child: IntrinsicWidth(
+                stepWidth: 100.w,
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.sp),
+                    child: Column(
+                      spacing: 16.sp,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InputField(
+                          controller: categoryController,
+                          hintText: "Category Name",
                         ),
-                        onPressed: () async {
-                          //await _deleteCategoryFromSupabase(category, restaurantId);
-                          ref.read(menuProvider.notifier).update((state) {
-                            final newState = List<Map<String, dynamic>>.from(state);
-                            newState.removeAt(categoryIndex);
-                            return newState;
-                          });
-                          Navigator.pop(context1);
-                        },
-                        child: Text("Delete Category", style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
+                        currentItems.isEmpty
+                            ? Text("No items")
+                            : Column(
+                                spacing: 16.sp,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(currentItems.length, (index) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.sp),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: Text(currentItems[index]["name"]),
+                                        ),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            if (multiSizes)
+                                            Text("X    XL    XXL"),
+                                            Text(multiSizes
+                                                ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
+                                                : "${currentItems[index]["sizes"][0]}"),
+                                          ],
+                                        ),
+                                        Switch(
+                                          value: currentItems[index]["isActive"] ?? true,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              currentItems[index]["isActive"] = value;
+                                            });
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.edit, size: 16.sp),
+                                          onPressed: () {
+                                            _showEditItemDialog(context, setState, multiSizes, currentItems, index);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.delete, size: 16.sp),
+                                          onPressed: () {
+                                            setState(() {
+                                              currentItems.removeAt(index);
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                        OutlinedButton(
+                          onPressed: () {
+                            _showAddItemDialog(context, setState, multiSizes, currentItems);
+                          },
+                          child: Text("Add Item"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Category name and at least one item are required")),
+                              );
+                              return;
+                            }
+                            final updatedCategory = {
+                              "name": categoryController.text,
+                              "multiSizes": multiSizes,
+                              "items": currentItems,
+                              "notable": notable ?? false
+                            };
+                            //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
+                            ref.read(menuProvider.notifier).update((state) {
+                              final newState = List<Map<String, dynamic>>.from(state);
+                              newState[categoryIndex] = updatedCategory;
+                              return newState;
+                            });
+                            print(ref.watch(menuProvider));
+                            print("the id of restaurant: ${ref.watch(userDocumentsProvider)['id']}");
+                            final supabase = Supabase.instance.client;
+                                late var query;
+                                try {
+                                  query =  await supabase
+                                    .from('menu')
+                                    .update({'menu': ref.watch(menuProvider)})
+                                    .eq('restaurantId', ref.watch(userDocumentsProvider)['id']);
+                                  // You can return or use the insertedClient if needed
+                                } on PostgrestException catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                                }
+                                ref.read(saveProvider.notifier).state = false;
+                            Navigator.pop(context1);
+                          },
+                          child: Text("Save"),
+                        ),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.red),
+                          ),
+                          onPressed: () async {
+                            //await _deleteCategoryFromSupabase(category, restaurantId);
+                            ref.read(menuProvider.notifier).update((state) {
+                              final newState = List<Map<String, dynamic>>.from(state);
+                              newState.removeAt(categoryIndex);
+                              return newState;
+                            });
+                            Navigator.pop(context1);
+                          },
+                          child: Text("Delete Category", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -453,59 +459,61 @@ class MenuView extends ConsumerWidget {
       context: context,
       builder: (context2) {
         return Dialog(
-          backgroundColor: backgroundColor,
+          insetPadding: EdgeInsets.all(16.sp),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.sp),
           ),
-          child: SizedBox(
-            width: 100.w,
-            height: 50.h,
-            child: Padding(
-              padding: EdgeInsets.all(16.sp),
-              child: Column(
-                spacing: 16.sp,
-                children: [
-                  InputField(
-                    controller: itemController,
-                    hintText: "Item Name",
-                  ),
-                  Column(
-                    children: List.generate(multiSizes ? 3 : 1, (index) {
-                      return InputField(
-                        controller: sizeControllers[index],
-                        hintText: sizes[index],
-                      );
-                    }),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (itemController.text.isEmpty ||
-                          (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
-                          (!multiSizes && sizeControllers[0].text.isEmpty)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("All fields must be filled")),
+          child: IntrinsicWidth(
+            stepWidth: 100.w,
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: EdgeInsets.all(16.sp),
+                child: Column(
+                  spacing: 16.sp,
+                  children: [
+                    InputField(
+                      controller: itemController,
+                      hintText: "Item Name",
+                    ),
+                    Column(
+                      children: List.generate(multiSizes ? 3 : 1, (index) {
+                        return InputField(
+                          controller: sizeControllers[index],
+                          hintText: sizes[index],
                         );
-                        return;
-                      }
-                      setState(() {
-                        currentItems.add({
-                          "name": itemController.text,
-                          "sizes": multiSizes
-                              ? [
-                                  int.parse(sizeControllers[0].text),
-                                  int.parse(sizeControllers[1].text),
-                                  int.parse(sizeControllers[2].text),
-                                ]
-                              : [int.parse(sizeControllers[0].text)],
-                          "isActive": true,
+                      }),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (itemController.text.isEmpty ||
+                            (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                            (!multiSizes && sizeControllers[0].text.isEmpty)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("All fields must be filled")),
+                          );
+                          return;
+                        }
+                        setState(() {
+                          currentItems.add({
+                            "name": itemController.text,
+                            "sizes": multiSizes
+                                ? [
+                                    int.parse(sizeControllers[0].text),
+                                    int.parse(sizeControllers[1].text),
+                                    int.parse(sizeControllers[2].text),
+                                  ]
+                                : [int.parse(sizeControllers[0].text)],
+                            "isActive": true,
+                          });
+                          print(currentItems);
+                          Navigator.pop(context2);
                         });
-                        print(currentItems);
-                        Navigator.pop(context2);
-                      });
-                    },
-                    child: Text("Add Item"),
-                  ),
-                ],
+                      },
+                      child: Text("Add Item"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -528,59 +536,61 @@ class MenuView extends ConsumerWidget {
       context: context,
       builder: (context2) {
         return Dialog(
-          backgroundColor: backgroundColor,
+          insetPadding: EdgeInsets.all(16.sp),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24.sp),
           ),
-          child: SizedBox(
-            width: 100.w,
-            height: 50.h,
-            child: Padding(
-              padding: EdgeInsets.all(16.sp),
-              child: Column(
-                spacing: 16.sp,
-                children: [
-                  InputField(
-                    controller: itemController,
-                    hintText: "Item Name",
-                  ),
-                  Column(
-                    children: List.generate(multiSizes ? 3 : 1, (index) {
-                      return InputField(
-                        controller: sizeControllers[index],
-                        hintText: sizes[index],
-                      );
-                    },
-                    )
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (itemController.text.isEmpty ||
-                          (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
-                          (!multiSizes && sizeControllers[0].text.isEmpty)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("All fields must be filled")),
+          child: IntrinsicWidth(
+            stepWidth: 100.w,
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: EdgeInsets.all(16.sp),
+                child: Column(
+                  spacing: 16.sp,
+                  children: [
+                    InputField(
+                      controller: itemController,
+                      hintText: "Item Name",
+                    ),
+                    Column(
+                      children: List.generate(multiSizes ? 3 : 1, (index) {
+                        return InputField(
+                          controller: sizeControllers[index],
+                          hintText: sizes[index],
                         );
-                        return;
-                      }
-                      setState(() {
-                        currentItems[itemIndex] = {
-                          "name": itemController.text,
-                          "sizes": multiSizes
-                              ? [
-                                  int.parse(sizeControllers[0].text),
-                                  int.parse(sizeControllers[1].text),
-                                  int.parse(sizeControllers[2].text),
-                                ]
-                              : [int.parse(sizeControllers[0].text)],
-                          "isActive": currentItems[itemIndex]["isActive"] ?? true,
-                        };
-                        Navigator.pop(context2);
-                      });
-                    },
-                    child: Text("Update Item"),
-                  ),
-                ],
+                      },
+                      )
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (itemController.text.isEmpty ||
+                            (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                            (!multiSizes && sizeControllers[0].text.isEmpty)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("All fields must be filled")),
+                          );
+                          return;
+                        }
+                        setState(() {
+                          currentItems[itemIndex] = {
+                            "name": itemController.text,
+                            "sizes": multiSizes
+                                ? [
+                                    int.parse(sizeControllers[0].text),
+                                    int.parse(sizeControllers[1].text),
+                                    int.parse(sizeControllers[2].text),
+                                  ]
+                                : [int.parse(sizeControllers[0].text)],
+                            "isActive": currentItems[itemIndex]["isActive"] ?? true,
+                          };
+                          Navigator.pop(context2);
+                        });
+                      },
+                      child: Text("Update Item"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -598,84 +608,83 @@ class RefDialog extends ConsumerWidget{
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Dialog(
-      child: SizedBox(
-        height: 50.h,
-        child: Padding(
-          padding: EdgeInsets.all(16.sp),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16.sp,
-            children: [
-              Text("Tags"),
-              SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 8.sp,
-                    crossAxisSpacing: 8.sp,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: tagImages.entries.length,
-                  itemBuilder: (context, ind) {
-                    final tagKey = tagImages.entries.elementAt(ind).key;
-                    return InkWell(
-                      onTap: () async{
-                        if(ref.watch(userDocumentsProvider)['tags'].contains(tagKey)){
-                          final currentState = ref.read(userDocumentsProvider.notifier).state;
-                          final updatedTags = List<String>.from(currentState['tags'] ?? [])..remove(tagKey);
-                          ref.read(userDocumentsProvider.notifier).state = {
-                            ...currentState,
-                            'tags': updatedTags,
-                          };
-                        } else {
-                          final currentState = ref.read(userDocumentsProvider.notifier).state;
-                          final updatedTags = List<String>.from(currentState['tags'] ?? [])..add(tagKey);
-                          ref.read(userDocumentsProvider.notifier).state = {
-                            ...currentState,
-                            'tags': updatedTags,
-                          };
-                        }
-                        final query = await supabase.from("restaurants").update({"tags" : ref.watch(userDocumentsProvider)['tags']})
-                          .eq('id', ref.watch(userDocumentsProvider)['id']);
-                      },
-                      child: Container(
-                        alignment: Alignment.bottomCenter,
-                        decoration: BoxDecoration(
-                        border: BoxBorder.all(
-                          color: primaryColor,
-                          width: ref.watch(userDocumentsProvider)['tags'].contains(tagKey)? 8.sp : 0.sp,
-                        ),
-                        borderRadius: BorderRadius.circular(24.sp),
-                        image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.sp),
-                          child: BlurryContainer(
-                            width: 19.w,
-                            height: 10.w,
-                            borderRadius: BorderRadius.circular(24.sp),
-                            child: Center(
-                              child: Text(
-                                "${tagImages.entries.elementAt(ind).key}",
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.4),
-                                    offset: Offset(2, 2),
-                                    blurRadius: 24,
-                                  ),
-                                ]),
-                                ))
-                            ),
-                        ),
-                      ),
-                    );
-                  },
+      insetPadding: EdgeInsets.all(16.sp),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(16.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16.sp,
+          children: [
+            Text("Tags"),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8.sp,
+                  crossAxisSpacing: 8.sp,
+                  childAspectRatio: 1,
                 ),
+                itemCount: tagImages.entries.length,
+                itemBuilder: (context, ind) {
+                  final tagKey = tagImages.entries.elementAt(ind).key;
+                  return InkWell(
+                    onTap: () async{
+                      if(ref.watch(userDocumentsProvider)['tags'].contains(tagKey)){
+                        final currentState = ref.read(userDocumentsProvider.notifier).state;
+                        final updatedTags = List<String>.from(currentState['tags'] ?? [])..remove(tagKey);
+                        ref.read(userDocumentsProvider.notifier).state = {
+                          ...currentState,
+                          'tags': updatedTags,
+                        };
+                      } else {
+                        final currentState = ref.read(userDocumentsProvider.notifier).state;
+                        final updatedTags = List<String>.from(currentState['tags'] ?? [])..add(tagKey);
+                        ref.read(userDocumentsProvider.notifier).state = {
+                          ...currentState,
+                          'tags': updatedTags,
+                        };
+                      }
+                      final query = await supabase.from("restaurants").update({"tags" : ref.watch(userDocumentsProvider)['tags']})
+                        .eq('id', ref.watch(userDocumentsProvider)['id']);
+                    },
+                    child: Container(
+                      alignment: Alignment.bottomCenter,
+                      decoration: BoxDecoration(
+                      border: BoxBorder.all(
+                        color: primaryColor,
+                        width: ref.watch(userDocumentsProvider)['tags'].contains(tagKey)? 8.sp : 0.sp,
+                      ),
+                      borderRadius: BorderRadius.circular(24.sp),
+                      image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.sp),
+                        child: BlurryContainer(
+                          width: 19.w,
+                          height: 10.w,
+                          borderRadius: BorderRadius.circular(24.sp),
+                          child: Center(
+                            child: Text(
+                              "${tagImages.entries.elementAt(ind).key}",
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.4),
+                                  offset: Offset(2, 2),
+                                  blurRadius: 24,
+                                ),
+                              ]),
+                              ))
+                          ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

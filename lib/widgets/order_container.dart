@@ -18,7 +18,7 @@ class OrderContainer extends ConsumerWidget{
     final supabase = Supabase.instance.client;
     return Container(
       padding: EdgeInsets.all(16.sp),
-      width: 70.w,
+      width: 80.w,
       //height: 20.h,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -30,35 +30,44 @@ class OrderContainer extends ConsumerWidget{
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                '${order['client_name'].toString().length > 15 
+                  ? order['client_name'].toString().substring(0, 15) + '...'
+                  : order['client_name']}',
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Colors.black),
+              ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${order['client_name'].toString().length > 15 
-                      ? order['client_name'].toString().substring(0, 15) + '...'
-                      : order['client_name']}',
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Colors.black),
-                  ),
+                  Text(DateFormat.Hm().format(DateTime.parse(order['delivery_at'])), 
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor)),
                   Text(order['at_table']? "At Table" : "To Pick Up", 
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor)),
                 ],
               ),
-              Text(DateFormat.Hm().format(DateTime.parse(order['delivery_at'])), 
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
             ],
           ),
           //Text("Items:", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-          ...List.generate(order['items'].length, (itemIndex){
-            return Column(
+          Container(
+            width: 100.w,
+            padding: EdgeInsets.all(16.sp),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(16.sp)
+            ),
+            child: Column(
+              children: List.generate(order['items'].length, (itemIndex){
+            return Row(
               children: [
                 Text("${order['items'][itemIndex]['category']} ${order['items'][itemIndex]['name']} ${order['items'][itemIndex]['size'] ?? ""} x ${order['items'][itemIndex]['quantity']}", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black),),
-                Text("${order['items'][itemIndex]['note']?? ""}", style: Theme.of(context).textTheme.bodySmall,)
+                Text(" ${order['items'][itemIndex]['note']?? ""}", style: Theme.of(context).textTheme.bodySmall,)
               ],
             );
           }),
+            ),
+          ),
           // action buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,11 +85,24 @@ class OrderContainer extends ConsumerWidget{
                         'validated': true,
                         'awaiting': false,
                       }).eq('id', order['id']);
+                      if(Navigator.canPop(context)){
+                        Navigator.of(context).pop();
+                      }
                     },
-                    child: CircleAvatar(
-                      radius: 16.sp,
-                      backgroundColor: Colors.green,
-                      child: HugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.white, size: 16.sp),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
+                      height: 4.h,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(16.sp)
+                      ),
+                      child: Row(
+                        spacing: 8.sp,
+                        children: [
+                          Text("Accept", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                          HugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.white, size: 16.sp),
+                        ],
+                      ),
                     ),
                   ),
                   // reject
