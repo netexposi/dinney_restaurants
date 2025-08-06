@@ -6,66 +6,80 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class StatsView extends ConsumerWidget {
-  @override
-  final ordersProvider = StateProvider<List<int>>((ref) => [0, 0, 0, 0, 0, 0, 0]);
-  var startingDayOfWeek = DateTime.now().subtract(Duration(days: 6));
-  Widget build(BuildContext context, WidgetRef ref) {
-    
-    int totalIncome = 0;
-    
+// Extension to normalize DateTime to start of day
+extension DateTimeExtension on DateTime {
+  DateTime startOfDay() {
+    return DateTime(year, month, day);
+  }
+}
 
-    
+class StatsView extends ConsumerWidget {
+  const StatsView({super.key}); // Add key for proper widget construction
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final supabase = Supabase.instance.client;
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.sp),
           child: StreamBuilder(
-            stream: supabase.from("orders")
-            .stream(primaryKey: ['id'])
-            .eq('restaurant_id', ref.watch(userDocumentsProvider)['id'])
-            .order("delivery_at", ascending: true)
-            .asBroadcastStream(), 
-            builder: (context, snapshot){
-              if(snapshot.hasError){
-                //TODO add error message
-                return Text("Error");
-              }else if(snapshot.data != null && snapshot.data!.isEmpty){
-                //TODO add emptyness text here
-                return Text("Empty");
-              }else if(snapshot.data != null && snapshot.data!.isNotEmpty){
-                
-                
-                final completedOrders = snapshot.data!.where((item) => item['validated'] == true && DateTime.parse(item['delivery_at']).isBefore(DateTime.now()));
-                //SECTION Counting total income
+            stream: supabase
+                .from("orders")
+                .stream(primaryKey: ['id'])
+                .eq('restaurant_id', ref.watch(userDocumentsProvider)['id'])
+                .order("delivery_at", ascending: true)
+                .asBroadcastStream(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text("Error");
+              } else if (snapshot.data != null && snapshot.data!.isEmpty) {
+                return const Text("Empty");
+              } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
+                final completedOrders = snapshot.data!
+                    .where((item) =>
+                        item['validated'] == true &&
+                        DateTime.parse(item['delivery_at'])
+                            .isBefore(DateTime.now()))
+                    .toList();
+
+                //SECTION Counting total income and served items
+                int servedItems = 0;
+                int totalIncome = 0;
                 for (var order in completedOrders) {
                   for (var item in order['items']) {
-                    totalIncome += item['price per one']* item['quantity'] as int;
+                    totalIncome += (item['price per one'] * item['quantity']) as int;
+                    servedItems += item['quantity'] as int;
                   }
-                  //SECTION Counting weekly orders
-                  if(DateTime.parse(order['delivery_at']).isAtSameMomentAs(startingDayOfWeek) || DateTime.parse(order['delivery_at']).isAfter(startingDayOfWeek)){
-                    //print(DateTime.parse(order['delivery_at']).day);
-                    for (var i = 0; i < 7; i++){
-                      if(DateTime.parse(order['delivery_at']).day == startingDayOfWeek.day){
-                        ref.read(ordersProvider.notifier).state[i] = ref.watch(ordersProvider)[i] + 1;
-                      }else{
-                        startingDayOfWeek = startingDayOfWeek.add(Duration(days: 1));
-                        print(startingDayOfWeek);
-                      }
+                }
+
+                //SECTION Counting weekly orders
+                final now = DateTime.now();
+                final startOfWeek = now.subtract(const Duration(days: 6)).startOfDay();
+                final ordersPerDay = List<int>.filled(7, 0); // Initialize counts
+                for (var order in completedOrders) {
+                  final orderDate = DateTime.parse(order['delivery_at']);
+                  if (orderDate.isAfter(
+                          startOfWeek.subtract(const Duration(seconds: 1))) &&
+                      orderDate.isBefore(now.add(const Duration(seconds: 1)))) {
+                    final dayIndex =
+                        orderDate.startOfDay().difference(startOfWeek).inDays;
+                    if (dayIndex >= 0 && dayIndex < 7) {
+                      ordersPerDay[dayIndex]++;
                     }
                   }
-                  
                 }
-                 
-                print(ref.watch(ordersProvider));
-                
+
+                // Debug print to verify counts
+                // ignore: avoid_print
+                print('Orders per day: $ordersPerDay');
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Statistics", style: Theme.of(context).textTheme.headlineLarge),
+                    Text("Statistics",
+                        style: Theme.of(context).textTheme.headlineLarge),
                     SizedBox(height: 16.sp),
-                    // Wrap the rest in Expanded to take remaining height
                     Expanded(
                       child: Column(
                         children: [
@@ -86,13 +100,19 @@ class StatsView extends ConsumerWidget {
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.sp),
-                                        child: Text("Total orders", style: Theme.of(context).textTheme.bodySmall),
+                                        child: Text("Total orders",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall),
                                       ),
                                     ),
                                     SizedBox(
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Center(
-                                        child: Text("${completedOrders.length}", style: Theme.of(context).textTheme.headlineLarge),
+                                        child: Text("${completedOrders.length}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge),
                                       ),
                                     ),
                                     SizedBox(height: (100.w - 16.sp * 3) / 6),
@@ -115,13 +135,19 @@ class StatsView extends ConsumerWidget {
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.sp),
-                                        child: Text("Refused orders", style: Theme.of(context).textTheme.bodySmall),
+                                        child: Text("Served items",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall),
                                       ),
                                     ),
                                     SizedBox(
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Center(
-                                        child: Text("192", style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.red)),
+                                        child: Text("$servedItems",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge),
                                       ),
                                     ),
                                     SizedBox(height: (100.w - 16.sp * 3) / 6),
@@ -146,13 +172,19 @@ class StatsView extends ConsumerWidget {
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Padding(
                                     padding: EdgeInsets.all(16.sp),
-                                    child: Text("Total income", style: Theme.of(context).textTheme.bodySmall),
+                                    child: Text("Total income",
+                                        style:
+                                            Theme.of(context).textTheme.bodySmall),
                                   ),
                                 ),
                                 SizedBox(
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Center(
-                                    child: Text("$totalIncome DA", style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.green)),
+                                    child: Text("$totalIncome DA",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineLarge!
+                                            .copyWith(color: Colors.green)),
                                   ),
                                 ),
                                 SizedBox(height: (100.w - 16.sp * 3) / 6),
@@ -160,7 +192,6 @@ class StatsView extends ConsumerWidget {
                             ),
                           ),
                           SizedBox(height: 16.sp),
-                          // This container should take all remaining space
                           Expanded(
                             child: Container(
                               width: 100.w,
@@ -175,31 +206,56 @@ class StatsView extends ConsumerWidget {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                                    child: Text("Weekly orders", style: Theme.of(context).textTheme.bodySmall),
+                                    child: Text("Weekly orders",
+                                        style:
+                                            Theme.of(context).textTheme.bodySmall),
                                   ),
                                   SizedBox(height: 16.sp),
-                                  // This part expands to fill remaining height
                                   Expanded(
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 16.sp),
                                       child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: List.generate(7, (index) {
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            width: (100.w - 16.sp * 6) / 7,
-                                            height: ref.watch(ordersProvider)[index] > 6 ? 48.sp : 12.sp * ref.watch(ordersProvider)[index],
-                                            decoration: BoxDecoration(
-                                              color: index != ref.watch(ordersProvider).length - 1
-                                                  ? secondaryColor.withOpacity(0.8)
-                                                  : secondaryColor,
-                                              borderRadius: BorderRadius.circular(8.sp),
-                                            ),
-                                            child: ref.watch(ordersProvider)[index] >= 4? Text("${ref.watch(ordersProvider)[index]}", 
-                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white),) 
-                                            : SizedBox.shrink(),
-                                          );
+                                          return ordersPerDay[index] >= 2
+                                              ? Container(
+                                                  alignment: Alignment.center,
+                                                  width: (100.w - 16.sp * 6) / 7,
+                                                  height: ordersPerDay[index] > 20
+                                                      ? 48.sp
+                                                      : 16.sp * ordersPerDay[index],
+                                                  decoration: BoxDecoration(
+                                                    color: index !=
+                                                            ordersPerDay.length - 1
+                                                        ? secondaryColor
+                                                            .withOpacity(0.8)
+                                                        : secondaryColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(8.sp),
+                                                  ),
+                                                  child: Text(
+                                                    "${ordersPerDay[index]}",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall!
+                                                        .copyWith(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.bold),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  "${ordersPerDay[index]}",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge!
+                                                      .copyWith(
+                                                          color: secondaryColor),
+                                                );
                                         }),
                                       ),
                                     ),
@@ -213,11 +269,11 @@ class StatsView extends ConsumerWidget {
                     ),
                   ],
                 );
-              }else {
+              } else {
                 return LoadingSpinner();
               }
-            }
-          )
+            },
+          ),
         ),
       ),
     );

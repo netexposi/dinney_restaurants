@@ -18,7 +18,7 @@ class OrderContainer extends ConsumerWidget{
     final supabase = Supabase.instance.client;
     return Container(
       padding: EdgeInsets.all(16.sp),
-      width: 80.w,
+      width: 100.w,
       //height: 20.h,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -29,45 +29,58 @@ class OrderContainer extends ConsumerWidget{
         spacing: 8.sp,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${order['client_name'].toString().length > 15 
-                  ? order['client_name'].toString().substring(0, 15) + '...'
-                  : order['client_name']}',
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Colors.black),
-              ),
-              Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(DateFormat.Hm().format(DateTime.parse(order['delivery_at'])), 
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor)),
-                  Text(order['at_table']? "At Table" : "To Pick Up", 
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor)),
+                  Text(
+                    '${order['client_name'].toString().length > 15 
+                      ? order['client_name'].toString().substring(0, 15) + '...'
+                      : order['client_name']}',
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontSize: 20.sp),
+                  ),
+                  HugeIcon(icon: HugeIcons.strokeRoundedCalendar01, color: tertiaryColor)
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Commande:", style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: tertiaryColor),),
+                      Column(
+                        children: List.generate(order['items'].length, (itemIndex){
+                          return Column(
+                            children: [
+                              Text("${order['items'][itemIndex]['quantity']} x ${order['items'][itemIndex]['category']} ${order['items'][itemIndex]['name']} ${order['items'][itemIndex]['size'] ?? ""}", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black),),
+                              Text(" ${order['items'][itemIndex]['note']?? ""}", style: Theme.of(context).textTheme.bodySmall,)
+                            ],
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(order['at_table']? "Reservation at table" : "Reservation to pick up", 
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.bold)),
+                        Text(DateFormat.MMMEd().format(DateTime.parse(order['delivery_at'])), 
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: tertiaryColor, fontWeight: FontWeight.bold)),
+                      Text(DateFormat.Hm().format(DateTime.parse(order['delivery_at'])), 
+                        style: Theme.of(context).textTheme.headlineLarge),
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
-          //Text("Items:", style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-          Container(
-            width: 100.w,
-            padding: EdgeInsets.all(16.sp),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(16.sp)
-            ),
-            child: Column(
-              children: List.generate(order['items'].length, (itemIndex){
-            return Row(
-              children: [
-                Text("${order['items'][itemIndex]['category']} ${order['items'][itemIndex]['name']} ${order['items'][itemIndex]['size'] ?? ""} x ${order['items'][itemIndex]['quantity']}", style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black),),
-                Text(" ${order['items'][itemIndex]['note']?? ""}", style: Theme.of(context).textTheme.bodySmall,)
-              ],
-            );
-          }),
-            ),
-          ),
+          
           // action buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,6 +124,15 @@ class OrderContainer extends ConsumerWidget{
                       await supabase.from('orders')
                       .delete()
                       .eq('id', order['id']);
+                      await supabase.from("restaurants")
+                      .update({"refused_orders" : 
+                        ref.watch(userDocumentsProvider)["refused_orders"] == null ? 1 : ref.watch(userDocumentsProvider)["refused_orders"] + 1
+                      })
+                      .eq("id", ref.watch(userDocumentsProvider)['id']);
+                      if(Navigator.canPop(context)){
+                        Navigator.of(context).pop();
+                      }
+
                     },
                     child: CircleAvatar(
                       radius: 16.sp,

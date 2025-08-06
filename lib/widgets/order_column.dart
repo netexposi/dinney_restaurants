@@ -29,6 +29,7 @@ class OrderColumn extends ConsumerWidget{
           builder: (context){
             return Dialog(
               backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.all(12.sp),
               child: IntrinsicWidth(
                 stepWidth: 100.w,
                 child: IntrinsicHeight(
@@ -48,13 +49,19 @@ class OrderColumn extends ConsumerWidget{
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor)),
-                  Text('${order['client_name']}', style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: Colors.black),),
-                  Text(order["at_table"]? "At Table" : "To Pick Up", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor),),
+                  Text('${order['client_name']}', style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20.sp)!),
+                  Text(order["at_table"]? "Reservation at table" : "Reservation to pick up", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor),),
                   
                 ],
               ),
-              Column(
+              HugeIcon(icon: HugeIcons.strokeRoundedNotification01, color: secondaryColor)
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                spacing: 8.sp,
                 children: [
                   Container(
                     alignment: Alignment.center,
@@ -72,8 +79,36 @@ class OrderColumn extends ConsumerWidget{
                       ],
                     )
                   ),
+                  OutlinedButton(
+                    style: outlinedBeige.copyWith(fixedSize: WidgetStateProperty.all<Size>(Size(20.w, 4.h))),
+                    onPressed: (){
+                      showDialog(
+                        context: context, 
+                        builder: (context){
+                          return Dialog(
+                            insetPadding: EdgeInsets.all(8.sp),
+                            backgroundColor: Colors.transparent,
+                            child: IntrinsicWidth(
+                              stepWidth: 100.w,
+                              child: IntrinsicHeight(
+                                child: OrderContainer(order: order)
+                              ),
+                            ),
+                          );
+                        }
+                      );
+                    }, 
+                    child: Text("Voir")
+                  )
                 ],
-              )
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(DateFormat.MMMEd().format(timestamp)),
+                  Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.headlineLarge),
+                ],
+              ),
             ],
           ),
           if(!last) Divider(
