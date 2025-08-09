@@ -46,17 +46,22 @@ class MyApp extends StatelessWidget {
         dialogBackgroundColor: Colors.white,
         textTheme: TextTheme(
           headlineLarge: TextStyle(
-            fontSize: 24.sp,
+            fontSize: 22.sp,
             fontWeight: FontWeight.bold,
             color: Colors.black
           ),
           headlineMedium: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             color: Colors.black
           ),
           headlineSmall: TextStyle(
-            fontSize: 20.sp,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.bold,
+            color: Colors.black
+          ),
+           bodyLarge: TextStyle(
+            fontSize: 16.sp,
             fontWeight: FontWeight.normal,
             color: Colors.black
           ),

@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/pages/settings/settings_view.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/blurry_container.dart';
@@ -59,7 +60,9 @@ class HomeView extends ConsumerWidget{
                             icon: HugeIcon(icon: HugeIcons.strokeRoundedNotification02, color: tertiaryColor.withOpacity(0.5)),
                             ),
                           IconButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsView()));
+                            },
                             icon: HugeIcon(icon: HugeIcons.strokeRoundedSettings05, color: tertiaryColor.withOpacity(0.5)),
                           )
                         ],
@@ -378,7 +381,7 @@ class HomeView extends ConsumerWidget{
                                           width: 35.w,
                                           height: 13.w,
                                           child: Text("$numAtTable order" + (numAtTable != 1? "s" : ""), 
-                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
                                           ),
                                       ],
                                     ),
@@ -612,7 +615,7 @@ class HomeView extends ConsumerWidget{
                                           width: 35.w,
                                           height: 13.w,
                                           child: Text("$numToPickUp order${numToPickUp != 1? "s" : ""}", 
-                                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
                                           ),
                                       ],
                                     ),
