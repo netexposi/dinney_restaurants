@@ -1,21 +1,31 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/services/functions/array_handlings.dart';
+import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/services/functions/string_handlings.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
 import 'package:dinney_restaurant/widgets/maps_view.dart';
+import 'package:dinney_restaurant/widgets/pop_up_message.dart';
+import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:dinney_restaurant/widgets/timer_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore: must_be_immutable
 class UserProfileView extends ConsumerWidget {
 
   UserProfileView({super.key});
-
+  final displayMapsKey = GlobalKey<MapsViewState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -79,7 +89,7 @@ class UserProfileView extends ConsumerWidget {
                                           spacing: 16.sp,
                                           children: [
                                             Text(
-                                              "Edit Information",
+                                              "Edit information",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headlineSmall,
@@ -177,13 +187,10 @@ class UserProfileView extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
+                        //v//ar schedule = ref.watch(userDocumentsProvider)["schedule"];
                         showDialog(
                           context: context,
                           builder: (context) {
-                            Map<String, dynamic> testMap = {
-                              "day": "Thursday",
-                            };
-                            print(testMap.containsKey("opening"));
                             List<String> days = [
                               "Sunday",
                               "Monday",
@@ -193,7 +200,8 @@ class UserProfileView extends ConsumerWidget {
                               "Friday",
                               "Saturday"
                             ];
-                            var schedule = ref.watch(userDocumentsProvider)["schedule"];
+                            List<Map<String, dynamic>> schedule = List.from(
+                              ref.read(userDocumentsProvider)["schedule"] ?? []);
                             bool changeProvider = false;
                             Map<String, dynamic>? getScheduleForDay(String dayName) {
                               try {
@@ -216,7 +224,7 @@ class UserProfileView extends ConsumerWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 16.sp,
                                           children: [
-                                            Text("Edit Schedule",style: Theme.of(context).textTheme.headlineSmall,),
+                                            Text("Edit schedule",style: Theme.of(context).textTheme.headlineSmall,),
                                             Column(crossAxisAlignment:CrossAxisAlignment.start,
                                               children: List.generate(days.length, (index) {
                                                 var entry = getScheduleForDay(days[index]);
@@ -320,8 +328,10 @@ class UserProfileView extends ConsumerWidget {
                                                   .update({"schedule" : schedule})
                                                   .eq("id", ref.watch(userDocumentsProvider)['id'])
                                                   .whenComplete((){
-                                                    ref.read(userDocumentsProvider.notifier).state["schedule"] = schedule;
-                                                    print(ref.watch(userDocumentsProvider)["schedule"]);
+                                                    ref.read(userDocumentsProvider.notifier).state = {
+                                                      ...ref.read(userDocumentsProvider),
+                                                      "schedule": List<Map<String, dynamic>>.from(schedule),
+                                                    };
                                                     Navigator.of(context).pop();
                                                   });
                                                   
@@ -395,7 +405,68 @@ class UserProfileView extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(context: context, builder: (context){
+                          return StatefulBuilder(builder: (context, setState){
+                            final mapKey = GlobalKey<MapsViewState>();
+                            return Dialog(
+                              backgroundColor: Colors.white,
+                              insetPadding: EdgeInsets.all(8.sp),
+                              child: IntrinsicWidth(
+                                stepWidth: 100.w,
+                                child: IntrinsicHeight(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.sp),
+                                    child: Column(
+                                      spacing: 16.sp,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Edit location", style: Theme.of(context).textTheme.headlineSmall,),
+                                        SizedBox(
+                                          width: 100.w,
+                                          height: 50.h,
+                                          child: MapsView(
+                                            key: mapKey,
+                                            location: LatLng(ref.watch(userDocumentsProvider)["lat"], ref.watch(userDocumentsProvider)["lng"]),
+                                            borderRadius: 24.sp,
+                                            myLocationButton: true,
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.center,
+                                          child: ElevatedButton(
+                                            onPressed: () async{
+                                              LatLng? markerPosition = mapKey.currentState?.currentMarker?.position;
+                                              if(markerPosition != null){
+                                                await supabase.from("restaurants")
+                                                .update(
+                                                  {
+                                                    "lat" : markerPosition.latitude,
+                                                    "lng" : markerPosition.longitude
+                                                  }).eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                  .whenComplete((){
+                                                    ref.read(userDocumentsProvider.notifier).state = {
+                                                      ...ref.read(userDocumentsProvider),
+                                                      "lat": markerPosition.latitude,
+                                                      "lng": markerPosition.longitude
+                                                    };
+                                                    displayMapsKey.currentState!.setMarker(markerPosition);
+                                                    Navigator.of(context).pop();
+                                                  });
+                                              }
+                                            }, 
+                                            child: Text("Save")
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        });
+                      },
                       child: Text("Edit"),
                     )
                   ],
@@ -410,7 +481,9 @@ class UserProfileView extends ConsumerWidget {
                     boxShadow: [dropShadow],
                   ),
                   child: MapsView(
+                    key: displayMapsKey,
                     location: LatLng(ref.watch(userDocumentsProvider)["lat"], ref.watch(userDocumentsProvider)["lng"]),
+                    borderRadius: 24.sp,
                   )
                 ),
                 // GALLERY SECTION
@@ -422,7 +495,154 @@ class UserProfileView extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final imagesProvider = StateProvider<List<File?>>((ref) => [null, null, null, null]);
+                        showDialog(context: context, builder: (context){
+                          bool changeProvider = false;
+                          final images = ref.watch(imagesProvider);
+                          final indexes = [];
+                          return StatefulBuilder(builder: (context, setState){
+                            Future<void> _pickImage({required WidgetRef ref,required int index,}) async {
+                              changeProvider = true;
+                              final picker = ImagePicker();
+                              final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+                              if (picked != null) {
+                                indexes.add(index);
+                                final currentImages = ref.read(imagesProvider);
+                                final updatedImages = List<File?>.from(currentImages);
+                                updatedImages[index] = File(picked.path);
+                                //ref.read(imagesProvider.notifier).state = updatedImages;
+                                ref.read(imagesProvider.notifier).state[index] = File(picked.path);
+                                setState((){});
+                              }
+                            }
+                            return Dialog(
+                              backgroundColor: Colors.white,
+                              insetPadding: EdgeInsets.all(8.sp),
+                              child: IntrinsicWidth(
+                                stepWidth: 100.w,
+                                child: IntrinsicHeight(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.sp),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      spacing: 16.sp,
+                                      children: [
+                                        Text("Edit gallery", style: Theme.of(context).textTheme.headlineSmall,),
+                                        Text("Edit Primary Image", style: Theme.of(context).textTheme.bodyMedium,),
+                                        InkWell(
+                                          onTap: () => _pickImage(ref: ref, index: 0),
+                                          borderRadius: BorderRadius.circular(24.sp),
+                                          child: Container(
+                                            width: 100.w,
+                                            height: 45.h,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(24.sp),
+                                              color: Colors.grey[300],
+                                              image: images[0] != null
+                                                  ? DecorationImage(
+                                                      image: FileImage(images[0]!),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : DecorationImage(
+                                                      image: NetworkImage(ref.watch(userDocumentsProvider)["urls"][0]),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                            ),
+                                            child: images[0] == null && ref.watch(userDocumentsProvider)["urls"][0] == null
+                                                ? Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
+                                                      Text("Edit Image", style: Theme.of(context).textTheme.bodySmall,)
+                                                    ],
+                                                  )
+                                                : null,
+                                          ),
+                                        ),
+                                        Text("Edit Album Images", style: Theme.of(context).textTheme.bodyMedium,),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: List.generate(3, (i) {
+                                            final index = i + 1; // 1, 2, 3
+                                            return InkWell(
+                                              onTap: () => _pickImage(ref: ref, index: index),
+                                              borderRadius: BorderRadius.circular(24.sp),
+                                              child: Container(
+                                                width: 28.w,
+                                                height: 28.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(24.sp),
+                                                  color: Colors.grey[300],
+                                                  image: images[index] != null
+                                                      ? DecorationImage(
+                                                          image: FileImage(images[index]!),
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : DecorationImage(
+                                                      image: NetworkImage(ref.watch(userDocumentsProvider)["urls"][index]),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                ),
+                                                child: images[index] == null && ref.watch(userDocumentsProvider)["urls"][index] == null
+                                                    ? Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
+                                                          Text("Edit", style: Theme.of(context).textTheme.bodySmall),
+                                                        ],
+                                                      )
+                                                    : null,
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                        if(changeProvider) Align(
+                                          alignment: Alignment.center,
+                                          child: !ref.watch(savingLoadingButton)? ElevatedButton(
+                                            onPressed: () async{
+                                              ref.read(savingLoadingButton.notifier).state = true;
+                                              List<String> urls = [];
+                                              for (var index in indexes){
+                                                
+                                              }
+                                              var updatedImages = images.where((image) => image != null);
+                                                for (var imageFile in updatedImages) {
+                                                  
+                                                  var url = await uploadImageToSupabase(imageFile!);
+                                                  urls.add(url!);
+                                                }
+                                                try{
+                                                  await supabase.from('restaurants')
+                                                  .update({'urls': urls})
+                                                  .eq('id', ref.watch(userDocumentsProvider)["id"])
+                                                  .whenComplete((){
+                                                    ref.read(userDocumentsProvider.notifier).state = {
+                                                      ...ref.watch(userDocumentsProvider),
+                                                      "urls": urls
+                                                    };
+                                                    ref.read(savingLoadingButton.notifier).state = false;
+                                                    //ref.read(signUpProvider.notifier).state = 2; // update the sign up state to 3
+                                                    Navigator.of(context).pop();
+                                                  });
+                                                  
+                                                } catch (e){
+                                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
+                                                }
+                                            }, 
+                                            child: Text("Save")
+                                            ) : LoadingSpinner()
+                                            ,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        });
+                      },
                       child: Text("Edit"),
                     )
                   ],
@@ -437,10 +657,11 @@ class UserProfileView extends ConsumerWidget {
                   ),
                   child: IntrinsicWidth(
                     child: Column(
+                      spacing: 8.sp,
                       children: [
                         Container(
                           width: 100.w,
-                          height: 32.h,
+                          height: 33.h,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24.sp),
                             boxShadow: [dropShadow],
@@ -453,14 +674,15 @@ class UserProfileView extends ConsumerWidget {
                           ),
                         ),
                         Row(
+                          spacing: 8.sp,
                           children: List.generate(
                               ref.watch(userDocumentsProvider)['urls'].length - 1,
                               (index) {
                             return Container(
-                              width: 16.h - 8.sp * 5,
-                              height: 16.h - 8.sp * 5,
+                              width: 16.h - 8.sp * 5.5,
+                              height: 16.h - 8.sp * 5.5,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20.sp),
+                                borderRadius: BorderRadius.circular(24.sp),
                                 boxShadow: [dropShadow],
                                 image: DecorationImage(
                                   image: NetworkImage(
