@@ -496,10 +496,11 @@ class UserProfileView extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
+                        bool loading = false;
                         final imagesProvider = StateProvider<List<File?>>((ref) => [null, null, null, null]);
                         showDialog(context: context, builder: (context){
                           bool changeProvider = false;
-                          final images = ref.watch(imagesProvider);
+                          var images = ref.watch(imagesProvider);
                           final indexes = [];
                           return StatefulBuilder(builder: (context, setState){
                             Future<void> _pickImage({required WidgetRef ref,required int index,}) async {
@@ -508,11 +509,13 @@ class UserProfileView extends ConsumerWidget {
                               final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
                               if (picked != null) {
                                 indexes.add(index);
-                                final currentImages = ref.read(imagesProvider);
-                                final updatedImages = List<File?>.from(currentImages);
-                                updatedImages[index] = File(picked.path);
+                                // final currentImages = ref.read(imagesProvider);
+                                // final updatedImages = List<File?>.from(currentImages);
+                                // updatedImages[index] = File(picked.path);
                                 //ref.read(imagesProvider.notifier).state = updatedImages;
                                 ref.read(imagesProvider.notifier).state[index] = File(picked.path);
+                                images = ref.watch(imagesProvider);
+                                //images.add(File(picked.path));
                                 setState((){});
                               }
                             }
@@ -599,36 +602,38 @@ class UserProfileView extends ConsumerWidget {
                                         ),
                                         if(changeProvider) Align(
                                           alignment: Alignment.center,
-                                          child: !ref.watch(savingLoadingButton)? ElevatedButton(
+                                          child: !loading? ElevatedButton(
                                             onPressed: () async{
-                                              ref.read(savingLoadingButton.notifier).state = true;
-                                              List<String> urls = [];
+                                              setState((){loading = true;});
+                                              List<dynamic> urls = ref.watch(userDocumentsProvider)["urls"] ;
                                               for (var index in indexes){
-                                                
-                                              }
-                                              var updatedImages = images.where((image) => image != null);
-                                                for (var imageFile in updatedImages) {
-                                                  
-                                                  var url = await uploadImageToSupabase(imageFile!);
+                                                var url = await uploadImageToSupabase(images[index]!);
+                                                if(ref.watch(userDocumentsProvider)["urls"][index] != null){
+                                                  //IDEA this means it's just changing image
+                                                  urls[index] = url!;
+                                                }else {
+                                                  //idea when adding a new one
                                                   urls.add(url!);
                                                 }
-                                                try{
-                                                  await supabase.from('restaurants')
-                                                  .update({'urls': urls})
-                                                  .eq('id', ref.watch(userDocumentsProvider)["id"])
-                                                  .whenComplete((){
-                                                    ref.read(userDocumentsProvider.notifier).state = {
-                                                      ...ref.watch(userDocumentsProvider),
-                                                      "urls": urls
-                                                    };
-                                                    ref.read(savingLoadingButton.notifier).state = false;
-                                                    //ref.read(signUpProvider.notifier).state = 2; // update the sign up state to 3
-                                                    Navigator.of(context).pop();
-                                                  });
-                                                  
-                                                } catch (e){
-                                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
-                                                }
+                                                //urls[index]
+                                              }
+                                              try{
+                                                await supabase.from('restaurants')
+                                                .update({'urls': urls})
+                                                .eq('id', ref.watch(userDocumentsProvider)["id"])
+                                                .whenComplete((){
+                                                  ref.read(userDocumentsProvider.notifier).state = {
+                                                    ...ref.watch(userDocumentsProvider),
+                                                    "urls": urls
+                                                  };
+                                                  setState((){loading = false;});
+                                                  Navigator.of(context).pop();
+                                                });
+                                                
+                                              } catch (e){
+                                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
+                                              }
+                                                
                                             }, 
                                             child: Text("Save")
                                             ) : LoadingSpinner()
