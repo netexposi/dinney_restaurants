@@ -5,6 +5,7 @@ import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/services/functions/array_handlings.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/services/functions/string_handlings.dart';
+import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
@@ -54,6 +55,7 @@ class UserProfileView extends ConsumerWidget {
                           context: context,
                           builder: (context) {
                             var changeProvider = false;
+                            bool loading = false;
                             TextEditingController nameController =
                                 TextEditingController(
                                     text: ref
@@ -104,15 +106,67 @@ class UserProfileView extends ConsumerWidget {
                                               Align(
                                                 alignment: Alignment.center,
                                                 child: ElevatedButton(
-                                                  onPressed: () {
-                                                    if (nameController.text !=
-                                                        ref.watch(userDocumentsProvider)["name"]) {
-                                                      // TODO change name in database
-                                                    }
+                                                  onPressed: () async{
+                                                    setState((){loading = true;});
                                                     if (emailController.text !=
-                                                        ref.watch(userDocumentsProvider)["email"]) {
-                                                      // TODO change email in both auth and database
-                                                    }
+                                                        ref.watch(userDocumentsProvider)["email"] && 
+                                                        nameController.text !=ref.watch(userDocumentsProvider)["name"]
+                                                        ) {
+                                                      // TODO change email and name at the same time
+                                                      try{
+                                                        await supabase.auth.updateUser(UserAttributes(email: emailController.text))
+                                                        .whenComplete(() async{
+                                                          await supabase.from("restaurants")
+                                                          .update({
+                                                            "email" : emailController.text,
+                                                            "name" : nameController.text
+                                                          })
+                                                          .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                          .whenComplete((){
+                                                            Navigator.of(context).pop();
+                                                            ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Information changed successfully. Check your mail!"));
+                                                          });
+                                                        });
+                                                      }catch(e) {
+                                                        Navigator.of(context).pop();
+                                                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                      }
+                                                    }else if(emailController.text !=
+                                                        ref.watch(userDocumentsProvider)["email"]){
+                                                        try{
+                                                          await supabase.auth.updateUser(UserAttributes(email: emailController.text))
+                                                          .whenComplete(() async{
+                                                            await supabase.from("restaurants")
+                                                            .update({
+                                                              "email" : emailController.text,
+                                                            })
+                                                            .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                            .whenComplete((){
+                                                              Navigator.of(context).pop();
+                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Email changed successfully. Check your mail!"));
+                                                            });
+                                                          });
+                                                        }catch(e) {
+                                                          Navigator.of(context).pop();
+                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                        }
+                                                      }else if(nameController.text !=ref.watch(userDocumentsProvider)["name"]){
+                                                        try{
+                                                          await supabase.from("restaurants")
+                                                            .update({
+                                                              "name" : nameController.text,
+                                                            })
+                                                            .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                            .whenComplete((){
+                                                              Navigator.of(context).pop();
+                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Name changed successfully."));
+                                                            });
+                                                        }catch(e) {
+                                                          Navigator.of(context).pop();
+                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                        }
+                                                      }
+                                                      setState((){loading = false;});
                                                   },
                                                   child: Text("Save"),
                                                 ),
@@ -654,7 +708,7 @@ class UserProfileView extends ConsumerWidget {
                 ),
                 Container(
                   padding: EdgeInsets.all(8.sp),
-                  height: 48.h,
+                  //height: 48.h,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24.sp),
@@ -702,6 +756,65 @@ class UserProfileView extends ConsumerWidget {
                         ),
                       ],
                     ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(16.sp),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24.sp),
+                    boxShadow: [dropShadow],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Delete Account", style: Theme.of(context).textTheme.headlineSmall,),
+                      TextButton(
+                        onPressed: () {
+                          bool loading = false;
+                          showDialog(context: context, builder: (context){
+                            return StatefulBuilder(builder: (context, setState){
+                              return AlertDialog(
+                                contentPadding: EdgeInsets.all(16.sp),
+                                actionsAlignment: MainAxisAlignment.center,
+                                content: Text("Are you sure you want to delete\nthe restaurant account?",
+                                textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,),
+                                actions: [
+                                  !loading? Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      TextButton(onPressed: () async{
+                                        //FIXME you need to revise this code
+                                        setState((){loading = true;});
+                                        try{
+                                          await supabase.from("restaurants")
+                                          .delete()
+                                          .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                          .whenComplete(() async{
+                                            supabase.auth.admin.deleteUser(ref.watch(userDocumentsProvider)["uid"]);
+                                            AppNavigation.navRouter.go("/");
+                                            ScaffoldMessenger.maybeOf(context)?.showSnackBar(SuccessMessage("Account deleted successfully"));
+                                          });
+                                        }catch (e){
+                                          setState((){loading = false;});
+                                          ScaffoldMessenger.maybeOf(context)?.showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                          Navigator.of(context).pop();
+                                        }
+                                      }, child: Text("Yes, i want", style: TextStyle(color: Colors.red),)),
+                                      TextButton(onPressed: (){
+                                        Navigator.of(context).pop();
+                                      }, child: Text("Cancel", style: TextStyle(color: tertiaryColor),)),
+                                    ],
+                                  ) : LoadingSpinner()
+                                ],
+                              );
+                            });
+                          });
+                        }, 
+                        child: Text("Delete", style: TextStyle(color: Colors.red),)
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(height: 16.sp),

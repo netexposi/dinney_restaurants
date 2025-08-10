@@ -83,7 +83,9 @@ class MapsViewState extends State<MapsView> {
             ),
             markers: currentMarker != null ? {currentMarker!} : {},
             onTap: (latLng) {
-              setMarker(latLng); // Replace marker on tap
+              if(widget.myLocationButton){
+                setMarker(latLng);
+              }
             },
           ),
           if (widget.myLocationButton)
