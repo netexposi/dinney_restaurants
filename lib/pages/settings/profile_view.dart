@@ -122,7 +122,15 @@ class UserProfileView extends ConsumerWidget {
                                                             "name" : nameController.text
                                                           })
                                                           .eq("id", ref.watch(userDocumentsProvider)["id"])
-                                                          .whenComplete((){
+                                                          .whenComplete(() async{
+                                                            final newUserData =  await supabase.from("restaurants")
+                                                              .select()
+                                                              .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                              .single();
+                                                              if(newUserData.isNotEmpty){
+                                                                ref.read(userDocumentsProvider.notifier).state = newUserData;
+                                                              }
+                                                              setState((){loading = false;});
                                                             Navigator.of(context).pop();
                                                             ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Information changed successfully. Check your mail!"));
                                                           });
@@ -141,7 +149,15 @@ class UserProfileView extends ConsumerWidget {
                                                               "email" : emailController.text,
                                                             })
                                                             .eq("id", ref.watch(userDocumentsProvider)["id"])
-                                                            .whenComplete((){
+                                                            .whenComplete(() async{
+                                                              final newUserData =  await supabase.from("restaurants")
+                                                              .select()
+                                                              .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                              .single();
+                                                              if(newUserData.isNotEmpty){
+                                                                ref.read(userDocumentsProvider.notifier).state = newUserData;
+                                                              }
+                                                              setState((){loading = false;});
                                                               Navigator.of(context).pop();
                                                               ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Email changed successfully. Check your mail!"));
                                                             });
@@ -157,7 +173,15 @@ class UserProfileView extends ConsumerWidget {
                                                               "name" : nameController.text,
                                                             })
                                                             .eq("id", ref.watch(userDocumentsProvider)["id"])
-                                                            .whenComplete((){
+                                                            .whenComplete(() async{ 
+                                                              final newUserData =  await supabase.from("restaurants")
+                                                              .select()
+                                                              .eq("id", ref.watch(userDocumentsProvider)["id"])
+                                                              .single();
+                                                              if(newUserData.isNotEmpty){
+                                                                ref.read(userDocumentsProvider.notifier).state = newUserData;
+                                                              }
+                                                              setState((){loading = false;});
                                                               Navigator.of(context).pop();
                                                               ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Name changed successfully."));
                                                             });
@@ -166,7 +190,7 @@ class UserProfileView extends ConsumerWidget {
                                                           ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
                                                         }
                                                       }
-                                                      setState((){loading = false;});
+                                                      
                                                   },
                                                   child: Text("Save"),
                                                 ),
