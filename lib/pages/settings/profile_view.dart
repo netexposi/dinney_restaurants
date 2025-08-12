@@ -576,10 +576,12 @@ class UserProfileView extends ConsumerWidget {
                       onPressed: () {
                         bool loading = false;
                         final imagesProvider = StateProvider<List<File?>>((ref) => [null, null, null, null]);
+                        List<bool> removeButtonProvider = [false, false, false];
                         showDialog(context: context, builder: (context){
                           bool changeProvider = false;
                           var images = ref.watch(imagesProvider);
                           final indexes = [];
+                          List<dynamic> urls = ref.watch(userDocumentsProvider)["urls"] ;
                           return StatefulBuilder(builder: (context, setState){
                             Future<void> _pickImage({required WidgetRef ref,required int index,}) async {
                               changeProvider = true;
@@ -587,10 +589,6 @@ class UserProfileView extends ConsumerWidget {
                               final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
                               if (picked != null) {
                                 indexes.add(index);
-                                // final currentImages = ref.read(imagesProvider);
-                                // final updatedImages = List<File?>.from(currentImages);
-                                // updatedImages[index] = File(picked.path);
-                                //ref.read(imagesProvider.notifier).state = updatedImages;
                                 ref.read(imagesProvider.notifier).state[index] = File(picked.path);
                                 images = ref.watch(imagesProvider);
                                 //images.add(File(picked.path));
@@ -648,32 +646,62 @@ class UserProfileView extends ConsumerWidget {
                                             final index = i + 1; // 1, 2, 3
                                             return InkWell(
                                               onTap: () => _pickImage(ref: ref, index: index),
+                                              onLongPress: (){
+                                                 setState((){
+                                                  removeButtonProvider[index - 1] = true;
+                                                 });
+                                              },
                                               borderRadius: BorderRadius.circular(24.sp),
-                                              child: Container(
-                                                width: 28.w,
-                                                height: 28.w,
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(24.sp),
-                                                  color: Colors.grey[300],
-                                                  image: images[index] != null
-                                                      ? DecorationImage(
-                                                          image: FileImage(images[index]!),
-                                                          fit: BoxFit.cover,
+                                              child: Stack(
+                                                alignment: Alignment.topRight,
+                                                children: [
+                                                  Container(
+                                                  width: 28.w,
+                                                  height: 28.w,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(24.sp),
+                                                    color: Colors.grey[300],
+                                                    image: images[index] != null
+                                                        ? DecorationImage(
+                                                            image: FileImage(images[index]!),
+                                                            fit: BoxFit.cover,
+                                                          )
+                                                        : index < urls.length ? DecorationImage(
+                                                        image: NetworkImage(urls[index]),
+                                                        fit: BoxFit.cover,
+                                                      ) : null
+                                                  ),
+                                                  child: images[index] == null && index >= urls.length 
+                                                      ? Column(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
+                                                            Text("Edit", style: Theme.of(context).textTheme.bodySmall),
+                                                          ],
                                                         )
-                                                      : DecorationImage(
-                                                      image: NetworkImage(ref.watch(userDocumentsProvider)["urls"][index]),
-                                                      fit: BoxFit.cover,
+                                                      : null,
+                                                  ),
+                                                   AnimatedContainer(
+                                                    width: removeButtonProvider[index -1 ]? 8.w : 0.w,
+                                                    height: removeButtonProvider[index -1]? 8.w : 0.w,
+                                                    duration: Duration(milliseconds: 100),
+                                                    child: CircleAvatar(
+                                                      backgroundColor: Colors.red,
+                                                      child: IconButton(
+                                                        onPressed: (){
+                                                          if(removeButtonProvider[index - 1]){
+                                                            setState((){
+                                                              changeProvider = true;
+                                                              removeButtonProvider[index - 1] = false;
+                                                              urls.removeAt(index);
+                                                            });
+                                                          }
+                                                        }, 
+                                                        icon: HugeIcon(icon: HugeIcons.strokeRoundedRemove02, color: Colors.white, size: 16.sp,)
+                                                      ),
                                                     ),
-                                                ),
-                                                child: images[index] == null && ref.watch(userDocumentsProvider)["urls"][index] == null
-                                                    ? Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
-                                                          Text("Edit", style: Theme.of(context).textTheme.bodySmall),
-                                                        ],
-                                                      )
-                                                    : null,
+                                                  )
+                                                ]
                                               ),
                                             );
                                           }),
@@ -683,18 +711,18 @@ class UserProfileView extends ConsumerWidget {
                                           child: !loading? ElevatedButton(
                                             onPressed: () async{
                                               setState((){loading = true;});
-                                              List<dynamic> urls = ref.watch(userDocumentsProvider)["urls"] ;
                                               for (var index in indexes){
                                                 var url = await uploadImageToSupabase(images[index]!);
-                                                if(ref.watch(userDocumentsProvider)["urls"][index] != null){
+                                                if(index < urls.length){
                                                   //IDEA this means it's just changing image
                                                   urls[index] = url!;
                                                 }else {
                                                   //idea when adding a new one
                                                   urls.add(url!);
                                                 }
-                                                //urls[index]
+                                                
                                               }
+                                              urls=  List.from(urls.where((url) => url != null));
                                               try{
                                                 await supabase.from('restaurants')
                                                 .update({'urls': urls})
@@ -769,8 +797,7 @@ class UserProfileView extends ConsumerWidget {
                                 boxShadow: [dropShadow],
                                 image: DecorationImage(
                                   image: NetworkImage(
-                                    ref.watch(userDocumentsProvider)['urls']
-                                        [index + 1],
+                                    ref.watch(userDocumentsProvider)['urls'][index + 1],
                                   ),
                                   fit: BoxFit.cover,
                                 ),
