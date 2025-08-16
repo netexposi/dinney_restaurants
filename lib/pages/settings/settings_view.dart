@@ -1,4 +1,7 @@
+import 'package:dinney_restaurant/pages/home_view.dart';
+import 'package:dinney_restaurant/pages/settings/history_view.dart';
 import 'package:dinney_restaurant/pages/settings/profile_view.dart';
+import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/settings_element.dart';
@@ -58,7 +61,9 @@ class SettingsView extends ConsumerWidget{
                     Text("Record", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: tertiaryColor)),
                     SizedBox(height: 16.sp,),
                     //SettingsElement(settingColor: colors[0], onClicked: () {  }, icon: HugeIcons.strokeRoundedAccountSetting01, title: 'Account Information',),
-                    SettingsElement(settingColor: colors[1], onClicked: () {  }, icon: HugeIcons.strokeRoundedHourglass, title: 'Orders History',),
+                    SettingsElement(settingColor: colors[1], onClicked: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryView()));
+                    }, icon: HugeIcons.strokeRoundedHourglass, title: 'Orders History',),
                   ],
                 ),
                 //SECTION App
@@ -94,7 +99,11 @@ class SettingsView extends ConsumerWidget{
                     SettingsElement(settingColor: colors[7], onClicked: () {  }, icon: HugeIcons.strokeRoundedLegalDocument01, title: 'Terms of Service',),
                   ],
                 ),
-                SettingsElement(settingColor: Colors.red, onClicked: () {  }, icon: HugeIcons.strokeRoundedLogout03, title: 'Sign Out',),
+                SettingsElement(settingColor: Colors.red, onClicked: () {
+                  supabase.auth.signOut().whenComplete((){
+                    AppNavigation.navRouter.go("/");
+                  });
+                }, icon: HugeIcons.strokeRoundedLogout03, title: 'Sign Out',),
               ],
             ),
           ),

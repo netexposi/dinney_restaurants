@@ -28,6 +28,9 @@ class MapsViewState extends State<MapsView> {
   void initState() {
     super.initState();
     // Initial marker
+    if(widget.location == LatLng(0, 0)) {
+      widget.location = LatLng(28.0290, 1.6666); // Default to San Francisco
+    }
     currentMarker = Marker(
       markerId: const MarkerId("customMarker"),
       position: widget.location,

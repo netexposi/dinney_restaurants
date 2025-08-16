@@ -1,5 +1,6 @@
 class Restaurant {
   final int? id;
+  final String uid;
   final String name;
   final String email;
   final double lat = 0.0;
@@ -7,11 +8,11 @@ class Restaurant {
   final List<String> tags = [];
   final List<String> urls;
   final List<dynamic> rating = [];
-  final String opening = "09:30:00";
-  final String closing = "23:15:00";
+  final List<Map<String, double>> schedule = [];
 
   Restaurant({
     this.id,
+    required this.uid,
     required this.name,
     required this.email,
     required this.urls
@@ -20,6 +21,7 @@ class Restaurant {
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
       id: json['id'],
+      uid: json['uid'],
       name: json['name'],
       email: json['email'], 
       urls: ['urls'],
@@ -28,6 +30,7 @@ class Restaurant {
 
   Map<String, dynamic> toJson() {
     final data = {
+      'uid': uid,
       'name': name,
       'email': email,
       'lat': lat,
@@ -35,8 +38,7 @@ class Restaurant {
       'tags': tags,
       'urls': urls,
       'rating': rating,
-      'opening': opening,
-      'closing': closing,
+      'schedule': schedule
     };
     if (id != null) {
       data['id'] = id!;

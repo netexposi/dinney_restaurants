@@ -1,10 +1,11 @@
 import 'package:dinney_restaurant/pages/settings/settings_view.dart';
+import 'package:dinney_restaurant/services/functions/background_service.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/blurry_container.dart';
 import 'package:dinney_restaurant/widgets/order_column.dart';
 import 'package:dinney_restaurant/widgets/order_container.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -16,19 +17,22 @@ final supabase = Supabase.instance.client;
 
 class HomeView extends ConsumerWidget{
   final horizontalOrder = StateProvider<bool>((ref)=> false);
-  
+  final backgroundServiceProvider = Provider<MyBackgroundService>((ref) {
+    return MyBackgroundService(ref);
+  });
   HomeView({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var id = supabase.auth.currentUser?.id;
+    var id = supabase.auth.currentUser!.id;
+    ref.read(backgroundServiceProvider).startService(tableName: 'restaurants', id: id);
     final List<GlobalKey<BlurryContainerState>> blurryKeys = [
         GlobalKey<BlurryContainerState>(),
         GlobalKey<BlurryContainerState>()];
     print(id);
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: SafeArea(
+      body: ref.watch(userDocumentsProvider).isNotEmpty? SingleChildScrollView(
+        child:  SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -632,7 +636,7 @@ class HomeView extends ConsumerWidget{
             ),
           ),
         ),
-      ),
+      ) : Center(child: LoadingSpinner()),
     );
   }
 }

@@ -575,25 +575,30 @@ class UserProfileView extends ConsumerWidget {
                     TextButton(
                       onPressed: () {
                         bool loading = false;
-                        final imagesProvider = StateProvider<List<File?>>((ref) => [null, null, null, null]);
                         List<bool> removeButtonProvider = [false, false, false];
                         showDialog(context: context, builder: (context){
                           bool changeProvider = false;
-                          var images = ref.watch(imagesProvider);
                           final indexes = [];
-                          List<dynamic> urls = ref.watch(userDocumentsProvider)["urls"] ;
+                          List<dynamic> urls = ref.watch(userDocumentsProvider)["urls"];
+                          while(urls.length < 4){
+                            urls.add(null);
+                          }
                           return StatefulBuilder(builder: (context, setState){
+                            urls = ref.watch(userDocumentsProvider)["urls"];
                             Future<void> _pickImage({required WidgetRef ref,required int index,}) async {
                               changeProvider = true;
                               final picker = ImagePicker();
                               final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
                               if (picked != null) {
                                 indexes.add(index);
-                                ref.read(imagesProvider.notifier).state[index] = File(picked.path);
-                                images = ref.watch(imagesProvider);
-                                //images.add(File(picked.path));
-                                setState((){});
+                                // ref.read(imagesProvider.notifier).state[index] = File(picked.path);
+                                // images = ref.watch(imagesProvider);
+                                urls[index] = File(picked.path);
                               }
+                              if(index != 0){
+                                removeButtonProvider[index - 1] = false;
+                              }
+                              setState((){});
                             }
                             return Dialog(
                               backgroundColor: Colors.white,
@@ -618,9 +623,9 @@ class UserProfileView extends ConsumerWidget {
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(24.sp),
                                               color: Colors.grey[300],
-                                              image: images[0] != null
+                                              image: urls[0] is File
                                                   ? DecorationImage(
-                                                      image: FileImage(images[0]!),
+                                                      image: FileImage(urls[0]!),
                                                       fit: BoxFit.cover,
                                                     )
                                                   : DecorationImage(
@@ -628,15 +633,15 @@ class UserProfileView extends ConsumerWidget {
                                                       fit: BoxFit.cover,
                                                     ),
                                             ),
-                                            child: images[0] == null && ref.watch(userDocumentsProvider)["urls"][0] == null
-                                                ? Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
-                                                      Text("Edit Image", style: Theme.of(context).textTheme.bodySmall,)
-                                                    ],
-                                                  )
-                                                : null,
+                                            // child: images[0] == null && ref.watch(userDocumentsProvider)["urls"][0] == null
+                                            //     ? Column(
+                                            //         mainAxisAlignment: MainAxisAlignment.center,
+                                            //         children: [
+                                            //           HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
+                                            //           Text("Edit Image", style: Theme.of(context).textTheme.bodySmall,)
+                                            //         ],
+                                            //       )
+                                            //     : null,
                                           ),
                                         ),
                                         Text("Edit Album Images", style: Theme.of(context).textTheme.bodyMedium,),
@@ -647,9 +652,11 @@ class UserProfileView extends ConsumerWidget {
                                             return InkWell(
                                               onTap: () => _pickImage(ref: ref, index: index),
                                               onLongPress: (){
-                                                 setState((){
-                                                  removeButtonProvider[index - 1] = true;
+                                                 if(urls[index] != null){
+                                                    setState((){
+                                                    removeButtonProvider[index - 1] = true;
                                                  });
+                                                 }
                                               },
                                               borderRadius: BorderRadius.circular(24.sp),
                                               child: Stack(
@@ -661,17 +668,20 @@ class UserProfileView extends ConsumerWidget {
                                                   decoration: BoxDecoration(
                                                     borderRadius: BorderRadius.circular(24.sp),
                                                     color: Colors.grey[300],
-                                                    image: images[index] != null
-                                                        ? DecorationImage(
-                                                            image: FileImage(images[index]!),
+                                                    image: urls[index] != null?
+                                                        (
+                                                        urls[index]! is File ? 
+                                                        DecorationImage(
+                                                            image: FileImage(urls[index]),
                                                             fit: BoxFit.cover,
                                                           )
-                                                        : index < urls.length ? DecorationImage(
+                                                        : DecorationImage(
                                                         image: NetworkImage(urls[index]),
                                                         fit: BoxFit.cover,
+                                                      ) 
                                                       ) : null
                                                   ),
-                                                  child: images[index] == null && index >= urls.length 
+                                                  child: urls[index] == null
                                                       ? Column(
                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                           children: [
@@ -681,23 +691,24 @@ class UserProfileView extends ConsumerWidget {
                                                         )
                                                       : null,
                                                   ),
-                                                   AnimatedContainer(
-                                                    width: removeButtonProvider[index -1 ]? 8.w : 0.w,
-                                                    height: removeButtonProvider[index -1]? 8.w : 0.w,
-                                                    duration: Duration(milliseconds: 100),
+                                                   if(removeButtonProvider[index -1]) AnimatedContainer(
+                                                    width: 8.w,
+                                                    height: 8.w,
+                                                    duration: Duration(milliseconds: 200),
                                                     child: CircleAvatar(
-                                                      backgroundColor: Colors.red,
+                                                      backgroundColor: Colors.white,
                                                       child: IconButton(
                                                         onPressed: (){
                                                           if(removeButtonProvider[index - 1]){
                                                             setState((){
                                                               changeProvider = true;
                                                               removeButtonProvider[index - 1] = false;
-                                                              urls.removeAt(index);
+                                                              indexes.removeWhere((ind) => ind == index);
+                                                              urls[index] = null;
                                                             });
                                                           }
                                                         }, 
-                                                        icon: HugeIcon(icon: HugeIcons.strokeRoundedRemove02, color: Colors.white, size: 16.sp,)
+                                                        icon: HugeIcon(icon: HugeIcons.strokeRoundedRemove02, color: Colors.red, size: 16.sp,)
                                                       ),
                                                     ),
                                                   )
@@ -712,17 +723,10 @@ class UserProfileView extends ConsumerWidget {
                                             onPressed: () async{
                                               setState((){loading = true;});
                                               for (var index in indexes){
-                                                var url = await uploadImageToSupabase(images[index]!);
-                                                if(index < urls.length){
-                                                  //IDEA this means it's just changing image
-                                                  urls[index] = url!;
-                                                }else {
-                                                  //idea when adding a new one
-                                                  urls.add(url!);
-                                                }
-                                                
+                                                var url = await uploadImageToSupabase(urls[index]!);
+                                                urls[index] = url!;
+                                                //TODO remove changed or removed images from databases
                                               }
-                                              urls=  List.from(urls.where((url) => url != null));
                                               try{
                                                 await supabase.from('restaurants')
                                                 .update({'urls': urls})
@@ -789,20 +793,20 @@ class UserProfileView extends ConsumerWidget {
                           children: List.generate(
                               ref.watch(userDocumentsProvider)['urls'].length - 1,
                               (index) {
-                            return Container(
+                            return ref.watch(userDocumentsProvider)['urls'][index + 1] != null? Container(
                               width: 16.h - 8.sp * 5.5,
                               height: 16.h - 8.sp * 5.5,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(24.sp),
                                 boxShadow: [dropShadow],
-                                image: DecorationImage(
-                                  image: NetworkImage(
+                                image:  DecorationImage(
+                                  image:  NetworkImage(
                                     ref.watch(userDocumentsProvider)['urls'][index + 1],
                                   ),
                                   fit: BoxFit.cover,
-                                ),
+                                )
                               ),
-                            );
+                            ) : SizedBox.shrink();
                           }),
                         ),
                       ],

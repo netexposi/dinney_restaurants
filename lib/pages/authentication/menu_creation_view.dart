@@ -1,19 +1,26 @@
+import 'package:dinney_restaurant/pages/authentication/schedule_view.dart';
 import 'package:dinney_restaurant/services/models/menu_model.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
+import 'package:dinney_restaurant/widgets/blurry_container.dart';
+import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
+import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+final tagsProvider = StateProvider<List<String>>((ref) => []);
 
 class MenuCreationView extends ConsumerWidget {
   final int restaurantId;
   MenuCreationView(this.restaurantId, {super.key});
 
   final menuProvider = StateProvider<List<Map<String, dynamic>>>((ref) => []);
+
   final SupabaseClient supabase = Supabase.instance.client;
   
 
@@ -21,106 +28,150 @@ class MenuCreationView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final menu = ref.watch(menuProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.sp),
-          width: 25.w,
-          height: 10.w,
-          decoration: BoxDecoration(
-            color: secondaryColor,
-            borderRadius: BorderRadius.circular(24.sp)
-          ),
-          child: Row(
-            spacing: 8.sp,
-            children: [
-              CircleAvatar(
-                radius: 16.sp,
-                backgroundColor: backgroundColor,
-                child: Center(
-                  child: Text("${ref.watch(signUpProvider)}", style: Theme.of(context).textTheme.bodyLarge,),
-                ),
-              ),
-              Text("Menu", style: Theme.of(context).textTheme.headlineMedium,)
-            ],
-          ),
-        ),
-      ),
-      body: SizedBox(
-        width: 100.w,
-        height: 100.h,
-        child: Padding(
-          padding: EdgeInsets.all(16.sp),
-          child: Column(
-            spacing: 16.sp,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              menu.isEmpty
-                  ? Text("Menu is empty")
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 8.sp,
-                        crossAxisSpacing: 8.sp,
-                        childAspectRatio: 4,
-                      ),
-                      itemCount: menu.length,
-                      itemBuilder: (context, ind) {
-                        return InkWell(
-                          onTap: () {
-                            _showEditCategoryDialog(context, ref, ind, menu[ind]);
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(16.sp),
-                            ),
-                            child: Text(menu[ind]["name"]),
-                          ),
-                        );
-                      },
+      body: SafeArea(
+        child: Column(
+          spacing: 16.sp,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 16.sp),
+              child: ThreeDotsIndicator(),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.sp),
+              child: menu.isEmpty
+                ? Text("Menu is empty")
+                : GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8.sp,
+                      crossAxisSpacing: 8.sp,
+                      childAspectRatio: 4,
                     ),
-              Align(
-                alignment: Alignment.center,
-                child: OutlinedButton(
-                  onPressed: () {
-                    _showAddCategoryDialog(context, ref);
-                  },
-                  child: Text("Add Category"),
-                ),
-              ),
-              if(ref.watch(menuProvider).isNotEmpty) Align(
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () async{
-                    print(ref.watch(menuProvider)); 
-                    final table = MenuModel(
-                      restaurantId: restaurantId, 
-                      menu: menu);
-                    final supabase = Supabase.instance.client;
-                        late var query;
-                        try {
-                          query =  await supabase
-                            .from('menu')
-                            .insert(table.toJson())
-                            .select()
-                            .single();
-                          print(query['id']);
-                          // You can return or use the insertedClient if needed
-                        } on PostgrestException catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
-                        }
-                        ref.read(signUpProvider.notifier).state = 0; // update the sign up state to 3
-                        AppNavigation.navRouter.go("/home");
-                  }, 
-                  child: Text("Save Menu")
+                    itemCount: menu.length,
+                    itemBuilder: (context, ind) {
+                      return InkWell(
+                        onTap: () {
+                          _showEditCategoryDialog(context, ref, ind, menu[ind]);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(16.sp),
+                          ),
+                          child: Text(menu[ind]["name"]),
+                        ),
+                      );
+                    },
                   ),
-              )
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                onPressed: () {
+                  _showAddCategoryDialog(context, ref);
+                },
+                child: Text("Add Category"),
+              ),
+            ),
+            ref.watch(tagsProvider).isNotEmpty? Column(
+              spacing: 16.sp,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                  child: Text("Tags", style: Theme.of(context).textTheme.headlineLarge,),
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                    child: Row(
+                    children: List.generate(ref.watch(tagsProvider).length,(index){
+                      return Container(
+                        alignment: Alignment.bottomCenter,
+                        width: 30.w,
+                        height: 30.w,
+                        margin: EdgeInsets.only(left: 16.sp),
+                        decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24.sp),
+                        image: DecorationImage(image: AssetImage(tagImages[ref.watch(tagsProvider)[index]]!))
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(8.sp),
+                          child: BlurryContainer(
+                            width: 24.w,
+                            height: 10.w,
+                            borderRadius: BorderRadius.circular(24.sp),
+                            child: Center(
+                              child: Text(
+                                ref.watch(tagsProvider)[index],
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.4),
+                                    offset: Offset(2, 2),
+                                    blurRadius: 24,
+                                  ),
+                                ]),
+                                ))
+                            ),
+                        ),
+                      );
+                    }),
+                    )
+                  ),
+              ],
+            ) : Padding(
+              padding:  EdgeInsets.symmetric(horizontal: 16.sp),
+              child: Text("No tags are selected"),
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                onPressed: (){
+                  showDialog(context: context, builder: (contetx){
+                    return TagsDialog();
+                  });
+                }, 
+                child: Text("Add Tags")
+              ),
+            ),
+            if(ref.watch(menuProvider).isNotEmpty && ref.watch(tagsProvider).isNotEmpty) Align(
+              alignment: Alignment.bottomCenter,
+              child: !ref.watch(savingLoadingButton)? ElevatedButton(
+                onPressed: () async{
+                  ref.read(savingLoadingButton.notifier).state = true;
+                  final table = MenuModel(
+                    restaurantId: restaurantId, 
+                    menu: menu);
+                  final supabase = Supabase.instance.client;
+                  final uid = supabase.auth.currentUser!.id;
+                      late var query;
+                      try {
+                        await supabase
+                          .from('menu')
+                          .insert(table.toJson())
+                          .whenComplete(() async{
+                            await supabase.from("restaurants")
+                            .update({"tags": List.from(ref.read(tagsProvider))})
+                            .eq("uid", uid)
+                            .whenComplete((){
+                              ref.read(savingLoadingButton.notifier).state = false;
+                              ref.read(signUpProvider.notifier).state = 3; // update the sign up state to 3
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleView()));
+                            });
+                          });
+                        // You can return or use the insertedClient if needed
+                      } on PostgrestException catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                      }
+                }, 
+                child: Text("Save")
+              ) : LoadingSpinner(),
+            )
+          ],
         ),
       ),
     );
@@ -169,7 +220,7 @@ class MenuCreationView extends ConsumerWidget {
                       ),
                       if(currentItems.isEmpty) Row(
                         children: [
-                          Text("Multi size"),
+                          Text("Accept notes"),
                           Checkbox(
                             value: notable,
                             onChanged: (value) {
@@ -415,7 +466,7 @@ class MenuCreationView extends ConsumerWidget {
                     children: List.generate(multiSizes ? 3 : 1, (index) {
                       return InputField(
                         controller: sizeControllers[index],
-                        hintText: sizes[index],
+                        hintText: multiSizes ? "Price of ${sizes[index]}" : "Price",
                       );
                     }),
                   ),
@@ -530,4 +581,96 @@ class MenuCreationView extends ConsumerWidget {
       },
     );
   }
+}
+class TagsDialog extends ConsumerWidget{
+  TagsDialog({super.key});
+
+  final supabase = Supabase.instance.client;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Dialog(
+      insetPadding: EdgeInsets.all(16.sp),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(16.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16.sp,
+          children: [
+            Text("Tags"),
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8.sp,
+                  crossAxisSpacing: 8.sp,
+                  childAspectRatio: 1,
+                ),
+                itemCount: tagImages.entries.length,
+                itemBuilder: (context, ind) {
+                  final tagKey = tagImages.entries.elementAt(ind).key;
+                  return InkWell(
+                    onTap: () async{
+                      if(ref.watch(tagsProvider).contains(tagKey)){
+                        final currentState = ref.read(tagsProvider.notifier).state;
+                        final updatedTags = List<String>.from(currentState ?? [])..remove(tagKey);
+                        ref.read(tagsProvider.notifier).state = updatedTags;
+                      } else {
+                        final currentState = ref.read(tagsProvider.notifier).state;
+                        final updatedTags = List<String>.from(currentState ?? [])..add(tagKey);
+                        ref.read(tagsProvider.notifier).state = updatedTags;
+                      }
+                    },
+                    child: Container(
+                      alignment: Alignment.bottomCenter,
+                      decoration: BoxDecoration(
+                      border: BoxBorder.all(
+                        color: primaryColor,
+                        width: ref.watch(tagsProvider).contains(tagKey)? 8.sp : 0.sp,
+                      ),
+                      borderRadius: BorderRadius.circular(24.sp),
+                      image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.sp),
+                        child: BlurryContainer(
+                          width: 19.w,
+                          height: 10.w,
+                          borderRadius: BorderRadius.circular(24.sp),
+                          child: Center(
+                            child: Text(
+                              "${tagImages.entries.elementAt(ind).key}",
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.4),
+                                  offset: Offset(2, 2),
+                                  blurRadius: 24,
+                                ),
+                              ]),
+                              ))
+                          ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if(ref.watch(tagsProvider).isNotEmpty) Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                }, 
+                child: Text("Save")
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
 }

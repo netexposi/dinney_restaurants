@@ -3,6 +3,7 @@ import 'package:dinney_restaurant/services/models/restaurant_model.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
+import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,28 +20,7 @@ class SignUpView extends ConsumerWidget{
     TextEditingController confirmPasswordController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.sp),
-          width: 25.w,
-          height: 10.w,
-          decoration: BoxDecoration(
-            color: secondaryColor,
-            borderRadius: BorderRadius.circular(24.sp)
-          ),
-          child: Row(
-            spacing: 8.sp,
-            children: [
-              CircleAvatar(
-                radius: 16.sp,
-                backgroundColor: backgroundColor,
-                child: Center(
-                  child: Text("${ref.watch(signUpProvider)}", style: Theme.of(context).textTheme.bodyLarge,),
-                ),
-              ),
-              Text("Menu", style: Theme.of(context).textTheme.headlineMedium,)
-            ],
-          ),
-        ),
+        title: Text("Sign Up")
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(16.sp),
@@ -50,6 +30,7 @@ class SignUpView extends ConsumerWidget{
           child: Column(
             spacing: 16.sp,
             children: [
+              ThreeDotsIndicator(),
               Text("Create a restaurant account"),
               InputField(controller: nameController, hintText: "Restaurant Name"),
               InputField(controller: emailController, hintText: "Email"),
@@ -81,6 +62,7 @@ class SignUpView extends ConsumerWidget{
                           password: passwordController.text.trim(),
                         );
                         var restaurant= Restaurant(
+                          uid: supabase.auth.currentUser!.id,
                           name: nameController.text.trim(), 
                           email: emailController.text.trim(),
                           urls: []             
@@ -92,7 +74,6 @@ class SignUpView extends ConsumerWidget{
                             .insert(restaurant.toJson())
                             .select()
                             .single();
-                          print(query['id']);
                           id = query['id'];
                           // You can return or use the insertedClient if needed
                         } on PostgrestException catch (e) {

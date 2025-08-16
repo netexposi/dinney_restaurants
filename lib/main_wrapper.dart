@@ -1,67 +1,63 @@
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class MainWrapper extends StatefulWidget {
-  const MainWrapper({
+
+class MainWrapper extends ConsumerWidget {
+  MainWrapper({
     required this.navigationShell,
     super.key,
   });
   final StatefulNavigationShell navigationShell;
-
-  @override
-  State<MainWrapper> createState() => _MainWrapperState();
-}
-
-class _MainWrapperState extends State<MainWrapper> {
-  int selectedIndex = 0; // Added missing selectedIndex variable
-
+  
   void _goBranch(int index) {
-    widget.navigationShell.goBranch(
+    navigationShell.goBranch(
       index,
-      initialLocation: index == widget.navigationShell.currentIndex,
+      initialLocation: index == navigationShell.currentIndex,
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
-        child: widget.navigationShell,
+        child: navigationShell,
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-            _goBranch(selectedIndex);
-          });
+          if(ref.watch(userDocumentsProvider).isNotEmpty){
+            ref.read(selectedIndex.notifier).state = index;
+            _goBranch(index);
+          }
         },
-        currentIndex: selectedIndex,
+        currentIndex: ref.watch(selectedIndex),
         selectedItemColor: secondaryColor,
         unselectedItemColor: secondaryColor.withOpacity(0.5), // Lighter color for unselected items
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedHome01,
-              color: selectedIndex == 0 ? secondaryColor : secondaryColor.withOpacity(0.5),
+              color: ref.watch(selectedIndex) == 0 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedServingFood,
-              color: selectedIndex == 1 ? secondaryColor : secondaryColor.withOpacity(0.5),
+              color: ref.watch(selectedIndex) == 1 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Menu",
           ),
           BottomNavigationBarItem(
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedAppleStocks,
-              color: selectedIndex == 2 ? secondaryColor : secondaryColor.withOpacity(0.5),
+              color: ref.watch(selectedIndex) == 2 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Statistics",
           ),

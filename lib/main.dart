@@ -13,6 +13,10 @@ Future<void> main() async{
     url: 'https://sxflfgrlveqeerzwlhhv.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4ZmxmZ3JsdmVxZWVyendsaGh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0Njg0MjAsImV4cCI6MjA2OTA0NDQyMH0.ZPZypzCiVynG_BGbXvggr2XVl-KOqKpl_hJZ1pQeht8',
   );
+  final supabase = Supabase.instance.client.auth.currentUser?.id;
+  if(supabase != null){
+    AppNavigation.navRouter.go("/home");
+  }
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -101,52 +105,63 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MyHomePage extends ConsumerWidget {
+  MyHomePage({super.key});
+  
+  final toLogIn = StateProvider<bool>((ref) => false);
+  
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  bool toLogIn = false;
-
-  @override
-  Widget build(BuildContext context) {
+  
+    @override
+    Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
           GestureDetector(
             onTap: (){
-              setState(() {
-                toLogIn = false;
-              });
+              ref.read(toLogIn.notifier).state = false;
             },
             child: Container(
               width: 100.w,
               height: 100.h,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/images/test.jpeg"),
+                  image: AssetImage("assets/images/index.png"),
                   fit: BoxFit.cover
                   )),
             ),
           ),
           Padding(
             padding: EdgeInsets.only(bottom: 4.h),
-            child: ElevatedButton(
-              onPressed: () async{
-                setState(() {
-                  toLogIn = true;
-                  //Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(7)));
-                });
-              }, 
-              child: Text("Proceed"),
+            child: AnimatedOpacity(
+              opacity: ref.watch(toLogIn)? 0 : 1,
+              duration: Duration(milliseconds: 150),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 16.sp,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                    children: [
+                      TextSpan(text: "Manage Your Orders", style: Theme.of(context).textTheme.headlineLarge),
+                      TextSpan(text: "\nEasily", style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: secondaryColor))
+                    ]
+                  ),),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.read(toLogIn.notifier).state = true;
+                    }, 
+                    child: Text("Get Started"),
+                  ),
+                ],
+              ),
             ),
           ),
           AnimatedPositioned(
-            bottom: toLogIn? 0 : -27.h, 
+            bottom: ref.watch(toLogIn)? 0 : -27.h, 
             duration: Duration(milliseconds: 300),
             child: Container(
               padding: EdgeInsets.all(16.sp),
@@ -155,12 +170,12 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 23.h, 
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16.sp)
+                borderRadius: BorderRadius.circular(24.sp)
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("Log in with your account", style: Theme.of(context).textTheme.headlineMedium,),
+                  Text("Sign in with dinney account", style: Theme.of(context).textTheme.headlineSmall,),
                   ElevatedButton(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginView()));

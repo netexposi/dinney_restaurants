@@ -11,7 +11,7 @@ final ButtonStyle blackButton = ButtonStyle(
     foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
     fixedSize: WidgetStateProperty.all<Size>(Size(80.w, 6.h)),
     shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.sp)),
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.sp)),
     )
   );
 // to adjust
@@ -20,7 +20,7 @@ final ButtonStyle outlinedBeige = ButtonStyle(
   foregroundColor: WidgetStateProperty.all<Color>(Colors.black),
   fixedSize: WidgetStateProperty.all<Size>(Size(80.w, 6.h)),
   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.sp))),
+    RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.sp))),
   side: WidgetStateProperty.all(BorderSide(color: secondaryColor, width: 2.0)),
   overlayColor: WidgetStateProperty.all<Color>(secondaryColor.withOpacity(0.5))
 );
