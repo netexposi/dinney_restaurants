@@ -1,18 +1,33 @@
+import 'package:dinney_restaurant/firebase_options.dart';
 import 'package:dinney_restaurant/pages/authentication/login_view.dart';
 import 'package:dinney_restaurant/pages/authentication/sign_up_view.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async{
-  WidgetsFlutterBinding.ensureInitialized();
+  //WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://sxflfgrlveqeerzwlhhv.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4ZmxmZ3JsdmVxZWVyendsaGh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0Njg0MjAsImV4cCI6MjA2OTA0NDQyMH0.ZPZypzCiVynG_BGbXvggr2XVl-KOqKpl_hJZ1pQeht8',
   );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseMessaging.instance.requestPermission(
+  alert: true,
+  badge: true,
+  sound: true,
+);
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  String? token = await messaging.getAPNSToken();
+  print("FCM Token: $token");
   final supabase = Supabase.instance.client.auth.currentUser?.id;
   if(supabase != null){
     AppNavigation.navRouter.go("/home");

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax/iconsax.dart';
 
 
 class MainWrapper extends ConsumerWidget {
@@ -35,28 +36,29 @@ class MainWrapper extends ConsumerWidget {
             ref.read(selectedIndex.notifier).state = index;
             _goBranch(index);
           }
+          
         },
         currentIndex: ref.watch(selectedIndex),
         selectedItemColor: secondaryColor,
         unselectedItemColor: secondaryColor.withOpacity(0.5), // Lighter color for unselected items
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedHome01,
+            icon: Icon(
+              ref.watch(selectedIndex) == 0? Iconsax.home_21 : Iconsax.home_24,
               color: ref.watch(selectedIndex) == 0 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedServingFood,
+            icon: Icon(
+              ref.watch(selectedIndex) == 1? Iconsax.document_15 : Iconsax.document_1,
               color: ref.watch(selectedIndex) == 1 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Menu",
           ),
           BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAppleStocks,
+            icon: Icon(
+              ref.watch(selectedIndex) == 2? Iconsax.graph5 : Iconsax.graph,
               color: ref.watch(selectedIndex) == 2 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
             label: "Statistics",

@@ -25,7 +25,9 @@ end
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
 
 flutter_macos_podfile_setup
-
+$FirebaseSDKVersion = '10.29.0'
+pod 'Firebase/Core', $FirebaseSDKVersion
+pod 'Firebase/Messaging', $FirebaseSDKVersion
 target 'Runner' do
   use_frameworks!
 
