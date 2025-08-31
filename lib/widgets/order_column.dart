@@ -1,7 +1,5 @@
-import 'package:dinney_restaurant/pages/home_view.dart';
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
-import 'package:dinney_restaurant/utils/variables.dart';
-import 'package:dinney_restaurant/widgets/blurry_container.dart';
 import 'package:dinney_restaurant/widgets/order_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +48,7 @@ class OrderColumn extends ConsumerWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${order['client_name']}', style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20.sp)!),
-                  Text(order["at_table"]? "Reservation at table" : "Reservation to pick up", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor),),
+                  Text(order["at_table"]? S.of(context).reservation_at_table : S.of(context).reservation_to_go, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor),),
                   
                 ],
               ),
@@ -74,7 +72,7 @@ class OrderColumn extends ConsumerWidget{
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text("$numOrders ${S.of(context).orders}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                         HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
                       ],
                     )
@@ -98,7 +96,7 @@ class OrderColumn extends ConsumerWidget{
                         }
                       );
                     }, 
-                    child: Text("Voir")
+                    child: Text(S.of(context).view)
                   )
                 ],
               ),

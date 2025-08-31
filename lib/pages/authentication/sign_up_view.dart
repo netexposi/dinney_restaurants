@@ -1,7 +1,7 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/gallery_setting_view.dart';
 import 'package:dinney_restaurant/services/models/restaurant_model.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
-import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
@@ -20,7 +20,7 @@ class SignUpView extends ConsumerWidget{
     TextEditingController confirmPasswordController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sign Up")
+        title: Text(S.of(context).sing_up)
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(16.sp),
@@ -31,11 +31,11 @@ class SignUpView extends ConsumerWidget{
             spacing: 16.sp,
             children: [
               ThreeDotsIndicator(),
-              Text("Create a restaurant account"),
-              InputField(controller: nameController, hintText: "Restaurant Name"),
-              InputField(controller: emailController, hintText: "Email"),
-              InputField(controller: passwordController, hintText: "Password"),
-              InputField(controller: confirmPasswordController, hintText: "Confirm Password"),
+              Text(S.of(context).create_restaurant_account),
+              InputField(controller: nameController, hintText: S.of(context).restaurant_name),
+              InputField(controller: emailController, hintText: S.of(context).email),
+              InputField(controller: passwordController, hintText: S.of(context).password, obscureText: true,),
+              InputField(controller: confirmPasswordController, hintText: S.of(context).confirm_password, obscureText: true,),
               ElevatedButton(
                 onPressed: () async{
                   // in case fields are empty

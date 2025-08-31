@@ -1,10 +1,10 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax/iconsax.dart';
 
 
@@ -47,21 +47,21 @@ class MainWrapper extends ConsumerWidget {
               ref.watch(selectedIndex) == 0? Iconsax.home_21 : Iconsax.home_24,
               color: ref.watch(selectedIndex) == 0 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
-            label: "Home",
+            label: S.of(context).home,
           ),
           BottomNavigationBarItem(
             icon: Icon(
               ref.watch(selectedIndex) == 1? Iconsax.document_15 : Iconsax.document_1,
               color: ref.watch(selectedIndex) == 1 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
-            label: "Menu",
+            label: S.of(context).menu,
           ),
           BottomNavigationBarItem(
             icon: Icon(
               ref.watch(selectedIndex) == 2? Iconsax.graph5 : Iconsax.graph,
               color: ref.watch(selectedIndex) == 2 ? secondaryColor : secondaryColor.withOpacity(0.5),
             ),
-            label: "Statistics",
+            label: S.of(context).statistics,
           ),
         ],
       ),

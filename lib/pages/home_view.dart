@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/settings/settings_view.dart';
 import 'package:dinney_restaurant/services/functions/background_service.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
@@ -83,9 +84,9 @@ class HomeView extends ConsumerWidget{
                     .asBroadcastStream(),
                     builder: (context, snapshot){
                       if(snapshot.hasError){
-                        return Center(child: Text("Error: ${snapshot.error}"));
+                        return Center(child: Text("${S.of(context).error}: ${snapshot.error}"));
                       }else if(snapshot.data == null || snapshot.data!.isEmpty){
-                        return Center(child: Text("No orders found"));
+                        return Center(child: Text(S.of(context).no_orders_found));
                       }else{
                         if(snapshot.data!.length >4){
                           ref.read(horizontalOrder.notifier).state = true;
@@ -113,7 +114,7 @@ class HomeView extends ConsumerWidget{
                             if(unrespondedOrders.isNotEmpty) Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Arriving Orders", style: Theme.of(context).textTheme.headlineLarge,),
+                                Text(S.of(context).arriving_orders, style: Theme.of(context).textTheme.headlineLarge,),
                                 AnimatedRotation(
                                   duration: Duration(milliseconds: 300),
                                   turns: ref.watch(horizontalOrder)? 0.0 : 0.5,
@@ -149,7 +150,7 @@ class HomeView extends ConsumerWidget{
                                 }),
                               ),
                             ),
-                            Text("Confirmed Orders", style: Theme.of(context).textTheme.headlineLarge,),
+                            Text(S.of(context).confirmed_orders, style: Theme.of(context).textTheme.headlineLarge,),
                             // Completed Orders
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,8 +236,8 @@ class HomeView extends ConsumerWidget{
                                                                           Row(
                                                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                             children: [
-                                                                              Text("Total Price", style: Theme.of(context).textTheme.headlineSmall),
-                                                                              Text("$totalPrice DA", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                                                                              Text(S.of(context).total_price, style: Theme.of(context).textTheme.headlineSmall),
+                                                                              Text("$totalPrice ${S.of(context).da}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                                                                             ],
                                                                           ),
                                                                           Center(
@@ -249,8 +250,8 @@ class HomeView extends ConsumerWidget{
                                                                                   context: context, 
                                                                                   builder: (context){
                                                                                     return AlertDialog(
-                                                                                  title: Text("Cancel Order"),
-                                                                                  content: Text("Are you sure you want to cancel this order?"),
+                                                                                  title: Text(S.of(context).cancel_order),
+                                                                                  content: Text(S.of(context).cancel_order_warning),
                                                                                   actionsAlignment: MainAxisAlignment.spaceEvenly,
                                                                                   actions: [
                                                                                     TextButton(
@@ -265,14 +266,14 @@ class HomeView extends ConsumerWidget{
                                                                                         Navigator.of(context).pop();
                                                                                         Navigator.of(context).pop();
                                                                                       }, 
-                                                                                      child: Text("Yes, Cancel Order")
+                                                                                      child: Text(S.of(context).yes_cancel)
                                                                                     ),
                                                                                     TextButton(
                                                                                       style: Theme.of(context).textButtonTheme.style?.copyWith(
                                                                                         foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
                                                                                       ),
                                                                                       onPressed: () => Navigator.of(context).pop(), 
-                                                                                      child: Text("No")
+                                                                                      child: Text(S.of(context).no)
                                                                                     ),
                                                                                     
                                                                                   ],
@@ -282,7 +283,7 @@ class HomeView extends ConsumerWidget{
                                                                                 
                                                                                                                       
                                                                               }, 
-                                                                              child: Text("Cancel Order")
+                                                                              child: Text(S.of(context).cancel_order)
                                                                             ),
                                                                           )
                                                                         ],
@@ -314,7 +315,7 @@ class HomeView extends ConsumerWidget{
                                                                           spacing: 8.sp,
                                                                           children: [
                                                                             Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
-                                                                            Text(atTableOrders[index]["at_table"]? "• At Table" : "• To Pick Up", 
+                                                                            Text(atTableOrders[index]["at_table"]? "• ${S.of(context).at_table}" : "• ${S.of(context).to_go}", 
                                                                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
                                                                           ],
                                                                         ),
@@ -334,7 +335,7 @@ class HomeView extends ConsumerWidget{
                                                                           child: Row(
                                                                             mainAxisAlignment: MainAxisAlignment.center,
                                                                             children: [
-                                                                              Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                              Text("$numOrders ${S.of(context).orders}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                                                                               HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
                                                                             ],
                                                                           )
@@ -378,13 +379,13 @@ class HomeView extends ConsumerWidget{
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text("At Table", 
+                                        Text(S.of(context).at_table, 
                                             style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                                         BlurryContainer(
                                           key: blurryKeys[0],
                                           width: 35.w,
                                           height: 13.w,
-                                          child: Text("$numAtTable order" + (numAtTable != 1? "s" : ""), 
+                                          child: Text("$numAtTable ${numAtTable != 1? S.of(context).orders : S.of(context).order}", 
                                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
                                           ),
                                       ],
@@ -439,7 +440,7 @@ class HomeView extends ConsumerWidget{
                                                                                     ? '${toPickUpOrders[index]['client_name'].toString().substring(0, 15)}...'
                                                                                     : toPickUpOrders[index]['client_name']}', 
                                                                                     style: Theme.of(context).textTheme.headlineMedium),
-                                                                                  Text(toPickUpOrders[index]["at_table"]? "At Table" : "To Pick Up", 
+                                                                                  Text(toPickUpOrders[index]["at_table"]? S.of(context).at_table : S.of(context).to_go, 
                                                                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
                                                                                 ],
                                                                               ),
@@ -468,8 +469,8 @@ class HomeView extends ConsumerWidget{
                                                                           Row(
                                                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                             children: [
-                                                                              Text("Total Price", style: Theme.of(context).textTheme.headlineSmall),
-                                                                              Text("$totalPrice DA", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                                                                              Text(S.of(context).total_price, style: Theme.of(context).textTheme.headlineSmall),
+                                                                              Text("$totalPrice ${S.of(context).da}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                                                                             ],
                                                                           ),
                                                                           Center(
@@ -482,8 +483,8 @@ class HomeView extends ConsumerWidget{
                                                                                   context: context, 
                                                                                   builder: (context){
                                                                                     return AlertDialog(
-                                                                                      title: Text("Cancel Order"),
-                                                                                      content: Text("Are you sure you want to cancel this order?"),
+                                                                                      title: Text(S.of(context).cancel_order),
+                                                                                      content: Text(S.of(context).cancel_order_warning),
                                                                                       actionsAlignment: MainAxisAlignment.spaceEvenly,
                                                                                       actions: [
                                                                                         TextButton(
@@ -498,14 +499,14 @@ class HomeView extends ConsumerWidget{
                                                                                             Navigator.of(context).pop();
                                                                                             Navigator.of(context).pop();
                                                                                           }, 
-                                                                                          child: Text("Yes, Cancel Order")
+                                                                                          child: Text(S.of(context).yes_cancel)
                                                                                         ),
                                                                                         TextButton(
                                                                                           style: Theme.of(context).textButtonTheme.style?.copyWith(
                                                                                             foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
                                                                                           ),
                                                                                           onPressed: () => Navigator.of(context).pop(), 
-                                                                                          child: Text("No")
+                                                                                          child: Text(S.of(context).no)
                                                                                         ),
                                                                                         
                                                                                       ],
@@ -516,7 +517,7 @@ class HomeView extends ConsumerWidget{
                                                                                 //TODO Then we remove the row from the database
                                                 
                                                                               }, 
-                                                                              child: Text("Cancel Order")
+                                                                              child: Text(S.of(context).cancel_order)
                                                                             ),
                                                                           )
                                                                         ],
@@ -548,7 +549,7 @@ class HomeView extends ConsumerWidget{
                                                                           spacing: 8.sp,
                                                                           children: [
                                                                             Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
-                                                                            Text(toPickUpOrders[index]["at_table"]? "• At Table" : "• To Pick Up", 
+                                                                            Text(toPickUpOrders[index]["at_table"]? "• ${S.of(context).at_table}" : "• ${S.of(context).to_go}", 
                                                                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
                                                                           ],
                                                                         ),
@@ -568,7 +569,7 @@ class HomeView extends ConsumerWidget{
                                                                           child: Row(
                                                                             mainAxisAlignment: MainAxisAlignment.center,
                                                                             children: [
-                                                                              Text("$numOrders orders", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                              Text("$numOrders ${S.of(context).orders}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                                                                               HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
                                                                             ],
                                                                           )
@@ -612,13 +613,13 @@ class HomeView extends ConsumerWidget{
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text("To Pick Up", 
+                                        Text(S.of(context).to_go, 
                                             style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                                         BlurryContainer(
                                           key: blurryKeys[1],
                                           width: 35.w,
                                           height: 13.w,
-                                          child: Text("$numToPickUp order${numToPickUp != 1? "s" : ""}", 
+                                          child: Text("$numToPickUp ${numToPickUp != 1? S.of(context).orders : S.of(context).order}", 
                                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
                                           ),
                                       ],
@@ -645,7 +646,7 @@ class suggestionDialog extends ConsumerWidget{
   final int id;
   final String opening;
   final String closing;
-  List<String> suggestions = ["At Table", "To Pick Up"];
+  
   final suggestionProvider = StateProvider<List<bool>>((ref) => [true, false]);
   final suggestionButton = StateProvider<bool>((ref) => false);
   int selectedHour = 0;
@@ -676,6 +677,8 @@ class suggestionDialog extends ConsumerWidget{
   suggestionDialog(this.opening, this.closing, {super.key, required this.id});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    //FIXME suggestion might not show suggestion because of moved list from above to here
+    List<String> suggestions = [S.of(context).at_table, S.of(context).to_go];
     var openingTime = parseTimeString(opening);
     final closingTime = parseTimeString(closing);
     if(openingTime!.isBefore(TimeOfDay.now())){
@@ -817,7 +820,7 @@ class suggestionDialog extends ConsumerWidget{
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Text("Suggest")
+                  child: Text(S.of(context).suggest)
                 )
               ],
             ),

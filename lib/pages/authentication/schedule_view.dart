@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/location_selection.dart';
 import 'package:dinney_restaurant/services/functions/string_handlings.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
@@ -51,7 +52,7 @@ List<String> days = [
             children: [
               ThreeDotsIndicator(),
               Text(
-                "Schedule",
+                S.of(context).schedule,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               StatefulBuilder(
@@ -171,7 +172,7 @@ List<String> days = [
                                   
 
                                 },
-                                child: Text("Save")
+                                child: Text(S.of(context).save)
                               ),
                             )
                           ],

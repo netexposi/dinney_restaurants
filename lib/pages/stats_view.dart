@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
@@ -32,9 +33,9 @@ class StatsView extends ConsumerWidget {
                 .asBroadcastStream(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Text("Error");
+                return Text(S.of(context).error);
               } else if (snapshot.data != null && snapshot.data!.isEmpty) {
-                return const Text("Empty");
+                return Text(S.of(context).empty);
               } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                 final completedOrders = snapshot.data!
                     .where((item) =>
@@ -77,7 +78,7 @@ class StatsView extends ConsumerWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Statistics",
+                    Text(S.of(context).statistics,
                         style: Theme.of(context).textTheme.headlineLarge),
                     SizedBox(height: 16.sp),
                     Expanded(
@@ -100,7 +101,7 @@ class StatsView extends ConsumerWidget {
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.sp),
-                                        child: Text("Total orders",
+                                        child: Text(S.of(context).total_orders,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall),
@@ -135,7 +136,7 @@ class StatsView extends ConsumerWidget {
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.sp),
-                                        child: Text("Served items",
+                                        child: Text(S.of(context).served_items,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall),
@@ -172,7 +173,7 @@ class StatsView extends ConsumerWidget {
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Padding(
                                     padding: EdgeInsets.all(16.sp),
-                                    child: Text("Total income",
+                                    child: Text(S.of(context).total_icnome,
                                         style:
                                             Theme.of(context).textTheme.bodySmall),
                                   ),
@@ -180,7 +181,7 @@ class StatsView extends ConsumerWidget {
                                 SizedBox(
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Center(
-                                    child: Text("$totalIncome DA",
+                                    child: Text("$totalIncome ${S.of(context).da}",
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineLarge!
@@ -206,7 +207,7 @@ class StatsView extends ConsumerWidget {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                                    child: Text("Weekly orders",
+                                    child: Text(S.of(context).weekly_orders,
                                         style:
                                             Theme.of(context).textTheme.bodySmall),
                                   ),

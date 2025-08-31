@@ -1,4 +1,5 @@
 
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
@@ -52,7 +53,7 @@ class OrderContainer extends ConsumerWidget{
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Commande:", style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: tertiaryColor),),
+                      Text("${S.of(context).order}:", style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: tertiaryColor),),
                       Column(
                         children: List.generate(order['items'].length, (itemIndex){
                           return Column(
@@ -68,7 +69,7 @@ class OrderContainer extends ConsumerWidget{
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(order['at_table']? "Reservation at table" : "Reservation to pick up", 
+                      Text(order['at_table']? S.of(context).reservation_at_table : S.of(context).reservation_to_go, 
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.bold)),
                         Text(DateFormat.MMMEd().format(DateTime.parse(order['delivery_at'])), 
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: tertiaryColor, fontWeight: FontWeight.bold)),
@@ -112,7 +113,7 @@ class OrderContainer extends ConsumerWidget{
                       child: Row(
                         spacing: 8.sp,
                         children: [
-                          Text("Accept", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                          Text(S.of(context).accept, style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                           HugeIcon(icon: HugeIcons.strokeRoundedTick01, color: Colors.white, size: 16.sp),
                         ],
                       ),
@@ -153,7 +154,7 @@ class OrderContainer extends ConsumerWidget{
                     }
                     );
                 }, 
-                child: Text("Suggest")
+                child: Text(S.of(context).suggest)
                 )
             ],
           )

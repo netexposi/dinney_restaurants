@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
@@ -24,7 +25,7 @@ class LocationSelection extends ConsumerWidget{
             children: [
               ThreeDotsIndicator(),
               Text(
-                "Select Location",
+                S.of(context).select_location,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               SizedBox(
@@ -51,13 +52,13 @@ class LocationSelection extends ConsumerWidget{
                     .whenComplete((){
                       ref.read(savingLoadingButton.notifier).state = false;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SuccessMessage("Account Created Successfully")
+                        SuccessMessage(S.of(context).account_created_successfully)
                       );
                       ref.read(signUpProvider.notifier).state = 0; 
                       AppNavigation.navRouter.go("/home");
                     });
                   }, 
-                  child: Text("Start Working")
+                  child: Text(S.of(context).start_working)
                 ),
               )
             ],

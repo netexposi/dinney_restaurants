@@ -1,11 +1,14 @@
 import 'package:dinney_restaurant/firebase_options.dart';
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/login_view.dart';
 import 'package:dinney_restaurant/pages/authentication/sign_up_view.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,15 +38,23 @@ Future<void> main() async{
   runApp(ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Sizer(builder: (BuildContext , Orientation , ScreenType ) {
       return MaterialApp.router(
       routerConfig: AppNavigation.navRouter,
+      locale: S.delegate.supportedLocales[ref.watch(languageStateProvider)],
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: S.delegate.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,
@@ -125,10 +136,13 @@ class MyHomePage extends ConsumerWidget {
   
   final toLogIn = StateProvider<bool>((ref) => false);
   
-
-  
     @override
     Widget build(BuildContext context, WidgetRef ref) {
+      final LanguageList = [
+        S.of(context).english, 
+        S.of(context).arabic,
+        S.of(context).french
+        ];
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -161,48 +175,80 @@ class MyHomePage extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     text: TextSpan(
                     children: [
-                      TextSpan(text: "Manage Your Orders", style: Theme.of(context).textTheme.headlineLarge),
-                      TextSpan(text: "\nEasily", style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: secondaryColor))
+                      TextSpan(text: S.of(context).manage_your_orders, style: Theme.of(context).textTheme.headlineLarge),
+                      TextSpan(text: S.of(context).easily, style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: secondaryColor))
                     ]
                   ),),
                   ElevatedButton(
                     onPressed: () {
                       ref.read(toLogIn.notifier).state = true;
                     }, 
-                    child: Text("Get Started"),
+                    child: Text(S.of(context).get_started),
                   ),
                 ],
               ),
             ),
           ),
           AnimatedPositioned(
-            bottom: ref.watch(toLogIn)? 0 : -27.h, 
+            bottom: ref.watch(toLogIn)? 0 : -50.h, 
             duration: Duration(milliseconds: 300),
             child: Container(
               padding: EdgeInsets.all(16.sp),
               margin: EdgeInsets.only(bottom: 4.h),
               width: 80.w, 
-              height: 23.h, 
+              //height: 23.h, 
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24.sp)
               ),
               child: Column(
+              spacing: 16.sp,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("Sign in with dinney account", style: Theme.of(context).textTheme.headlineSmall,),
+                  Text(S.of(context).authentication_slogan, style: Theme.of(context).textTheme.headlineSmall,),
                   ElevatedButton(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginView()));
                     }, 
-                    child: Text("Sign In")
+                    child: Text(S.of(context).sign_in)
                   ),
                   OutlinedButton(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> SignUpView()));
                     }, 
-                    child: Text("Create an account")
-                  )
+                    child: Text(S.of(context).create_account)
+                  ),
+                  Divider(indent: 24.sp, endIndent: 24.sp ,height: 2, color: tertiaryColor.withOpacity(0.5),),
+                  OutlinedButton(
+                    style: outlinedBeige.copyWith(
+                      side: WidgetStateProperty.all<BorderSide>(BorderSide(color: tertiaryColor.withOpacity(0.5)))
+                    ),
+                    onPressed: (){
+                      showDialog(context: context, builder: (context){
+                        return AlertDialog(
+                          title: Text(S.of(context).select_your_language, style: Theme.of(context).textTheme.headlineSmall,),
+                          content: SizedBox(
+                            width: 80.w,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: LanguageList.length,
+                              itemBuilder: (context, index){
+                                return ListTile(
+                                  onTap: (){
+                                    ref.read(languageStateProvider.notifier).state = index;
+                                    Navigator.pop(context);
+                                  },
+                                  leading: Text(flagsList[index], style: TextStyle(fontSize: 24.sp),),
+                                  title: Text(LanguageList[index], style: Theme.of(context).textTheme.bodyLarge,),
+                                  trailing: ref.watch(languageStateProvider) == index ? Icon(Icons.check, color: secondaryColor,) : null,
+                                );
+                              }),
+                          ),
+                        );
+                      });
+                    }, 
+                    child: Text("${flagsList[ref.watch(languageStateProvider)]}  ${LanguageList[ref.watch(languageStateProvider)]}")
+                  ),
                 ],
               ),
             )

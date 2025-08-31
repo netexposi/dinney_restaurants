@@ -1,6 +1,6 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/schedule_view.dart';
 import 'package:dinney_restaurant/services/models/menu_model.dart';
-import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
@@ -40,7 +40,7 @@ class MenuCreationView extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.sp),
               child: menu.isEmpty
-                ? Text("Menu is empty")
+                ? Text(S.of(context).menu_empty)
                 : GridView.builder(
                     shrinkWrap: true,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -73,7 +73,7 @@ class MenuCreationView extends ConsumerWidget {
                 onPressed: () {
                   _showAddCategoryDialog(context, ref);
                 },
-                child: Text("Add Category"),
+                child: Text(S.of(context).add_category),
               ),
             ),
             ref.watch(tagsProvider).isNotEmpty? Column(
@@ -82,7 +82,7 @@ class MenuCreationView extends ConsumerWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                  child: Text("Tags", style: Theme.of(context).textTheme.headlineLarge,),
+                  child: Text(S.of(context).tags, style: Theme.of(context).textTheme.headlineLarge,),
                 ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -123,7 +123,7 @@ class MenuCreationView extends ConsumerWidget {
               ],
             ) : Padding(
               padding:  EdgeInsets.symmetric(horizontal: 16.sp),
-              child: Text("No tags are selected"),
+              child: Text(S.of(context).no_tags_selected),
             ),
             Align(
               alignment: Alignment.center,
@@ -133,7 +133,7 @@ class MenuCreationView extends ConsumerWidget {
                     return TagsDialog();
                   });
                 }, 
-                child: Text("Add Tags")
+                child: Text(S.of(context).add_tags)
               ),
             ),
             if(ref.watch(menuProvider).isNotEmpty && ref.watch(tagsProvider).isNotEmpty) Align(
@@ -146,7 +146,6 @@ class MenuCreationView extends ConsumerWidget {
                     menu: menu);
                   final supabase = Supabase.instance.client;
                   final uid = supabase.auth.currentUser!.id;
-                      late var query;
                       try {
                         await supabase
                           .from('menu')
@@ -163,12 +162,12 @@ class MenuCreationView extends ConsumerWidget {
                           });
                         // You can return or use the insertedClient if needed
                       } on PostgrestException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).failed_add_restaurant} ${e.message}"));
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} $e"));
                       }
                 }, 
-                child: Text("Save")
+                child: Text(S.of(context).save)
               ) : LoadingSpinner(),
             )
           ],
@@ -203,11 +202,11 @@ class MenuCreationView extends ConsumerWidget {
                     children: [
                       InputField(
                         controller: categoryController,
-                        hintText: "Category Name",
+                        hintText: S.of(context).caregory_name,
                       ),
                       if(currentItems.isEmpty) Row(
                         children: [
-                          Text("Multi size"),
+                          Text(S.of(context).multi_sizes),
                           Checkbox(
                             value: multiSizes,
                             onChanged: (value) {
@@ -220,7 +219,7 @@ class MenuCreationView extends ConsumerWidget {
                       ),
                       if(currentItems.isEmpty) Row(
                         children: [
-                          Text("Accept notes"),
+                          Text(S.of(context).accept_notes),
                           Checkbox(
                             value: notable,
                             onChanged: (value) {
@@ -232,7 +231,7 @@ class MenuCreationView extends ConsumerWidget {
                         ],
                       ),
                       currentItems.isEmpty
-                          ? Text("No items")
+                          ? Text(S.of(context).no_items)
                           : Column(
                               spacing: 16.sp,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,7 +262,7 @@ class MenuCreationView extends ConsumerWidget {
                         onPressed: () {
                           _showAddItemDialog(context, setState, multiSizes, currentItems);
                         },
-                        child: Text("Add Item"),
+                        child: Text(S.of(context).add_item),
                       ),
                       ElevatedButton(
                         onPressed: () async {
@@ -283,7 +282,7 @@ class MenuCreationView extends ConsumerWidget {
                           ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
                           Navigator.pop(context1);
                         },
-                        child: Text("Save"),
+                        child: Text(S.of(context).save),
                       ),
                     ],
                   ),
@@ -322,10 +321,10 @@ class MenuCreationView extends ConsumerWidget {
                     children: [
                       InputField(
                         controller: categoryController,
-                        hintText: "Category Name",
+                        hintText: S.of(context).caregory_name,
                       ),
                       currentItems.isEmpty
-                          ? Text("No items")
+                          ? Text(S.of(context).no_items)
                           : Column(
                               spacing: 16.sp,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,13 +379,13 @@ class MenuCreationView extends ConsumerWidget {
                         onPressed: () {
                           _showAddItemDialog(context, setState, multiSizes, currentItems);
                         },
-                        child: Text("Add Item"),
+                        child: Text(S.of(context).add_item),
                       ),
                       ElevatedButton(
                         onPressed: () async {
                           if (categoryController.text.isEmpty || currentItems.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Category name and at least one item are required")),
+                              SnackBar(content: Text(S.of(context).category_name_item_required)),
                             );
                             return;
                           }
@@ -404,7 +403,7 @@ class MenuCreationView extends ConsumerWidget {
                           });
                           Navigator.pop(context1);
                         },
-                        child: Text("Save"),
+                        child: Text(S.of(context).save),
                       ),
                       OutlinedButton(
                         style: OutlinedButton.styleFrom(
@@ -419,7 +418,7 @@ class MenuCreationView extends ConsumerWidget {
                           });
                           Navigator.pop(context1);
                         },
-                        child: Text("Delete Category", style: TextStyle(color: Colors.red)),
+                        child: Text(S.of(context).delete_category, style: TextStyle(color: Colors.red)),
                       ),
                     ],
                   ),
@@ -460,13 +459,13 @@ class MenuCreationView extends ConsumerWidget {
                 children: [
                   InputField(
                     controller: itemController,
-                    hintText: "Item Name",
+                    hintText: S.of(context).item_name,
                   ),
                   Column(
                     children: List.generate(multiSizes ? 3 : 1, (index) {
                       return InputField(
                         controller: sizeControllers[index],
-                        hintText: multiSizes ? "Price of ${sizes[index]}" : "Price",
+                        hintText: multiSizes ? "${S.of(context).price_of} ${sizes[index]}" : S.of(context).price,
                       );
                     }),
                   ),
@@ -476,7 +475,7 @@ class MenuCreationView extends ConsumerWidget {
                           (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
                           (!multiSizes && sizeControllers[0].text.isEmpty)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("All fields must be filled")),
+                          SnackBar(content: Text(S.of(context).items_must_be_filled)),
                         );
                         return;
                       }
@@ -496,7 +495,7 @@ class MenuCreationView extends ConsumerWidget {
                         Navigator.pop(context2);
                       });
                     },
-                    child: Text("Add Item"),
+                    child: Text(S.of(context).add_item),
                   ),
                 ],
               ),
@@ -535,7 +534,7 @@ class MenuCreationView extends ConsumerWidget {
                 children: [
                   InputField(
                     controller: itemController,
-                    hintText: "Item Name",
+                    hintText: S.of(context).item_name,
                   ),
                   Column(
                     children: List.generate(multiSizes ? 3 : 1, (index) {
@@ -552,7 +551,7 @@ class MenuCreationView extends ConsumerWidget {
                           (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
                           (!multiSizes && sizeControllers[0].text.isEmpty)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("All fields must be filled")),
+                          SnackBar(content: Text(S.of(context).items_must_be_filled)),
                         );
                         return;
                       }
@@ -571,7 +570,7 @@ class MenuCreationView extends ConsumerWidget {
                         Navigator.pop(context2);
                       });
                     },
-                    child: Text("Update Item"),
+                    child: Text(S.of(context).update_item),
                   ),
                 ],
               ),
@@ -598,7 +597,7 @@ class TagsDialog extends ConsumerWidget{
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16.sp,
           children: [
-            Text("Tags"),
+            Text(S.of(context).tags),
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: GridView.builder(
@@ -664,7 +663,7 @@ class TagsDialog extends ConsumerWidget{
                 onPressed: (){
                   Navigator.of(context).pop();
                 }, 
-                child: Text("Save")
+                child: Text(S.of(context).save)
               ),
             )
           ],

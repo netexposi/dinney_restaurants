@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
@@ -6,7 +7,6 @@ import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax/iconsax.dart';
@@ -51,7 +51,7 @@ class GallerySettingView extends ConsumerWidget {
                 alignment: Alignment.center,
                 child: ThreeDotsIndicator()
               ),
-              Text("Select Primary Image", style: Theme.of(context).textTheme.titleMedium,),
+              Text(S.of(context).select_primary_image, style: Theme.of(context).textTheme.titleMedium,),
               InkWell(
                 onTap: () => _pickImage(ref: ref, index: 0),
                 borderRadius: BorderRadius.circular(24.sp),
@@ -73,13 +73,13 @@ class GallerySettingView extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Iconsax.add_circle, size: 24.sp, color: tertiaryColor,),
-                            Text("Add Image")
+                            Text(S.of(context).add_image)
                           ],
                         )
                       : null,
                 ),
               ),
-              Text("Select Album Images", style: Theme.of(context).textTheme.titleMedium),
+              Text(S.of(context).select_album_image, style: Theme.of(context).textTheme.titleMedium),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(3, (i) {
@@ -167,11 +167,11 @@ class GallerySettingView extends ConsumerWidget {
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> MenuCreationView(restaurantId)));
                       });
                     } catch (e){
-                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
+                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).internal_error));
                     }
 
                   }, 
-                  child: Text("Next")
+                  child: Text(S.of(context).next)
                 ) : LoadingSpinner(),
               )
             ],

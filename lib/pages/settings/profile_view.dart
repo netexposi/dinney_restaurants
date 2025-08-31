@@ -1,12 +1,10 @@
-import 'dart:collection';
 import 'dart:io';
-
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/services/functions/array_handlings.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/services/functions/string_handlings.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
-import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/InputField.dart';
@@ -31,7 +29,7 @@ class UserProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
+        title: Text(S.of(context).profile),
       ),
       body: SafeArea(
         child: Padding(
@@ -46,7 +44,7 @@ class UserProfileView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Information",
+                      S.of(context).information,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
@@ -91,14 +89,14 @@ class UserProfileView extends ConsumerWidget {
                                           spacing: 16.sp,
                                           children: [
                                             Text(
-                                              "Edit information",
+                                              S.of(context).edit_information,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .headlineSmall,
                                             ),
                                             InputField(
                                                 controller: nameController,
-                                                hintText: "Name"),
+                                                hintText: S.of(context).name),
                                             InputField(
                                                 controller: emailController,
                                                 hintText: "Email"),
@@ -132,12 +130,12 @@ class UserProfileView extends ConsumerWidget {
                                                               }
                                                               setState((){loading = false;});
                                                             Navigator.of(context).pop();
-                                                            ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Information changed successfully. Check your mail!"));
+                                                            ScaffoldMessenger.of(context).showSnackBar(SuccessMessage(S.of(context).info_changed_successfully));
                                                           });
                                                         });
                                                       }catch(e) {
                                                         Navigator.of(context).pop();
-                                                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} {$e}"));
                                                       }
                                                     }else if(emailController.text !=
                                                         ref.watch(userDocumentsProvider)["email"]){
@@ -159,12 +157,12 @@ class UserProfileView extends ConsumerWidget {
                                                               }
                                                               setState((){loading = false;});
                                                               Navigator.of(context).pop();
-                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Email changed successfully. Check your mail!"));
+                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage(S.of(context).email_changed_successfully));
                                                             });
                                                           });
                                                         }catch(e) {
                                                           Navigator.of(context).pop();
-                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} {$e}"));
                                                         }
                                                       }else if(nameController.text !=ref.watch(userDocumentsProvider)["name"]){
                                                         try{
@@ -183,16 +181,16 @@ class UserProfileView extends ConsumerWidget {
                                                               }
                                                               setState((){loading = false;});
                                                               Navigator.of(context).pop();
-                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage("Name changed successfully."));
+                                                              ScaffoldMessenger.of(context).showSnackBar(SuccessMessage(S.of(context).name_changed_successfully));
                                                             });
                                                         }catch(e) {
                                                           Navigator.of(context).pop();
-                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} {$e}"));
                                                         }
                                                       }
                                                       
                                                   },
-                                                  child: Text("Save"),
+                                                  child: Text(S.of(context).save),
                                                 ),
                                               )
                                           ],
@@ -206,7 +204,7 @@ class UserProfileView extends ConsumerWidget {
                           },
                         );
                       },
-                      child: Text("Edit"),
+                      child: Text(S.of(context).edit),
                     )
                   ],
                 ),
@@ -260,7 +258,7 @@ class UserProfileView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Schedule",
+                      S.of(context).schedule,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
@@ -302,7 +300,7 @@ class UserProfileView extends ConsumerWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           spacing: 16.sp,
                                           children: [
-                                            Text("Edit schedule",style: Theme.of(context).textTheme.headlineSmall,),
+                                            Text(S.of(context).edit_schedule,style: Theme.of(context).textTheme.headlineSmall,),
                                             Column(crossAxisAlignment:CrossAxisAlignment.start,
                                               children: List.generate(days.length, (index) {
                                                 var entry = getScheduleForDay(days[index]);
@@ -415,7 +413,7 @@ class UserProfileView extends ConsumerWidget {
                                                   
 
                                                 },
-                                                child: Text("Save")
+                                                child: Text(S.of(context).save)
                                               ),
                                             )
                                           ],
@@ -429,7 +427,7 @@ class UserProfileView extends ConsumerWidget {
                           },
                         );
                       },
-                      child: Text("Edit"),
+                      child: Text(S.of(context).edit),
                     )
                   ],
                 ),
@@ -463,7 +461,7 @@ class UserProfileView extends ConsumerWidget {
                                             "${ref.watch(userDocumentsProvider)["schedule"][index]["closing"]}"),
                                   ],
                                 ),
-                              ) : Text("Day Off", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.red)),
+                              ) : Text(S.of(context).day_off, style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.red)),
                             ],
                           ),
                           if (index !=
@@ -479,7 +477,7 @@ class UserProfileView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Location",
+                      S.of(context).location,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
@@ -499,7 +497,7 @@ class UserProfileView extends ConsumerWidget {
                                       spacing: 16.sp,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("Edit location", style: Theme.of(context).textTheme.headlineSmall,),
+                                        Text(S.of(context).edit_location, style: Theme.of(context).textTheme.headlineSmall,),
                                         SizedBox(
                                           width: 100.w,
                                           height: 50.h,
@@ -533,7 +531,7 @@ class UserProfileView extends ConsumerWidget {
                                                   });
                                               }
                                             }, 
-                                            child: Text("Save")
+                                            child: Text(S.of(context).save)
                                           ),
                                         )
                                       ],
@@ -545,7 +543,7 @@ class UserProfileView extends ConsumerWidget {
                           });
                         });
                       },
-                      child: Text("Edit"),
+                      child: Text(S.of(context).edit),
                     )
                   ],
                 ),
@@ -569,7 +567,7 @@ class UserProfileView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Gallery",
+                      S.of(context).gallery,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     TextButton(
@@ -612,8 +610,8 @@ class UserProfileView extends ConsumerWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       spacing: 16.sp,
                                       children: [
-                                        Text("Edit gallery", style: Theme.of(context).textTheme.headlineSmall,),
-                                        Text("Edit Primary Image", style: Theme.of(context).textTheme.bodyMedium,),
+                                        Text(S.of(context).edit_gallery, style: Theme.of(context).textTheme.headlineSmall,),
+                                        Text(S.of(context).edit_primary_image, style: Theme.of(context).textTheme.bodyMedium,),
                                         InkWell(
                                           onTap: () => _pickImage(ref: ref, index: 0),
                                           borderRadius: BorderRadius.circular(24.sp),
@@ -644,7 +642,7 @@ class UserProfileView extends ConsumerWidget {
                                             //     : null,
                                           ),
                                         ),
-                                        Text("Edit Album Images", style: Theme.of(context).textTheme.bodyMedium,),
+                                        Text(S.of(context).edit_album_image, style: Theme.of(context).textTheme.bodyMedium,),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: List.generate(3, (i) {
@@ -686,7 +684,7 @@ class UserProfileView extends ConsumerWidget {
                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                           children: [
                                                             HugeIcon(icon: HugeIcons.strokeRoundedAddCircle, color: tertiaryColor),
-                                                            Text("Edit", style: Theme.of(context).textTheme.bodySmall),
+                                                            Text(S.of(context).edit, style: Theme.of(context).textTheme.bodySmall),
                                                           ],
                                                         )
                                                       : null,
@@ -741,11 +739,11 @@ class UserProfileView extends ConsumerWidget {
                                                 });
                                                 
                                               } catch (e){
-                                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Internarl error, try again!"));
+                                                ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).internal_error));
                                               }
                                                 
                                             }, 
-                                            child: Text("Save")
+                                            child: Text(S.of(context).save)
                                             ) : LoadingSpinner()
                                             ,
                                         )
@@ -758,7 +756,7 @@ class UserProfileView extends ConsumerWidget {
                           });
                         });
                       },
-                      child: Text("Edit"),
+                      child: Text(S.of(context).edit),
                     )
                   ],
                 ),
@@ -823,7 +821,7 @@ class UserProfileView extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Delete Account", style: Theme.of(context).textTheme.headlineSmall,),
+                      Text(S.of(context).delete_account, style: Theme.of(context).textTheme.headlineSmall,),
                       TextButton(
                         onPressed: () {
                           bool loading = false;
@@ -832,7 +830,7 @@ class UserProfileView extends ConsumerWidget {
                               return AlertDialog(
                                 contentPadding: EdgeInsets.all(16.sp),
                                 actionsAlignment: MainAxisAlignment.center,
-                                content: Text("Are you sure you want to delete\nthe restaurant account?",
+                                content: Text(S.of(context).delete_account_warning,
                                 textAlign: TextAlign.center,
                                   style: Theme.of(context).textTheme.bodyMedium,),
                                 actions: [
@@ -849,17 +847,17 @@ class UserProfileView extends ConsumerWidget {
                                           .whenComplete(() async{
                                             supabase.auth.admin.deleteUser(ref.watch(userDocumentsProvider)["uid"]);
                                             AppNavigation.navRouter.go("/");
-                                            ScaffoldMessenger.maybeOf(context)?.showSnackBar(SuccessMessage("Account deleted successfully"));
+                                            ScaffoldMessenger.maybeOf(context)?.showSnackBar(SuccessMessage(S.of(context).account_deleted_successfully));
                                           });
                                         }catch (e){
                                           setState((){loading = false;});
-                                          ScaffoldMessenger.maybeOf(context)?.showSnackBar(ErrorMessage("An error occured: {$e}"));
+                                          ScaffoldMessenger.maybeOf(context)?.showSnackBar(ErrorMessage("${S.of(context).unexpected_error} {$e}"));
                                           Navigator.of(context).pop();
                                         }
-                                      }, child: Text("Yes, i want", style: TextStyle(color: Colors.red),)),
+                                      }, child: Text(S.of(context).yes_i_want, style: TextStyle(color: Colors.red),)),
                                       TextButton(onPressed: (){
                                         Navigator.of(context).pop();
-                                      }, child: Text("Cancel", style: TextStyle(color: tertiaryColor),)),
+                                      }, child: Text(S.of(context).cancel, style: TextStyle(color: tertiaryColor),)),
                                     ],
                                   ) : LoadingSpinner()
                                 ],
@@ -867,7 +865,7 @@ class UserProfileView extends ConsumerWidget {
                             });
                           });
                         }, 
-                        child: Text("Delete", style: TextStyle(color: Colors.red),)
+                        child: Text(S.of(context).delete, style: TextStyle(color: Colors.red),)
                       )
                     ],
                   ),

@@ -1,3 +1,4 @@
+import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
@@ -32,7 +33,7 @@ Future<TimeOfDay> pickTimeAppleDialog(BuildContext context, TimeOfDay initialTim
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(tempPicked),
-            child: const Text("Done"),
+            child: Text(S.of(context).done),
           ),
         ],
       );
