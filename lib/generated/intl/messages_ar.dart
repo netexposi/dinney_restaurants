@@ -94,6 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "forgot_password": MessageLookupByLibrary.simpleMessage("نسيت كلمة المرور"),
     "french": MessageLookupByLibrary.simpleMessage("الفرنسية"),
+    "friday": MessageLookupByLibrary.simpleMessage("الجمعة"),
     "gallery": MessageLookupByLibrary.simpleMessage("المعرض"),
     "get_started": MessageLookupByLibrary.simpleMessage("ابدأ"),
     "help_center": MessageLookupByLibrary.simpleMessage("مركز المساعدة"),
@@ -123,6 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_sent_successfully": MessageLookupByLibrary.simpleMessage(
       "الرسالة أُرسلت بنجاح",
     ),
+    "monday": MessageLookupByLibrary.simpleMessage("الإثنين"),
     "multi_sizes": MessageLookupByLibrary.simpleMessage("أحجام متعددة"),
     "name": MessageLookupByLibrary.simpleMessage("الاسم"),
     "name_changed_successfully": MessageLookupByLibrary.simpleMessage(
@@ -155,6 +157,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "حجز للطلبات الخارجية",
     ),
     "restaurant_name": MessageLookupByLibrary.simpleMessage("اسم المطعم"),
+    "saturday": MessageLookupByLibrary.simpleMessage("السبت"),
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
     "schedule": MessageLookupByLibrary.simpleMessage("الجدول"),
     "select_album_image": MessageLookupByLibrary.simpleMessage(
@@ -180,13 +183,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "start_working": MessageLookupByLibrary.simpleMessage("بدء العمل"),
     "statistics": MessageLookupByLibrary.simpleMessage("الإحصائيات"),
     "suggest": MessageLookupByLibrary.simpleMessage("اقتراح"),
+    "sunday": MessageLookupByLibrary.simpleMessage("الأحد"),
     "support": MessageLookupByLibrary.simpleMessage("الدعم"),
     "tags": MessageLookupByLibrary.simpleMessage("العلامات"),
     "terms_of_service": MessageLookupByLibrary.simpleMessage("شروط الخدمة"),
+    "thursday": MessageLookupByLibrary.simpleMessage("الخميس"),
     "to_go": MessageLookupByLibrary.simpleMessage("للطلبات الخارجية"),
     "total_icnome": MessageLookupByLibrary.simpleMessage("إجمالي الدخل"),
     "total_orders": MessageLookupByLibrary.simpleMessage("إجمالي الطلبات"),
     "total_price": MessageLookupByLibrary.simpleMessage("السعر الإجمالي"),
+    "tuesday": MessageLookupByLibrary.simpleMessage("الثلاثاء"),
     "unexpected_error": MessageLookupByLibrary.simpleMessage(
       "حدث خطأ غير متوقع: ",
     ),
@@ -195,6 +201,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "we_would_love_to_hear_from_you": MessageLookupByLibrary.simpleMessage(
       "نود أن نسمع منك! إذا كانت لديك أي أسئلة أو اقتراحات أو تعليقات، فلا تتردد في التواصل معنا. فريقنا هنا لمساعدتك وضمان حصولك على أفضل تجربة ممكنة.",
     ),
+    "wednesday": MessageLookupByLibrary.simpleMessage("الأربعاء"),
     "weekly_orders": MessageLookupByLibrary.simpleMessage("الطلبات الأسبوعية"),
     "yes_cancel": MessageLookupByLibrary.simpleMessage("نعم، إلغاء"),
     "yes_i_want": MessageLookupByLibrary.simpleMessage("نعم، أريد"),

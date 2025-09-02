@@ -100,6 +100,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "forgot_password": MessageLookupByLibrary.simpleMessage("Forgot Password"),
     "french": MessageLookupByLibrary.simpleMessage("French"),
+    "friday": MessageLookupByLibrary.simpleMessage("Friday"),
     "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
     "get_started": MessageLookupByLibrary.simpleMessage("Get Started"),
     "help_center": MessageLookupByLibrary.simpleMessage("Help Center"),
@@ -131,6 +132,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_sent_successfully": MessageLookupByLibrary.simpleMessage(
       "Message sent successfully",
     ),
+    "monday": MessageLookupByLibrary.simpleMessage("Monday"),
     "multi_sizes": MessageLookupByLibrary.simpleMessage("Multi Sizes"),
     "name": MessageLookupByLibrary.simpleMessage("Name"),
     "name_changed_successfully": MessageLookupByLibrary.simpleMessage(
@@ -161,6 +163,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Reservation to go",
     ),
     "restaurant_name": MessageLookupByLibrary.simpleMessage("Restaurant Name"),
+    "saturday": MessageLookupByLibrary.simpleMessage("Saturday"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
     "schedule": MessageLookupByLibrary.simpleMessage("Schedule"),
     "select_album_image": MessageLookupByLibrary.simpleMessage(
@@ -188,15 +191,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "start_working": MessageLookupByLibrary.simpleMessage("Start Working"),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistics"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggest"),
+    "sunday": MessageLookupByLibrary.simpleMessage("Sunday"),
     "support": MessageLookupByLibrary.simpleMessage("Support"),
     "tags": MessageLookupByLibrary.simpleMessage("Tags"),
     "terms_of_service": MessageLookupByLibrary.simpleMessage(
       "Terms of Service",
     ),
+    "thursday": MessageLookupByLibrary.simpleMessage("Thursday"),
     "to_go": MessageLookupByLibrary.simpleMessage("To Go"),
     "total_icnome": MessageLookupByLibrary.simpleMessage("Total Income"),
     "total_orders": MessageLookupByLibrary.simpleMessage("Total Orders"),
     "total_price": MessageLookupByLibrary.simpleMessage("Total Price"),
+    "tuesday": MessageLookupByLibrary.simpleMessage("Tuesday"),
     "unexpected_error": MessageLookupByLibrary.simpleMessage(
       "An unexpected error occurred: ",
     ),
@@ -205,6 +211,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "we_would_love_to_hear_from_you": MessageLookupByLibrary.simpleMessage(
       "We would love to hear from you! If You have any questions, suggestions, or feedback, please don\'t hesitate to reach out to us. Our team is here to assist you and ensure you have the best experience possible.",
     ),
+    "wednesday": MessageLookupByLibrary.simpleMessage("Wednesday"),
     "weekly_orders": MessageLookupByLibrary.simpleMessage("Weekly Orders"),
     "yes_cancel": MessageLookupByLibrary.simpleMessage("Yes, Cancel"),
     "yes_i_want": MessageLookupByLibrary.simpleMessage("Yes, I want"),

@@ -119,5 +119,12 @@
      "send" : "Envoyer",
      "message_empty": "Le message ne peut pas être vide",
      "message_sent_successfully": "Le message a été envoyé avec succès",
+     "sunday": "Dimanche",
+    "monday": "Lundi",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
     "we_would_love_to_hear_from_you": "Nous aimerions avoir de vos nouvelles ! Si vous avez des questions, des suggestions ou des commentaires, n'hésitez pas à nous contacter. Notre équipe est là pour vous aider et s'assurer que vous viviez la meilleure expérience possible."
 }

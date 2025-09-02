@@ -84,6 +84,7 @@ class HomeView extends ConsumerWidget{
                     .asBroadcastStream(),
                     builder: (context, snapshot){
                       if(snapshot.hasError){
+                        //ref.read(errorProvider.notifier).state = {"status" : false, "reason" : "error"};
                         return Center(child: Text("${S.of(context).error}: ${snapshot.error}"));
                       }else if(snapshot.data == null || snapshot.data!.isEmpty){
                         return Center(child: Text(S.of(context).no_orders_found));
@@ -649,8 +650,8 @@ class suggestionDialog extends ConsumerWidget{
   
   final suggestionProvider = StateProvider<List<bool>>((ref) => [true, false]);
   final suggestionButton = StateProvider<bool>((ref) => false);
-  int selectedHour = 0;
-  int selectedMinute = 0;
+  int selectedHour = DateTime.now().hour;
+  int selectedMinute = DateTime.now().minute;
   TimeOfDay? parseTimeString(String timeString) {
     try {
       // Split the time string by ':'
@@ -738,6 +739,7 @@ class suggestionDialog extends ConsumerWidget{
                           onSelectedItemChanged: (index) {
                             selectedHour = openingTime!.hour + index;
                             final selectedTime = parseTimeString("$selectedHour:$selectedMinute");
+                            print("the selected time is $selectedTime");
                             if(selectedTime!.isAfter(openingTime) && selectedTime.isBefore(closingTime)){
                               ref.read(suggestionButton.notifier).state = true;
                             }else {

@@ -27,6 +27,15 @@ class UserProfileView extends ConsumerWidget {
   final displayMapsKey = GlobalKey<MapsViewState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    List<String> translatedDays =[
+      S.of(context).sunday,
+      S.of(context).monday,
+      S.of(context).tuesday,
+      S.of(context).wednesday,
+      S.of(context).thursday,
+      S.of(context).friday,
+      S.of(context).saturday
+    ];
     return Scaffold(
       appBar: AppBar(
         title: Text(S.of(context).profile),
@@ -276,6 +285,7 @@ class UserProfileView extends ConsumerWidget {
                               "Friday",
                               "Saturday"
                             ];
+                            
                             List<Map<String, dynamic>> schedule = List.from(
                               ref.read(userDocumentsProvider)["schedule"] ?? []);
                             bool changeProvider = false;
@@ -313,7 +323,7 @@ class UserProfileView extends ConsumerWidget {
                                                           children: [
                                                             SizedBox(
                                                               width: 30.w,
-                                                              child: Text(days[index], style: exists? 
+                                                              child: Text(translatedDays[index], style: exists? 
                                                                 Theme.of(context).textTheme.bodyLarge
                                                                     : Theme.of( context).textTheme.bodyLarge!.copyWith(
                                                                           decoration: TextDecoration.lineThrough,
@@ -446,7 +456,7 @@ class UserProfileView extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                  "${ref.watch(userDocumentsProvider)["schedule"][index]["day"]}"),
+                                  translatedDays[index]),
                               ref.watch(userDocumentsProvider)["schedule"][index].containsKey("opening")? RichText(
                                 text: TextSpan(
                                   style:

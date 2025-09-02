@@ -1,6 +1,8 @@
 
 import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
+import 'package:dinney_restaurant/services/functions/string_handlings.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +152,16 @@ class OrderContainer extends ConsumerWidget{
                   showDialog(
                     context: context, 
                     builder: (context){
-                      return suggestionDialog(id: order['id'], ref.watch(userDocumentsProvider)['opening'], ref.watch(userDocumentsProvider)['closing']);
+                      int dayIndex = getDayName(ref.watch(languageStateProvider));
+
+                      print("The opening is at: ${ref.watch(userDocumentsProvider)['schedule'][dayIndex]['opening']}");
+                      print("the closing is at: ${ref.watch(userDocumentsProvider)['schedule'][dayIndex]['closing']}");
+
+                      return suggestionDialog(
+                        id: order['id'], 
+                        ref.watch(userDocumentsProvider)['schedule'][dayIndex]['opening'], 
+                        ref.watch(userDocumentsProvider)['schedule'][dayIndex]['closing']
+                      );
                     }
                     );
                 }, 

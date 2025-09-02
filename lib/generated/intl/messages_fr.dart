@@ -118,6 +118,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Mot de passe oublié",
     ),
     "french": MessageLookupByLibrary.simpleMessage("Français"),
+    "friday": MessageLookupByLibrary.simpleMessage("Vendredi"),
     "gallery": MessageLookupByLibrary.simpleMessage("Galerie"),
     "get_started": MessageLookupByLibrary.simpleMessage("Commencer"),
     "help_center": MessageLookupByLibrary.simpleMessage("Centre d\'aide"),
@@ -149,6 +150,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "message_sent_successfully": MessageLookupByLibrary.simpleMessage(
       "Le message a été envoyé avec succès",
     ),
+    "monday": MessageLookupByLibrary.simpleMessage("Lundi"),
     "multi_sizes": MessageLookupByLibrary.simpleMessage("Tailles multiples"),
     "name": MessageLookupByLibrary.simpleMessage("Nom"),
     "name_changed_successfully": MessageLookupByLibrary.simpleMessage(
@@ -191,6 +193,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "restaurant_name": MessageLookupByLibrary.simpleMessage(
       "Nom du restaurant",
     ),
+    "saturday": MessageLookupByLibrary.simpleMessage("Samedi"),
     "save": MessageLookupByLibrary.simpleMessage("Enregistrer"),
     "schedule": MessageLookupByLibrary.simpleMessage("Planning"),
     "select_album_image": MessageLookupByLibrary.simpleMessage(
@@ -222,15 +225,18 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistiques"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggérer"),
+    "sunday": MessageLookupByLibrary.simpleMessage("Dimanche"),
     "support": MessageLookupByLibrary.simpleMessage("Support"),
     "tags": MessageLookupByLibrary.simpleMessage("Étiquettes"),
     "terms_of_service": MessageLookupByLibrary.simpleMessage(
       "Conditions de service",
     ),
+    "thursday": MessageLookupByLibrary.simpleMessage("Jeudi"),
     "to_go": MessageLookupByLibrary.simpleMessage("À emporter"),
     "total_icnome": MessageLookupByLibrary.simpleMessage("Revenu total"),
     "total_orders": MessageLookupByLibrary.simpleMessage("Total des commandes"),
     "total_price": MessageLookupByLibrary.simpleMessage("Prix total"),
+    "tuesday": MessageLookupByLibrary.simpleMessage("Mardi"),
     "unexpected_error": MessageLookupByLibrary.simpleMessage(
       "Une erreur inattendue s\'est produite : ",
     ),
@@ -241,6 +247,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "we_would_love_to_hear_from_you": MessageLookupByLibrary.simpleMessage(
       "Nous aimerions avoir de vos nouvelles ! Si vous avez des questions, des suggestions ou des commentaires, n\'hésitez pas à nous contacter. Notre équipe est là pour vous aider et s\'assurer que vous viviez la meilleure expérience possible.",
     ),
+    "wednesday": MessageLookupByLibrary.simpleMessage("Mercredi"),
     "weekly_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes hebdomadaires",
     ),

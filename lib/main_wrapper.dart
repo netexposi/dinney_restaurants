@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:sizer/sizer.dart';
 
 
 class MainWrapper extends ConsumerWidget {
@@ -25,18 +26,26 @@ class MainWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: SizedBox(
+      body: ref.watch(errorProvider)['status']? SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: navigationShell,
+      ) : Center(
+        child: Column(
+          spacing: 16.sp,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset("assets/images/error.png", width: 25.w,),
+            Text(S.of(context).error)
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
-          if(ref.watch(userDocumentsProvider).isNotEmpty){
+          if(ref.watch(userDocumentsProvider).isNotEmpty && ref.watch(errorProvider)['status']){
             ref.read(selectedIndex.notifier).state = index;
             _goBranch(index);
           }
-          
         },
         currentIndex: ref.watch(selectedIndex),
         selectedItemColor: secondaryColor,
