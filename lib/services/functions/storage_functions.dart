@@ -22,3 +22,19 @@ Future<String?> uploadImageToSupabase(File imageFile) async {
     return null;
   }
 }
+
+Future<bool?> removeImageFromSupabase(String url) async{
+  final parts = url.split("/storage/v1/object/public/")[1].split("/");
+  final bucket = parts.first; // "restaurants"
+  final path = parts.sublist(1).join("/");
+  final response = await Supabase.instance.client.storage
+      .from(bucket)
+      .remove([path]);
+  if (response.isEmpty) {
+    print("✅ File deleted successfully");
+    return true;
+  } else {
+    print("⚠️ Error deleting file: $response");
+    return false;
+  }
+}

@@ -191,6 +191,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "start_working": MessageLookupByLibrary.simpleMessage("Start Working"),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistics"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggest"),
+    "suggested_orders": MessageLookupByLibrary.simpleMessage(
+      "Suggested Orders",
+    ),
     "sunday": MessageLookupByLibrary.simpleMessage("Sunday"),
     "support": MessageLookupByLibrary.simpleMessage("Support"),
     "tags": MessageLookupByLibrary.simpleMessage("Tags"),

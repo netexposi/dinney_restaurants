@@ -225,6 +225,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistiques"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggérer"),
+    "suggested_orders": MessageLookupByLibrary.simpleMessage(
+      "Commandes suggérées",
+    ),
     "sunday": MessageLookupByLibrary.simpleMessage("Dimanche"),
     "support": MessageLookupByLibrary.simpleMessage("Support"),
     "tags": MessageLookupByLibrary.simpleMessage("Étiquettes"),

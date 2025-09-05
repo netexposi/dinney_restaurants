@@ -706,8 +706,9 @@ class UserProfileView extends ConsumerWidget {
                                                     child: CircleAvatar(
                                                       backgroundColor: Colors.white,
                                                       child: IconButton(
-                                                        onPressed: (){
+                                                        onPressed: ()async{
                                                           if(removeButtonProvider[index - 1]){
+                                                            await removeImageFromSupabase(urls[index]);
                                                             setState((){
                                                               changeProvider = true;
                                                               removeButtonProvider[index - 1] = false;

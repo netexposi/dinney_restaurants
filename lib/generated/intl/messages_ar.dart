@@ -183,6 +183,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "start_working": MessageLookupByLibrary.simpleMessage("بدء العمل"),
     "statistics": MessageLookupByLibrary.simpleMessage("الإحصائيات"),
     "suggest": MessageLookupByLibrary.simpleMessage("اقتراح"),
+    "suggested_orders": MessageLookupByLibrary.simpleMessage(
+      "الطلبات المقترحة",
+    ),
     "sunday": MessageLookupByLibrary.simpleMessage("الأحد"),
     "support": MessageLookupByLibrary.simpleMessage("الدعم"),
     "tags": MessageLookupByLibrary.simpleMessage("العلامات"),

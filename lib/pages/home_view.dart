@@ -10,6 +10,7 @@ import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,6 +19,7 @@ final supabase = Supabase.instance.client;
 
 class HomeView extends ConsumerWidget{
   final horizontalOrder = StateProvider<bool>((ref)=> false);
+  final expandSuggestedOrders = StateProvider<bool>((ref)=> false);
   final backgroundServiceProvider = Provider<MyBackgroundService>((ref) {
     return MyBackgroundService(ref);
   });
@@ -41,7 +43,7 @@ class HomeView extends ConsumerWidget{
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 16.sp,
               children: [
-                // Header
+                //SECTION Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -75,7 +77,7 @@ class HomeView extends ConsumerWidget{
                     )
                   ],
                 ),
-                // Awaiting Orders
+                //SECTION Orders
                   StreamBuilder(
                     stream: supabase
                     .from('orders')
@@ -89,13 +91,15 @@ class HomeView extends ConsumerWidget{
                       }else if(snapshot.data == null || snapshot.data!.isEmpty){
                         return Center(child: Text(S.of(context).no_orders_found));
                       }else{
-                        if(snapshot.data!.length >4){
+                        if(snapshot.data!.length > 4){
                           ref.read(horizontalOrder.notifier).state = true;
                         }
                         // filtering to get unresponded orders first
                         final unrespondedOrders = snapshot.data!.where(
                           (item) => item['awaiting'] == true && item['validated'] == false && item['suggested'] == false && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
-
+                        // filtering to get suggested orders
+                        final suggestedOrders = snapshot.data!.where(
+                          (item) => item['suggested'] && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
                         // filtering to get confirmed orders
                         final confirmedOrders = snapshot.data!.where(
                           (item) => item['validated'] == true && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
@@ -105,7 +109,7 @@ class HomeView extends ConsumerWidget{
                         
                         final numAtTable = atTableOrders.length;
                         final numToPickUp = toPickUpOrders.length;
-                        print("Number of orders at table: $numAtTable and to pick up: $numToPickUp");
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 16.sp,
@@ -151,8 +155,83 @@ class HomeView extends ConsumerWidget{
                                 }),
                               ),
                             ),
+
+                            //FIXME SECTION Suggested Orders
+                            if(suggestedOrders.isNotEmpty) Text(S.of(context).suggested_orders, style: Theme.of(context).textTheme.headlineLarge,),
+                            if(suggestedOrders.isNotEmpty) AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              width: 100.w,
+                              padding: EdgeInsets.all(16.sp),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(24.sp),
+                                color: Colors.white,
+                                boxShadow: [dropShadow]
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      !ref.watch(expandSuggestedOrders)?Text("${suggestedOrders.length} ${suggestedOrders.length == 1? S.of(context).order : S.of(context).orders}",
+                                      style: Theme.of(context).textTheme.headlineSmall): SizedBox.shrink(),
+                                      InkWell(
+                                        onTap: () {
+                                          bool oldValue = ref.watch(expandSuggestedOrders);
+                                          ref.read(expandSuggestedOrders.notifier).state = !oldValue;
+                                          print(ref.watch(expandSuggestedOrders));
+                                        },
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: CircleAvatar(
+                                            radius: 16.sp, backgroundColor: tertiaryColor,
+                                            child: AnimatedRotation(
+                                              turns: ref.watch(expandSuggestedOrders) ? 0.5 : 0, 
+                                              duration: Duration(milliseconds: 300),
+                                              child: Icon(Iconsax.arrow_down),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  if(ref.watch(expandSuggestedOrders)) Column(
+                                    children: List.generate(suggestedOrders.length, (index){
+                                      var numOrders = 0;
+                                      var totalPrice = 0;
+                                      for (var item in suggestedOrders[index]['items']) {
+                                        totalPrice += item['price per one']* item['quantity'] as int;
+                                        numOrders += item['quantity'] as int;
+                                      }
+                                      return Column(
+                                        children: [
+                                          ListTile(
+                                            title: Text("${suggestedOrders[index]['client_name']}", style: Theme.of(context).textTheme.headlineSmall,),
+                                            subtitle: Text(DateFormat.Hm().format(DateTime.parse(suggestedOrders[index]['delivery_at'])), style: Theme.of(context).textTheme.bodySmall), 
+                                            trailing: AnimatedOpacity(
+                                              opacity: ref.watch(expandSuggestedOrders)? 1.0 : 0.0,
+                                              duration: Duration(milliseconds: 300),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(vertical: 8.sp, horizontal: 16.sp),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(16.sp),
+                                                  color: secondaryColor
+                                                ),
+                                                child: Text("$numOrders ${numOrders == 1? S.of(context).order : S.of(context).orders}", 
+                                                style: Theme.of(context).textTheme.labelLarge!.copyWith(color: Colors.white),),
+                                              ),
+                                            ),
+                                          ),
+                                          if(index != suggestedOrders.length -1) Divider(height: 0.5.sp, color: tertiaryColor.withOpacity(0.5), indent: 16.sp, endIndent: 16.sp,)
+                                        ],
+                                      );
+                                    }),
+                                  )
+                                ],
+                              ),
+                            ),
+
+                            //SECTION Completed Orders
                             Text(S.of(context).confirmed_orders, style: Theme.of(context).textTheme.headlineLarge,),
-                            // Completed Orders
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               spacing: 16.sp,
