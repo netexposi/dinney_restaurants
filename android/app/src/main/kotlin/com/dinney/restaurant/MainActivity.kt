@@ -1,0 +1,5 @@
+package com.dinney.restaurant
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()

@@ -1,135 +1,139 @@
-// import 'dart:async';
-// import 'dart:convert';
-// import 'dart:typed_data';
+import 'dart:convert';
+import 'dart:typed_data';
 
-// Future<void> handleBackgroundMessage(RemoteMessage message) async {
-//   try {
-//     await Hive.initFlutter();
-//     Hive.registerAdapter(NotificationAdapter());
-//     final box = await Hive.openBox<Notifications>('notifications');
-    
-//     final notification = Notifications(
-//       id: message.messageId!,
-//       title: message.notification?.title ?? 'No Title',
-//       body: message.notification?.body ?? 'No Body',
-//       viewed: false,
-//       media: message.notification?.android?.imageUrl ?? '',
-//     );
-//     await box.add(notification);
-//     AppNavigation.navRouter.push('/push_notification', extra: notification);
-//   } catch (e) {
-//     print('Error handling background message: $e');
-//   }
-// }
+import 'package:dinney_restaurant/services/functions/graphic_operations.dart';
+import 'package:dinney_restaurant/services/models/notification.dart';
+import 'package:dinney_restaurant/services/models/notification_adapter.dart';
+import 'package:dinney_restaurant/utils/app_navigation.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
+import 'package:dinney_restaurant/utils/variables.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-// class FirebaseApi {
-//   final _firebaseMessaging = FirebaseMessaging.instance;
-//   final _androidChannel = const AndroidNotificationChannel(
-//     'push_channel', 
-//     'Updates Notifications',
-//     description: 'This channel is used for pushed notifications',
-//     importance: Importance.defaultImportance,
-//   );
-//   final _localNotifications = FlutterLocalNotificationsPlugin();
+class FirebaseApi {
+  final _firebaseMessaging = FirebaseMessaging.instance;
+  final _localNotifications = FlutterLocalNotificationsPlugin();
+  final _androidChannel = const AndroidNotificationChannel(
+    'push_channel',
+    'Updates Notifications',
+    description: 'This channel is used for push notifications',
+    importance: Importance.high,
+  );
 
-//   Future<void> handleMessage(RemoteMessage? message) async {
-//     if (message == null) return;
-//     await Hive.initFlutter();
-//     Hive.registerAdapter(NotificationAdapter());
-//     final box = await Hive.openBox<Notifications>('notifications');
+  final Ref ref; // Riverpod ref
 
-//     final notification = Notifications(
-//       id: message.messageId!,
-//       title: message.notification?.title ?? 'No Title',
-//       body: message.notification?.body ?? 'No Body',
-//       viewed: false,
-//       media: message.notification?.android?.imageUrl ?? '',
-//     );
-//     await box.add(notification);
-//     AppNavigation.navRouter.push('/push_notification', extra: notification);
-//   }
+  FirebaseApi(this.ref);
 
-//   Future<void> initLocalNotification() async {
-//     try {
-//       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-//       // const iOS = IOSInitializationSettings(); // Uncomment if iOS support is needed
-//       const settings = InitializationSettings(android: android);
-//       await _localNotifications.initialize(settings);
-//     } catch (e) {
-//       print('Error initializing local notifications: $e');
-//     }
-//   }
+  Future<void> initLocalNotification() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const settings = InitializationSettings(android: androidSettings);
 
-//   Future<void> initPushNotification() async {
-//     try {
-//       await _firebaseMessaging.setForegroundNotificationPresentationOptions(
-//         alert: true,
-//         badge: true,
-//         sound: true,
-//       );
+    await _localNotifications.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (payload) async {
+        if (payload.payload != null) {
+          final data = Notifications.fromJson(jsonDecode(payload.payload!));
+          final box = Hive.box<Notifications>('notifications');
 
-//       FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
-//       FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+          final updated = data.copyWith(viewed: true);
+          await box.add(updated);
+          ref.read(selectedIndex.notifier).state = 2;
+          AppNavigation.navRouter.go("/reservations");
+        }
+      },
+    );
 
-//       FirebaseMessaging.onMessage.listen((event) async {
-//         final notification = event.notification;
-//         if (notification == null) return;
+    token = await _firebaseMessaging.getToken();
 
-//         try {
-//           final Uint8List imageBytes = await networkImageToUint8List(notification.android!.imageUrl!);
-//           String title = notification.title!;
-//           String body = notification.body!;
-//           if(notification.title!.contains("follower")){
-//             title = title.replaceAll('follower', S.current.new_follower);
-//           }
-//           if(notification.body!.contains("Meeting")){
-//             body = body.replaceAll('Meeting', S.current.meeting);
-//             body = body.replaceAll('At', S.current.at);
-//             body = body.replaceAll('In', S.current.in_word);
-//           }
-//           await _localNotifications.show(
-//             notification.hashCode,
-//             title,
-//             body,
-//             NotificationDetails(
-//               android: AndroidNotificationDetails(
-//                 _androidChannel.id,
-//                 _androidChannel.name,
-//                 channelDescription: _androidChannel.description,
-//                 importance: Importance.high,
-//                 visibility: NotificationVisibility.public,
-//                 priority: Priority.high,
-//                 icon: '@mipmap/ic_launcher',
-//                 largeIcon: ByteArrayAndroidBitmap(imageBytes)
-//               ),
-//             ),
-//             payload: jsonEncode(event.toMap()),
-//           );
-//         } catch (e) {
-//           print('Error showing local notification: $e');
-//         }
-//       });
-//     } catch (e) {
-//       print('Error initializing push notifications: $e');
-//     }
-//   }
+    // Ensure channel exists
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(_androidChannel);
+  }
 
-//   Future<void> initNotification() async {
-//     try {
-//       await _firebaseMessaging.requestPermission(
-//         alert: true,
-//         announcement: false,
-//         badge: true,
-//         carPlay: false,
-//         criticalAlert: false,
-//         provisional: false,
-//         sound: true,
-//       );
-//       token = await _firebaseMessaging.getToken();
-//       await initLocalNotification();
-//       await initPushNotification();
-//     } catch (e) {
-//       print('Error initializing notifications: $e');
-//     }
-//   }
-// }
+  Future<void> showNotification(Notifications notification) async {
+    final box = Hive.box<Notifications>('notifications');
+    await box.add(notification); // add to Hive immediately
+
+    final Uint8List? imageBytes = notification.media.isNotEmpty
+        ? await networkImageToUint8List(notification.media)
+        : null;
+
+    final androidDetails = AndroidNotificationDetails(
+      _androidChannel.id,
+      _androidChannel.name,
+      channelDescription: _androidChannel.description,
+      importance: Importance.high,
+      priority: Priority.high,
+      largeIcon: imageBytes != null ? ByteArrayAndroidBitmap(imageBytes) : null,
+    );
+
+    final details = NotificationDetails(android: androidDetails);
+
+    await _localNotifications.show(
+      notification.hashCode,
+      notification.title,
+      notification.body,
+      details,
+      payload: jsonEncode(notification.toJson()),
+    );
+  }
+
+  Future<void> initPushNotification() async {
+    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    FirebaseMessaging.onMessageOpenedApp.listen((msg) async {
+      await handleIncomingMessage(msg);
+    });
+
+    FirebaseMessaging.onMessage.listen((msg) async {
+      await handleIncomingMessage(msg);
+    });
+
+    FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
+  }
+
+  Future<void> handleIncomingMessage(RemoteMessage msg) async {
+    final notification = Notifications(
+      id: msg.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      title: msg.notification?.title ?? "No Title",
+      body: msg.notification?.body ?? "No Body",
+      viewed: false,
+      media: msg.notification?.android?.imageUrl ?? "",
+    );
+
+    await showNotification(notification);
+  }
+
+  static Future<void> _handleBackgroundMessage(RemoteMessage msg) async {
+    await Hive.initFlutter();
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(NotificationAdapter());
+    }
+    final box = await Hive.openBox<Notifications>('notifications');
+
+    final notification = Notifications(
+      id: msg.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      title: msg.notification?.title ?? "No Title",
+      body: msg.notification?.body ?? "No Body",
+      viewed: false,
+      media: msg.notification?.android?.imageUrl ?? "",
+    );
+
+    await box.add(notification);
+  }
+
+  Future<void> initNotification() async {
+    await _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
+
+    await initLocalNotification();
+    await initPushNotification();
+  }
+}

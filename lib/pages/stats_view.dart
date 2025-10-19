@@ -4,6 +4,7 @@ import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -35,7 +36,13 @@ class StatsView extends ConsumerWidget {
               if (snapshot.hasError) {
                 return Text(S.of(context).error);
               } else if (snapshot.data != null && snapshot.data!.isEmpty) {
-                return Text(S.of(context).empty);
+                return Center(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Lottie.asset("assets/animations/no_data.json", width: 50.w),
+                    Text(S.of(context).no_stats_found)
+                  ],
+                ));
               } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                 final completedOrders = snapshot.data!
                     .where((item) =>

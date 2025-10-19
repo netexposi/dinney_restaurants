@@ -994,6 +994,16 @@ class S {
     );
   }
 
+  /// `No statistics found`
+  String get no_stats_found {
+    return Intl.message(
+      'No statistics found',
+      name: 'no_stats_found',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `We would love to hear from you! If You have any questions, suggestions, or feedback, please don't hesitate to reach out to us. Our team is here to assist you and ensure you have the best experience possible.`
   String get we_would_love_to_hear_from_you {
     return Intl.message(
@@ -1002,6 +1012,101 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Do You agree to our Terms of Service and Privacy Policy.`
+  String get agree_to_terms {
+    return Intl.message(
+      'Do You agree to our Terms of Service and Privacy Policy.',
+      name: 'agree_to_terms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must agree to the terms to proceed.`
+  String get you_must_agree_to_terms {
+    return Intl.message(
+      'You must agree to the terms to proceed.',
+      name: 'you_must_agree_to_terms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New Password`
+  String get new_password {
+    return Intl.message(
+      'New Password',
+      name: 'new_password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset Password`
+  String get reset_password {
+    return Intl.message(
+      'Reset Password',
+      name: 'reset_password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update Password`
+  String get update_password {
+    return Intl.message(
+      'Update Password',
+      name: 'update_password',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password updated successfully`
+  String get password_updated_successfully {
+    return Intl.message(
+      'Password updated successfully',
+      name: 'password_updated_successfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A password reset link has been sent to your email.`
+  String get reset_link_sent {
+    return Intl.message(
+      'A password reset link has been sent to your email.',
+      name: 'reset_link_sent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passwords don't match`
+  String get password_dont_match {
+    return Intl.message(
+      'Passwords don\'t match',
+      name: 'password_dont_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Account with this email already exists`
+  String get account_already_exists {
+    return Intl.message(
+      'Account with this email already exists',
+      name: 'account_already_exists',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit Tags`
+  String get edit_tags {
+    return Intl.message('Edit Tags', name: 'edit_tags', desc: '', args: []);
   }
 }
 

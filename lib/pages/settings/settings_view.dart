@@ -3,6 +3,7 @@ import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/pages/settings/feedback_view.dart';
 import 'package:dinney_restaurant/pages/settings/history_view.dart';
 import 'package:dinney_restaurant/pages/settings/profile_view.dart';
+import 'package:dinney_restaurant/services/functions/system_functions.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
@@ -93,6 +94,7 @@ class SettingsView extends ConsumerWidget{
                               itemBuilder: (context, index){
                                 return ListTile(
                                   onTap: (){
+                                    setLanguage(index);
                                     ref.read(languageStateProvider.notifier).state = index;
                                     Navigator.pop(context);
                                   },

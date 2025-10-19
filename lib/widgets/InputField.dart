@@ -8,14 +8,16 @@ class InputField extends StatefulWidget {
   final bool obscureText;
   final Widget? prefixIcon;
   final int maxLines;
+  final bool? keyboard;
 
-  const InputField({
+  InputField({
     super.key,
     required this.controller,
     required this.hintText,
     this.obscureText = false,
     this.prefixIcon,
     this.maxLines = 1,
+    this.keyboard = false,
   });
   @override
   State<InputField> createState() => _InputFieldState();
@@ -26,6 +28,7 @@ class _InputFieldState extends State<InputField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      keyboardType: widget.keyboard! ? TextInputType.number : TextInputType.text,
       maxLines: widget.maxLines,
       controller: widget.controller,
       obscureText: widget.obscureText && !_showPassword,

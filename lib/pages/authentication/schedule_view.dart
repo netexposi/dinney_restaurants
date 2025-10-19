@@ -11,7 +11,8 @@ import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScheduleView extends ConsumerWidget {
-  ScheduleView({super.key});
+  final int id;
+  ScheduleView({super.key, required this.id});
   final supabase = Supabase.instance.client;
   final ScheduleProvider = StateProvider<List<Map<String, dynamic>>>((ref)=> [
     {"day": "Sunday"},
@@ -163,11 +164,11 @@ List<String> days = [
                                   ref.read(savingLoadingButton.notifier).state = true;
                                   await supabase.from("restaurants")
                                   .update({"schedule" : schedule})
-                                  .eq("uid", supabase.auth.currentUser!.id)
+                                  .eq("id", id)
                                   .whenComplete((){
                                     ref.read(savingLoadingButton.notifier).state = false;
                                     ref.read(signUpProvider.notifier).state = 4;
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LocationSelection()));
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LocationSelection(id: id)));
                                   });
                                   
 

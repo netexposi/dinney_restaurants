@@ -7,6 +7,7 @@ import 'package:dinney_restaurant/widgets/blurry_container.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -78,13 +79,61 @@ class MenuView extends ConsumerWidget {
                           onTap: () {
                             _showEditCategoryDialog(context, ref, ind, menu[ind]);
                           },
+                          // child: Container(
+                          //   alignment: Alignment.center,
+                          //   decoration: BoxDecoration(
+                          //     color: tertiaryColor.withOpacity(0.5),
+                          //     borderRadius: BorderRadius.circular(16.sp),
+                          //   ),
+                          //   child: Text(menu[ind]["name"],),
+                          // ),
                           child: Container(
-                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(8.sp),
                             decoration: BoxDecoration(
-                              color: tertiaryColor.withOpacity(0.5),
+                              color: Colors.white,
+                              border: BoxBorder.all(
+                                color: secondaryColor.withOpacity(0.5),
+                                width: 4.sp
+                              ),
                               borderRadius: BorderRadius.circular(16.sp),
                             ),
-                            child: Text(menu[ind]["name"],),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //add the rectangle shape here
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  spacing: 16.sp,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(16.sp),
+                                      width: 2.w,
+                                      height: 3.h,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [secondaryColor,  Color.fromARGB(255, 219, 98, 0)],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter
+                                        ),
+                                        borderRadius: BorderRadius.circular(8.sp)
+                                      ),
+                                    ),
+                                    Text(
+                                      "${menu[ind]["name"]}",
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Icon(
+                                  Iconsax.arrow_circle_right,
+                                  color: tertiaryColor.withOpacity(0.8),
+                                ),
+                              ],
+                            )
                           ),
                         );
                       },
@@ -612,6 +661,7 @@ class RefDialog extends ConsumerWidget{
       child: Padding(
         padding: EdgeInsets.all(16.sp),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16.sp,
           children: [

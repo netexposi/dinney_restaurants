@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -31,7 +32,6 @@ class HomeView extends ConsumerWidget{
     final List<GlobalKey<BlurryContainerState>> blurryKeys = [
         GlobalKey<BlurryContainerState>(),
         GlobalKey<BlurryContainerState>()];
-    print(id);
     return Scaffold(
       backgroundColor: backgroundColor,
       body: ref.watch(userDocumentsProvider).isNotEmpty? SingleChildScrollView(
@@ -51,8 +51,6 @@ class HomeView extends ConsumerWidget{
                     Container(
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(horizontal: 8.sp),
-                      width: 25.w,
-                      height: 12.w,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24.sp),
                         color: Colors.white,
@@ -89,11 +87,17 @@ class HomeView extends ConsumerWidget{
                         //ref.read(errorProvider.notifier).state = {"status" : false, "reason" : "error"};
                         return Center(child: Text("${S.of(context).error}: ${snapshot.error}"));
                       }else if(snapshot.data == null || snapshot.data!.isEmpty){
-                        return Center(child: Text(S.of(context).no_orders_found));
+                        return Center(child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Lottie.asset("assets/animations/no_data.json", width: 50.w),
+                            Text(S.of(context).no_orders_found)
+                          ],
+                        ));
                       }else{
-                        if(snapshot.data!.length > 4){
-                          ref.read(horizontalOrder.notifier).state = true;
-                        }
+                        // if(snapshot.data != null && snapshot.data!.length > 4){
+                        //   ref.read(horizontalOrder.notifier).state = true;
+                        // }
                         // filtering to get unresponded orders first
                         final unrespondedOrders = snapshot.data!.where(
                           (item) => item['awaiting'] == true && item['validated'] == false && item['suggested'] == false && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
@@ -446,29 +450,30 @@ class HomeView extends ConsumerWidget{
                                     }
                                   },
                                   borderRadius: BorderRadius.circular(24.sp),
-                                  child: Container(
-                                    alignment: Alignment.bottomCenter,
-                                    padding: EdgeInsets.all(16.sp),
-                                    width: (100.w - 16.sp * 3) / 2,
-                                    height: 70.w,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24.sp),
-                                      boxShadow: [dropShadow],
-                                      image: DecorationImage(image: AssetImage("assets/images/at_table.png"), fit: BoxFit.cover)
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(S.of(context).at_table, 
-                                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                        BlurryContainer(
-                                          key: blurryKeys[0],
-                                          width: 35.w,
-                                          height: 13.w,
-                                          child: Text("$numAtTable ${numAtTable != 1? S.of(context).orders : S.of(context).order}", 
-                                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
-                                          ),
-                                      ],
+                                  child: Expanded(
+                                    child: Container(
+                                      alignment: Alignment.bottomCenter,
+                                      padding: EdgeInsets.all(16.sp),
+                                      height: 70.w,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24.sp),
+                                        boxShadow: [dropShadow],
+                                        image: DecorationImage(image: AssetImage("assets/images/at_table.png"), fit: BoxFit.cover)
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(S.of(context).at_table, 
+                                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                          BlurryContainer(
+                                            key: blurryKeys[0],
+                                            width: 35.w,
+                                            height: 13.w,
+                                            child: Text("$numAtTable ${numAtTable != 1? S.of(context).orders : S.of(context).order}", 
+                                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                            ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -680,29 +685,30 @@ class HomeView extends ConsumerWidget{
                                     }
                                   },
                                   borderRadius: BorderRadius.circular(24.sp),
-                                  child: Container(
-                                    alignment: Alignment.bottomCenter,
-                                    padding: EdgeInsets.all(16.sp),
-                                    width: (100.w - 16.sp * 3) / 2,
-                                    height: 70.w,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24.sp),
-                                      boxShadow: [dropShadow],
-                                      image: DecorationImage(image: AssetImage("assets/images/to_pick_up.png"), fit: BoxFit.cover)
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(S.of(context).to_go, 
-                                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                                        BlurryContainer(
-                                          key: blurryKeys[1],
-                                          width: 35.w,
-                                          height: 13.w,
-                                          child: Text("$numToPickUp ${numToPickUp != 1? S.of(context).orders : S.of(context).order}", 
-                                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
-                                          ),
-                                      ],
+                                  child: Expanded(
+                                    child: Container(
+                                      alignment: Alignment.bottomCenter,
+                                      padding: EdgeInsets.all(16.sp),
+                                      height: 70.w,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24.sp),
+                                        boxShadow: [dropShadow],
+                                        image: DecorationImage(image: AssetImage("assets/images/to_pick_up.png"), fit: BoxFit.cover)
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(S.of(context).to_go, 
+                                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                                          BlurryContainer(
+                                            key: blurryKeys[1],
+                                            width: 35.w,
+                                            height: 13.w,
+                                            child: Text("$numToPickUp ${numToPickUp != 1? S.of(context).orders : S.of(context).order}", 
+                                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold))
+                                            ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

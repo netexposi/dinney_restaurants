@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // //FIX Change user data storing system
 // final user  Map<String, dynamic> userDocument;
 final userDocumentsProvider = StateProvider<Map<String, dynamic>>((ref) => {});
+String? token;
 // String distanceUnit = 'Km';
 // String paceUnit = 'min/Km';
 // String? token;

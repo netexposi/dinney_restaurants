@@ -24,6 +24,9 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "accept": MessageLookupByLibrary.simpleMessage("Accept"),
     "accept_notes": MessageLookupByLibrary.simpleMessage("Accept notes"),
+    "account_already_exists": MessageLookupByLibrary.simpleMessage(
+      "Account with this email already exists",
+    ),
     "account_created_successfully": MessageLookupByLibrary.simpleMessage(
       "Account created successfully",
     ),
@@ -34,6 +37,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "add_image": MessageLookupByLibrary.simpleMessage("Add Image"),
     "add_item": MessageLookupByLibrary.simpleMessage("Add Item"),
     "add_tags": MessageLookupByLibrary.simpleMessage("Add Tags"),
+    "agree_to_terms": MessageLookupByLibrary.simpleMessage(
+      "Do You agree to our Terms of Service and Privacy Policy.",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("App"),
     "arabic": MessageLookupByLibrary.simpleMessage("Arabic"),
     "arriving_orders": MessageLookupByLibrary.simpleMessage("Arriving Orders"),
@@ -88,6 +94,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Edit Primary Image",
     ),
     "edit_schedule": MessageLookupByLibrary.simpleMessage("Edit schedule"),
+    "edit_tags": MessageLookupByLibrary.simpleMessage("Edit Tags"),
     "email": MessageLookupByLibrary.simpleMessage("Email"),
     "email_changed_successfully": MessageLookupByLibrary.simpleMessage(
       "Email changed successfully. Check your mail!",
@@ -138,10 +145,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "name_changed_successfully": MessageLookupByLibrary.simpleMessage(
       "Email changed successfully. Check your mail!",
     ),
+    "new_password": MessageLookupByLibrary.simpleMessage("New Password"),
     "next": MessageLookupByLibrary.simpleMessage("Next"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
     "no_items": MessageLookupByLibrary.simpleMessage("No Items"),
     "no_orders_found": MessageLookupByLibrary.simpleMessage("No orders found"),
+    "no_stats_found": MessageLookupByLibrary.simpleMessage(
+      "No statistics found",
+    ),
     "no_tags_selected": MessageLookupByLibrary.simpleMessage(
       "No tags are selected",
     ),
@@ -150,6 +161,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "orders": MessageLookupByLibrary.simpleMessage("Orders"),
     "orders_history": MessageLookupByLibrary.simpleMessage("Orders History"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
+    "password_dont_match": MessageLookupByLibrary.simpleMessage(
+      "Passwords don\'t match",
+    ),
+    "password_updated_successfully": MessageLookupByLibrary.simpleMessage(
+      "Password updated successfully",
+    ),
     "price": MessageLookupByLibrary.simpleMessage("Price"),
     "price_of": MessageLookupByLibrary.simpleMessage("Price of"),
     "privacy_policy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),
@@ -162,6 +179,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "reservation_to_go": MessageLookupByLibrary.simpleMessage(
       "Reservation to go",
     ),
+    "reset_link_sent": MessageLookupByLibrary.simpleMessage(
+      "A password reset link has been sent to your email.",
+    ),
+    "reset_password": MessageLookupByLibrary.simpleMessage("Reset Password"),
     "restaurant_name": MessageLookupByLibrary.simpleMessage("Restaurant Name"),
     "saturday": MessageLookupByLibrary.simpleMessage("Saturday"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
@@ -210,6 +231,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "An unexpected error occurred: ",
     ),
     "update_item": MessageLookupByLibrary.simpleMessage("Update Item"),
+    "update_password": MessageLookupByLibrary.simpleMessage("Update Password"),
     "view": MessageLookupByLibrary.simpleMessage("View"),
     "we_would_love_to_hear_from_you": MessageLookupByLibrary.simpleMessage(
       "We would love to hear from you! If You have any questions, suggestions, or feedback, please don\'t hesitate to reach out to us. Our team is here to assist you and ensure you have the best experience possible.",
@@ -218,6 +240,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "weekly_orders": MessageLookupByLibrary.simpleMessage("Weekly Orders"),
     "yes_cancel": MessageLookupByLibrary.simpleMessage("Yes, Cancel"),
     "yes_i_want": MessageLookupByLibrary.simpleMessage("Yes, I want"),
+    "you_must_agree_to_terms": MessageLookupByLibrary.simpleMessage(
+      "You must agree to the terms to proceed.",
+    ),
     "youre_not_registered_as_restaurant": MessageLookupByLibrary.simpleMessage(
       "You are not registered as a restaurant!",
     ),

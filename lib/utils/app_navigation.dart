@@ -1,5 +1,10 @@
 import 'package:dinney_restaurant/main.dart';
 import 'package:dinney_restaurant/main_wrapper.dart';
+import 'package:dinney_restaurant/pages/authentication/gallery_setting_view.dart';
+import 'package:dinney_restaurant/pages/authentication/location_selection.dart';
+import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
+import 'package:dinney_restaurant/pages/authentication/reset_password_view.dart';
+import 'package:dinney_restaurant/pages/authentication/schedule_view.dart';
 import 'package:dinney_restaurant/pages/home_view.dart';
 import 'package:dinney_restaurant/pages/menu_view.dart';
 import 'package:dinney_restaurant/pages/stats_view.dart';
@@ -21,6 +26,38 @@ class AppNavigation {
         GoRoute(
           path: '/',
           builder: (context, state) {return MyHomePage();}
+        ),
+        GoRoute(
+          path: '/reset-password',
+          builder: (context, state) =>  ResetPasswordView(),
+        ),
+        GoRoute(
+          path: '/gallery/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return GallerySettingView(id);
+          },
+        ),
+        GoRoute(
+          path: '/menu_creation/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return MenuCreationView(id);
+          },
+        ),
+        GoRoute(
+          path: '/schedule/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return ScheduleView(id: id,);
+          },
+        ),
+        GoRoute(
+          path: '/location/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return LocationSelection(id: id,);
+          },
         ),
         // Main Wrapper
         StatefulShellRoute.indexedStack(

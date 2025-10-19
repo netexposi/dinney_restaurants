@@ -3,9 +3,11 @@ import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
 
@@ -22,21 +24,39 @@ class MainWrapper extends ConsumerWidget {
       initialLocation: index == navigationShell.currentIndex,
     );
   }
+  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.white, // match your scaffold bg
+      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
+
     return Scaffold(
-      body: ref.watch(errorProvider)['status']? SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: navigationShell,
+      backgroundColor: Colors.white,
+      extendBody: true, 
+      body: ref.watch(errorProvider)['status']? SafeArea(
+        bottom: false,
+        child: SizedBox.expand(
+          child: navigationShell,
+        ),
       ) : Center(
         child: Column(
           spacing: 16.sp,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/images/error.png", width: 25.w,),
-            Text(S.of(context).error)
+            Lottie.asset('assets/animations/no_internet.json', width: 50.w),
+            Text(
+              "Error loading content\nPlease check your internet connection!",
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall!
+                  .copyWith(color: tertiaryColor),
+            )
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:dinney_restaurant/generated/l10n.dart';
+import 'package:dinney_restaurant/services/functions/geo_functions.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
+import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/maps_view.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
@@ -11,7 +13,8 @@ import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LocationSelection extends ConsumerWidget{
-  LocationSelection({super.key});
+  final int id;
+  LocationSelection({super.key, required this.id});
   final mapKey = GlobalKey<MapsViewState>();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +36,7 @@ class LocationSelection extends ConsumerWidget{
                 width: 100.w,
                 height: 50.h,
                 child: MapsView(
-                  location: LatLng(28.0290, 1.6666),
+                  location: LatLng(28.0290, 5.6666),
                   borderRadius: 24.sp,
                   myLocationButton: true,
                 ),
@@ -43,12 +46,20 @@ class LocationSelection extends ConsumerWidget{
                   onPressed: () async{
                     ref.read(savingLoadingButton.notifier).state = true;
                     final supabase = Supabase.instance.client;
-                    LatLng markerPosition = mapKey.currentState?.currentMarker?.position?? LatLng(28.0290, 1.6666);
+                    LatLng markerPosition = mapKey.currentState?.currentMarker?.position ?? LatLng(36.19104037159446, 5.411437852797131);
+                    String? wilayaName = await getWilayaNameFromLatLng(
+                      LatLng(markerPosition.latitude, markerPosition.longitude)
+                    );
+                    int? wilayaId = getWilayaMatricule(wilayaName ?? "Algiers");
+                    String uid = supabase.auth.currentUser!.id;
                     await supabase.from("restaurants")
                     .update({
                       "lat" : markerPosition.latitude,
                       "lng" : markerPosition.longitude,
-                    }).eq("uid", supabase.auth.currentUser!.id)
+                      "wilaya" : wilayaId,
+                      "fcm_token" : token,
+                      "uid": uid
+                    }).eq("id", id)
                     .whenComplete((){
                       ref.read(savingLoadingButton.notifier).state = false;
                       ScaffoldMessenger.of(context).showSnackBar(
