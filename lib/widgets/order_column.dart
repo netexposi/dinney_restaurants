@@ -1,4 +1,5 @@
 import 'package:dinney_restaurant/generated/l10n.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/widgets/order_container.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,8 @@ class OrderColumn extends ConsumerWidget{
     return InkWell(
       onTap: (){
         showDialog(
-          context: context, 
+          context: context,
+          barrierDismissible: true, 
           builder: (context){
             return Dialog(
               backgroundColor: Colors.transparent,
@@ -37,6 +39,7 @@ class OrderColumn extends ConsumerWidget{
             );
           }
         );
+        ref.read(savingLoadingButton.notifier).state = false;
       },
       borderRadius: BorderRadius.circular(24.sp),
       child: Column(
@@ -52,52 +55,42 @@ class OrderColumn extends ConsumerWidget{
                   
                 ],
               ),
-              HugeIcon(icon: HugeIcons.strokeRoundedNotification01, color: secondaryColor)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24.sp),
+                  color: secondaryColor
+                ),
+                child:Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "${S.of(context).order} ",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                      TextSpan(
+                        text: "${order['id']}",
+                        style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                spacing: 8.sp,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Container(
-                    alignment: Alignment.center,
-                    width: 30.w,
-                    height: 8.w,
-                    decoration: BoxDecoration(
-                      color: secondaryColor,
-                      borderRadius: BorderRadius.circular(24.sp),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("$numOrders ${S.of(context).orders}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                        HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: Colors.white, size: 16.sp)
-                      ],
-                    )
-                  ),
-                  OutlinedButton(
-                    style: outlinedBeige.copyWith(fixedSize: WidgetStateProperty.all<Size>(Size(20.w, 4.h))),
-                    onPressed: (){
-                      showDialog(
-                        context: context, 
-                        builder: (context){
-                          return Dialog(
-                            insetPadding: EdgeInsets.all(8.sp),
-                            backgroundColor: Colors.transparent,
-                            child: IntrinsicWidth(
-                              stepWidth: 100.w,
-                              child: IntrinsicHeight(
-                                child: OrderContainer(order: order)
-                              ),
-                            ),
-                          );
-                        }
-                      );
-                    }, 
-                    child: Text(S.of(context).view)
-                  )
+                  Text("$numOrders ${numOrders > 1 ? S.of(context).items : S.of(context).item}", style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.bold)),
+                  HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: secondaryColor, size: 16.sp)
                 ],
               ),
               Column(

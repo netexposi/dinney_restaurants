@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   sizer: any
   flutter_riverpod: any
+  firebase_core: any
   go_router: any
   supabase_flutter: any
   image_picker: any
@@ -20,13 +21,18 @@ dependencies:
   google_maps_flutter: any
   location: any
   iconsax: any
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.9
+  cloud_functions: ^6.0.2
+  firebase_messaging: ^16.0.2
   connectivity_plus: any
   hive: any
   hive_flutter: any
+  audioplayers: ^6.1.0
   flutter_local_notifications: any
   lottie: ^3.1.0
+  just_audio: any
+  visibility_detector: any
+  url_launcher: ^6.3.0
+  translator: ^1.0.4+1
   flutter_localizations:
         sdk: flutter
   # flutter_local_notifications: ^17.2.0
@@ -59,6 +65,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/animations/
+    - assets/sounds/
 flutter_intl:
   enabled: true
 

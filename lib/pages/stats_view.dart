@@ -39,18 +39,12 @@ class StatsView extends ConsumerWidget {
                 return Center(child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Lottie.asset("assets/animations/no_data.json", width: 50.w),
-                    Text(S.of(context).no_stats_found)
+                    Lottie.asset("assets/animations/statistics.json", width: 50.w),
+                    Text(S.of(context).no_stats_found , style: Theme.of(context).textTheme.bodySmall!.copyWith(color: tertiaryColor),)
                   ],
                 ));
               } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                final completedOrders = snapshot.data!
-                    .where((item) =>
-                        item['validated'] == true &&
-                        DateTime.parse(item['delivery_at'])
-                            .isBefore(DateTime.now()))
-                    .toList();
-
+                final completedOrders = snapshot.data!.where((item) => item['completed'] == true).toList();
                 //SECTION Counting total income and served items
                 int servedItems = 0;
                 int totalIncome = 0;
@@ -63,20 +57,23 @@ class StatsView extends ConsumerWidget {
 
                 //SECTION Counting weekly orders
                 final now = DateTime.now();
-                final startOfWeek = now.subtract(const Duration(days: 6)).startOfDay();
-                final ordersPerDay = List<int>.filled(7, 0); // Initialize counts
+                final startOfWeek = now.subtract(Duration(days: 5)).startOfDay();
+                var ordersPerDay = List<int>.filled(7, 0);
+
                 for (var order in completedOrders) {
-                  final orderDate = DateTime.parse(order['delivery_at']);
-                  if (orderDate.isAfter(
-                          startOfWeek.subtract(const Duration(seconds: 1))) &&
-                      orderDate.isBefore(now.add(const Duration(seconds: 1)))) {
-                    final dayIndex =
-                        orderDate.startOfDay().difference(startOfWeek).inDays;
+                  // Parse and normalize to local time
+                  DateTime orderDate = DateTime.parse(order['delivery_at']).toLocal();
+                  orderDate = orderDate.startOfDay();
+
+                  if (orderDate.isAfter(startOfWeek.subtract(const Duration(seconds: 1))) &&
+                      orderDate.isBefore(now.add(const Duration(days: 1)))) {
+                    final dayIndex = orderDate.difference(startOfWeek).inDays;
                     if (dayIndex >= 0 && dayIndex < 7) {
                       ordersPerDay[dayIndex]++;
                     }
                   }
                 }
+                ordersPerDay = [23, 35, 750, 1000, 21, 34, 500];
 
                 // Debug print to verify counts
                 // ignore: avoid_print
@@ -229,13 +226,14 @@ class StatsView extends ConsumerWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: List.generate(7, (index) {
+                                          final maxOrders = ordersPerDay.isNotEmpty
+                                          ? ordersPerDay.reduce((a, b) => a > b ? a : b)
+                                          : 1; // avoid divide-by-zero
                                           return ordersPerDay[index] >= 2
                                               ? Container(
                                                   alignment: Alignment.center,
                                                   width: (100.w - 16.sp * 6) / 7,
-                                                  height: ordersPerDay[index] > 20
-                                                      ? 48.sp
-                                                      : 16.sp * ordersPerDay[index],
+                                                  height: (ordersPerDay[index] / maxOrders) < 0.1 ? 22.sp : (ordersPerDay[index] / maxOrders) * (55.sp),
                                                   decoration: BoxDecoration(
                                                     color: index !=
                                                             ordersPerDay.length - 1

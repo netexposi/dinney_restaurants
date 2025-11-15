@@ -1108,6 +1108,276 @@ class S {
   String get edit_tags {
     return Intl.message('Edit Tags', name: 'edit_tags', desc: '', args: []);
   }
+
+  /// `Notifications`
+  String get notifications {
+    return Intl.message(
+      'Notifications',
+      name: 'notifications',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Welcome Back, Glad you have\n made it to continue your setup 🥳`
+  String get welcome_back_message {
+    return Intl.message(
+      'Welcome Back, Glad you have\n made it to continue your setup 🥳',
+      name: 'welcome_back_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to add restaurant, try again`
+  String get failed_to_add_restaurant {
+    return Intl.message(
+      'Failed to add restaurant, try again',
+      name: 'failed_to_add_restaurant',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid credentials, email or password could be wrong`
+  String get invalid_credentials {
+    return Intl.message(
+      'Invalid credentials, email or password could be wrong',
+      name: 'invalid_credentials',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email Confirmed`
+  String get email_confirmed {
+    return Intl.message(
+      'Email Confirmed',
+      name: 'email_confirmed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We have sent you a confirmation email\nPlease check your inbox!`
+  String get email_sent {
+    return Intl.message(
+      'We have sent you a confirmation email\nPlease check your inbox!',
+      name: 'email_sent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fields are empty`
+  String get fields_empty {
+    return Intl.message(
+      'Fields are empty',
+      name: 'fields_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passwords don't match`
+  String get passwords_dont_match {
+    return Intl.message(
+      'Passwords don\'t match',
+      name: 'passwords_dont_match',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No account found with that name`
+  String get no_account_found {
+    return Intl.message(
+      'No account found with that name',
+      name: 'no_account_found',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Item`
+  String get item {
+    return Intl.message('Item', name: 'item', desc: '', args: []);
+  }
+
+  /// `Items`
+  String get items {
+    return Intl.message('Items', name: 'items', desc: '', args: []);
+  }
+
+  /// `AT\nTABLE`
+  String get at_table_container {
+    return Intl.message(
+      'AT\nTABLE',
+      name: 'at_table_container',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TO\nGO`
+  String get to_go_container {
+    return Intl.message('TO\nGO', name: 'to_go_container', desc: '', args: []);
+  }
+
+  /// `Emergency Stop`
+  String get emergency_stop {
+    return Intl.message(
+      'Emergency Stop',
+      name: 'emergency_stop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop`
+  String get stop {
+    return Intl.message('Stop', name: 'stop', desc: '', args: []);
+  }
+
+  /// `Reactivate`
+  String get reactivate {
+    return Intl.message('Reactivate', name: 'reactivate', desc: '', args: []);
+  }
+
+  /// `Status is off`
+  String get status_off {
+    return Intl.message(
+      'Status is off',
+      name: 'status_off',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to cancel all bookings and stop?`
+  String get emergency_stop_message {
+    return Intl.message(
+      'Are you sure you want to cancel all bookings and stop?',
+      name: 'emergency_stop_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear all`
+  String get clear_all {
+    return Intl.message('Clear all', name: 'clear_all', desc: '', args: []);
+  }
+
+  /// `About`
+  String get about {
+    return Intl.message('About', name: 'about', desc: '', args: []);
+  }
+
+  /// `Designed & Developed`
+  String get desgined_developed {
+    return Intl.message(
+      'Designed & Developed',
+      name: 'desgined_developed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By`
+  String get by {
+    return Intl.message('By', name: 'by', desc: '', args: []);
+  }
+
+  /// `Development Team`
+  String get development_team {
+    return Intl.message(
+      'Development Team',
+      name: 'development_team',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Akram Benhebbadj`
+  String get akram_benhebbadj {
+    return Intl.message(
+      'Akram Benhebbadj',
+      name: 'akram_benhebbadj',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Islam Boussahel`
+  String get islam_boussahel {
+    return Intl.message(
+      'Islam Boussahel',
+      name: 'islam_boussahel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Developer`
+  String get developer {
+    return Intl.message('Developer', name: 'developer', desc: '', args: []);
+  }
+
+  /// `IF YOU ARE NEW HERE`
+  String get if_youre_new {
+    return Intl.message(
+      'IF YOU ARE NEW HERE',
+      name: 'if_youre_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The Restaurant has accepted your order`
+  String get restauarant_accepted {
+    return Intl.message(
+      'The Restaurant has accepted your order',
+      name: 'restauarant_accepted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select your favorite cuisines and dishes`
+  String get select_favorites {
+    return Intl.message(
+      'Select your favorite cuisines and dishes',
+      name: 'select_favorites',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading Map`
+  String get loading_map {
+    return Intl.message('Loading Map', name: 'loading_map', desc: '', args: []);
+  }
+
+  /// `Please select a\ncorrect timing`
+  String get select_proper_timing {
+    return Intl.message(
+      'Please select a\ncorrect timing',
+      name: 'select_proper_timing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error loading content\nPlease check your internet connection!`
+  String get error_loading {
+    return Intl.message(
+      'Error loading content\nPlease check your internet connection!',
+      name: 'error_loading',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

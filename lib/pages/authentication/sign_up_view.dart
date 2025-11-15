@@ -108,7 +108,7 @@ class SignUpView extends ConsumerWidget{
                     ref.read(savingLoadingButton.notifier).state = true;
                     // in case fields are empty
                     if (nameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty || confirmPasswordController.text.isEmpty){
-                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Fields are empty"));
+                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).fields_empty));
                     } else if(!agreeToTerms){
                       ScaffoldMessenger.of(
                         context,
@@ -116,7 +116,7 @@ class SignUpView extends ConsumerWidget{
                     }
                     // in case passwords don't match
                     else if(passwordController.text != confirmPasswordController.text){
-                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Passwords don't match"));
+                      ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).passwords_dont_match));
                     }
                     // try logging in
                     else{
@@ -131,7 +131,6 @@ class SignUpView extends ConsumerWidget{
                           );
                           final user = response.user;
                           if (user != null) {
-                            print("uid ID: ${user.id}");
                             final supabase = Supabase.instance.client;
                             var restaurant= Restaurant(
                               uid: user.id,
@@ -156,7 +155,7 @@ class SignUpView extends ConsumerWidget{
                                           email: emailController.text.trim(), 
                                           password: passwordController.text.trim()).whenComplete(() async{
                                             await supabase.from("restaurants").update({
-                                              "fcm_token" : token ?? ""
+                                              "fcm_token" : token != null ? [token] : []
                                               }).eq("email", emailController.text.trim())
                                               .whenComplete(() async{
                                                 ref.read(signUpProvider.notifier).state = 1;
@@ -168,21 +167,20 @@ class SignUpView extends ConsumerWidget{
                                       });
                                     } else {
                                       ref.read(emailConfirmationProvider.notifier).state = true;
-                                      print('⏳ Still not confirmed...');
                                     }
                                   });
                                 });
                               // You can return or use the insertedClient if needed
                             } on PostgrestException catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Failed to add restaurant: ${e.message}"));
+                              ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).failed_to_add_restaurant));
                               ref.read(savingLoadingButton.notifier).state = false;
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $e"));
+                              ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).unexpected_error));
                               ref.read(savingLoadingButton.notifier).state = false;
                             }
                             
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Sign-in failed. Please check your credentials."));
+                            ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).sign_failed));
                             ref.read(savingLoadingButton.notifier).state = false;
                           }
                         }else{
@@ -193,16 +191,16 @@ class SignUpView extends ConsumerWidget{
                           return;
                         }
                       } on AuthException catch (error) {
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("Authentication error: ${error.message}"));
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).invalid_credentials));
                         ref.read(savingLoadingButton.notifier).state = false;
                       } catch (error) {
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("An unexpected error occurred: $error"));
+                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).unexpected_error));
                         ref.read(savingLoadingButton.notifier).state = false;
                       }
                     }
                     ref.read(savingLoadingButton.notifier).state = false;
                   }, 
-                  child: Text("Next")
+                  child: Text(S.of(context).next)
                 )
         
               ],
@@ -213,7 +211,7 @@ class SignUpView extends ConsumerWidget{
                 spacing: 16.sp,
                 children: [
                   Lottie.asset('assets/animations/checkmark.json', width: 50.w),
-                  Text("Email Confimed", style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.green),)
+                  Text(S.of(context).email_confirmed, style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.green),)
                 ],
               ),
             )
@@ -224,7 +222,7 @@ class SignUpView extends ConsumerWidget{
                 spacing: 16.sp,
                 children: [
                   LoadingSpinner(),
-                  Text("We have sent you a confirmation email\nPlease check your inbox!")
+                  Text(S.of(context).email_sent)
                 ],
               ),
             ),

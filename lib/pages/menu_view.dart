@@ -42,160 +42,162 @@ class MenuView extends ConsumerWidget {
     final menu = ref.watch(menuProvider);
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          spacing: 16.sp,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).menu ,style: Theme.of(context).textTheme.headlineLarge,),
-                  TextButton(
-                    onPressed: (){
-                      _showAddCategoryDialog(context, ref);
-                    },
-                    child: Text(S.of(context).add_category),
-                  )
-                ],
-              ),
-            ),
-                Padding(
-                  padding:  EdgeInsets.only(left: 16.sp, right: 16.sp),
-                  child: menu.isEmpty? Text(S.of(context).menu_empty)
-                
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 8.sp,
-                        crossAxisSpacing: 8.sp,
-                        childAspectRatio: 4,
-                      ),
-                      itemCount: menu.length,
-                      itemBuilder: (context, ind) {
-                        return InkWell(
-                          onTap: () {
-                            _showEditCategoryDialog(context, ref, ind, menu[ind]);
-                          },
-                          // child: Container(
-                          //   alignment: Alignment.center,
-                          //   decoration: BoxDecoration(
-                          //     color: tertiaryColor.withOpacity(0.5),
-                          //     borderRadius: BorderRadius.circular(16.sp),
-                          //   ),
-                          //   child: Text(menu[ind]["name"],),
-                          // ),
-                          child: Container(
-                            padding: EdgeInsets.all(8.sp),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: BoxBorder.all(
-                                color: secondaryColor.withOpacity(0.5),
-                                width: 4.sp
-                              ),
-                              borderRadius: BorderRadius.circular(16.sp),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //add the rectangle shape here
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 16.sp,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(16.sp),
-                                      width: 2.w,
-                                      height: 3.h,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [secondaryColor,  Color.fromARGB(255, 219, 98, 0)],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter
-                                        ),
-                                        borderRadius: BorderRadius.circular(8.sp)
-                                      ),
-                                    ),
-                                    Text(
-                                      "${menu[ind]["name"]}",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Icon(
-                                  Iconsax.arrow_circle_right,
-                                  color: tertiaryColor.withOpacity(0.8),
-                                ),
-                              ],
-                            )
-                          ),
-                        );
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 16.sp,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).menu ,style: Theme.of(context).textTheme.headlineLarge,),
+                    TextButton(
+                      onPressed: (){
+                        _showAddCategoryDialog(context, ref);
                       },
-                    ),
-                ),
-            Padding(
-              padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(S.of(context).tags, style: Theme.of(context).textTheme.headlineLarge,),
-                  TextButton(
-                    onPressed: (){
-                      showDialog(
-                        context: context, 
-                        builder: (context){
-                          return RefDialog();
-                        }
-                        );
-                    }, 
-                    child: Text(S.of(context).edit)
+                      child: Text(S.of(context).add_category),
                     )
-                ],
+                  ],
+                ),
               ),
-            ),
-            SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-              child: Row(
-              children: List.generate(ref.watch(userDocumentsProvider)['tags'].length,(index){
-                return Container(
-                  alignment: Alignment.bottomCenter,
-                  width: 30.w,
-                  height: 30.w,
-                  margin: EdgeInsets.only(left: 16.sp),
-                  decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24.sp),
-                  image: DecorationImage(image: AssetImage(tagImages[ref.watch(userDocumentsProvider)['tags'][index]]!))
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(8.sp),
-                    child: BlurryContainer(
-                      width: 24.w,
-                      height: 10.w,
-                      borderRadius: BorderRadius.circular(24.sp),
-                      child: Center(
-                        child: Text(
-                          "${ref.watch(userDocumentsProvider)['tags'][index]}",
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.4),
-                              offset: Offset(2, 2),
-                              blurRadius: 24,
+                  Padding(
+                    padding:  EdgeInsets.only(left: 16.sp, right: 16.sp),
+                    child: menu.isEmpty? Text(S.of(context).menu_empty)
+                  
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 8.sp,
+                          crossAxisSpacing: 8.sp,
+                          childAspectRatio: 4,
+                        ),
+                        itemCount: menu.length,
+                        itemBuilder: (context, ind) {
+                          return InkWell(
+                            onTap: () {
+                              _showEditCategoryDialog(context, ref, ind, menu[ind]);
+                            },
+                            // child: Container(
+                            //   alignment: Alignment.center,
+                            //   decoration: BoxDecoration(
+                            //     color: tertiaryColor.withOpacity(0.5),
+                            //     borderRadius: BorderRadius.circular(16.sp),
+                            //   ),
+                            //   child: Text(menu[ind]["name"],),
+                            // ),
+                            child: Container(
+                              padding: EdgeInsets.all(8.sp),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: BoxBorder.all(
+                                  color: secondaryColor.withOpacity(0.5),
+                                  width: 4.sp
+                                ),
+                                borderRadius: BorderRadius.circular(16.sp),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  //add the rectangle shape here
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    spacing: 16.sp,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(16.sp),
+                                        width: 2.w,
+                                        height: 3.h,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [secondaryColor,  Color.fromARGB(255, 219, 98, 0)],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter
+                                          ),
+                                          borderRadius: BorderRadius.circular(8.sp)
+                                        ),
+                                      ),
+                                      Text(
+                                        "${menu[ind]["name"]}",
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Icon(
+                                    Iconsax.arrow_circle_right,
+                                    color: tertiaryColor.withOpacity(0.8),
+                                  ),
+                                ],
+                              )
                             ),
-                          ]),
-                          ))
+                          );
+                        },
                       ),
                   ),
-                );
-              }),
+              Padding(
+                padding: EdgeInsets.only(left: 16.sp, right: 16.sp),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(S.of(context).tags, style: Theme.of(context).textTheme.headlineLarge,),
+                    TextButton(
+                      onPressed: (){
+                        showDialog(
+                          context: context, 
+                          builder: (context){
+                            return RefDialog();
+                          }
+                          );
+                      }, 
+                      child: Text(S.of(context).edit)
+                      )
+                  ],
+                ),
               ),
-            )
-          ],
+              SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+                child: Row(
+                children: List.generate(ref.watch(userDocumentsProvider)['tags'].length,(index){
+                  return Container(
+                    alignment: Alignment.bottomCenter,
+                    width: 30.w,
+                    height: 30.w,
+                    margin: EdgeInsets.only(left: 16.sp),
+                    decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24.sp),
+                    image: DecorationImage(image: AssetImage(tagImages[ref.watch(userDocumentsProvider)['tags'][index]]!))
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.sp),
+                      child: BlurryContainer(
+                        width: 24.w,
+                        height: 10.w,
+                        borderRadius: BorderRadius.circular(24.sp),
+                        child: Center(
+                          child: Text(
+                            "${ref.watch(userDocumentsProvider)['tags'][index]}",
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.4),
+                                offset: Offset(2, 2),
+                                blurRadius: 24,
+                              ),
+                            ]),
+                            ))
+                        ),
+                    ),
+                  );
+                }),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

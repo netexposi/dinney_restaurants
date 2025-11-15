@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-final Color backgroundColor = const Color(0xffefeef3);
+final Color backgroundColor = const Color(0xfff3f2f0);
 final Color primaryColor = const Color(0xff222222);
 final Color secondaryColor = const Color(0xffcba76a);
 final Color tertiaryColor = const Color(0xff8A8A8A);

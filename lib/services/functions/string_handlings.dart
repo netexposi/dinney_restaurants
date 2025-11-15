@@ -9,30 +9,31 @@ TimeOfDay stringToTimeOfDay(String time) {
 }
 
 int getDayName(int language){
-  final today = DateFormat.EEEE().format(DateTime.now());
-  late int translatedDay;
+  final today = DateFormat.EEEE().format(DateTime.now()).toLowerCase();
+  print("today is $today");
+  int translatedDay = 0;
   if (language == 2) {
     // French to English translation
     switch (today) {
-      case 'Lundi':
+      case 'lundi':
         translatedDay = 1;
         break;
-      case 'Mardi':
+      case 'mardi':
         translatedDay = 2;
         break;
-      case 'Mercredi':
+      case 'mercredi':
         translatedDay = 3;
         break;
-      case 'Jeudi':
+      case 'jeudi':
         translatedDay = 4;
         break;
-      case 'Vendredi':
+      case 'vendredi':
         translatedDay = 5;
         break;
-      case 'Samedi':
+      case 'samedi':
         translatedDay = 6;
         break;
-      case 'Dimanche':
+      case 'dimanche':
         translatedDay = 0;
         break;
     }
@@ -64,25 +65,25 @@ int getDayName(int language){
   }else{
     // Default to English
     switch (today) {
-      case 'Monday':
+      case 'monday':
         translatedDay = 1;
         break;
-      case 'Tuesday':
+      case 'tuesday':
         translatedDay = 2;
         break;
-      case 'Wednesday':
+      case 'wednesday':
         translatedDay = 3;
         break;
-      case 'Thursday':
+      case 'thursday':
         translatedDay = 4;
         break;
-      case 'Friday':
+      case 'friday':
         translatedDay = 5;
         break;
-      case 'Saturday':
+      case 'saturday':
         translatedDay = 6;
         break;
-      case 'Sunday':
+      case 'sunday':
         translatedDay = 0;
         break;
     }

@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
+import 'package:dinney_restaurant/services/functions/sound_player.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
+import 'package:dinney_restaurant/widgets/animated_snack_content.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
@@ -19,7 +21,9 @@ final removeButtonProvider = StateProvider<List<bool>>((ref) => [false, false, f
 
 class GallerySettingView extends ConsumerWidget {
   final int restaurantId;
-  const GallerySettingView(this.restaurantId, {super.key});
+  GallerySettingView(this.restaurantId, {
+    super.key, 
+    });
 
   Future<void> _pickImage({
     required WidgetRef ref,

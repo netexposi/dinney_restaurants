@@ -22,6 +22,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "about": MessageLookupByLibrary.simpleMessage("About"),
     "accept": MessageLookupByLibrary.simpleMessage("Accept"),
     "accept_notes": MessageLookupByLibrary.simpleMessage("Accept notes"),
     "account_already_exists": MessageLookupByLibrary.simpleMessage(
@@ -40,16 +41,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "agree_to_terms": MessageLookupByLibrary.simpleMessage(
       "Do You agree to our Terms of Service and Privacy Policy.",
     ),
+    "akram_benhebbadj": MessageLookupByLibrary.simpleMessage(
+      "Akram Benhebbadj",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("App"),
     "arabic": MessageLookupByLibrary.simpleMessage("Arabic"),
     "arriving_orders": MessageLookupByLibrary.simpleMessage("Arriving Orders"),
     "at_table": MessageLookupByLibrary.simpleMessage("At Table"),
+    "at_table_container": MessageLookupByLibrary.simpleMessage("AT\nTABLE"),
     "auth_error": MessageLookupByLibrary.simpleMessage(
       "Authentication error: ",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
       "Sign in with dinnery account",
     ),
+    "by": MessageLookupByLibrary.simpleMessage("By"),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "cancel_order": MessageLookupByLibrary.simpleMessage("Cancel Order"),
     "cancel_order_warning": MessageLookupByLibrary.simpleMessage(
@@ -60,6 +66,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "category_name_item_required": MessageLookupByLibrary.simpleMessage(
       "Category name and at least one item are required",
     ),
+    "clear_all": MessageLookupByLibrary.simpleMessage("Clear all"),
     "confirm_password": MessageLookupByLibrary.simpleMessage(
       "Confirm Password",
     ),
@@ -79,6 +86,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to delete your account? This action cannot be undone.",
     ),
     "delete_category": MessageLookupByLibrary.simpleMessage("Delete Category"),
+    "desgined_developed": MessageLookupByLibrary.simpleMessage(
+      "Designed & Developed",
+    ),
+    "developer": MessageLookupByLibrary.simpleMessage("Developer"),
+    "development_team": MessageLookupByLibrary.simpleMessage(
+      "Development Team",
+    ),
     "done": MessageLookupByLibrary.simpleMessage("Done"),
     "easily": MessageLookupByLibrary.simpleMessage("\nEasily"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
@@ -99,12 +113,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "email_changed_successfully": MessageLookupByLibrary.simpleMessage(
       "Email changed successfully. Check your mail!",
     ),
+    "email_confirmed": MessageLookupByLibrary.simpleMessage("Email Confirmed"),
+    "email_sent": MessageLookupByLibrary.simpleMessage(
+      "We have sent you a confirmation email\nPlease check your inbox!",
+    ),
+    "emergency_stop": MessageLookupByLibrary.simpleMessage("Emergency Stop"),
+    "emergency_stop_message": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to cancel all bookings and stop?",
+    ),
     "empty": MessageLookupByLibrary.simpleMessage("Empty"),
     "english": MessageLookupByLibrary.simpleMessage("English"),
     "error": MessageLookupByLibrary.simpleMessage("Error"),
+    "error_loading": MessageLookupByLibrary.simpleMessage(
+      "Error loading content\nPlease check your internet connection!",
+    ),
     "failed_add_restaurant": MessageLookupByLibrary.simpleMessage(
       "Failed to add restaurant:",
     ),
+    "failed_to_add_restaurant": MessageLookupByLibrary.simpleMessage(
+      "Failed to add restaurant, try again",
+    ),
+    "fields_empty": MessageLookupByLibrary.simpleMessage("Fields are empty"),
     "forgot_password": MessageLookupByLibrary.simpleMessage("Forgot Password"),
     "french": MessageLookupByLibrary.simpleMessage("French"),
     "friday": MessageLookupByLibrary.simpleMessage("Friday"),
@@ -113,6 +142,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "help_center": MessageLookupByLibrary.simpleMessage("Help Center"),
     "home": MessageLookupByLibrary.simpleMessage("Home"),
     "id": MessageLookupByLibrary.simpleMessage("ID"),
+    "if_youre_new": MessageLookupByLibrary.simpleMessage("IF YOU ARE NEW HERE"),
     "info_changed_successfully": MessageLookupByLibrary.simpleMessage(
       "Information changed successfully. Check your mail!",
     ),
@@ -120,12 +150,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "internal_error": MessageLookupByLibrary.simpleMessage(
       "Internal error, try again!",
     ),
+    "invalid_credentials": MessageLookupByLibrary.simpleMessage(
+      "Invalid credentials, email or password could be wrong",
+    ),
+    "islam_boussahel": MessageLookupByLibrary.simpleMessage("Islam Boussahel"),
+    "item": MessageLookupByLibrary.simpleMessage("Item"),
     "item_name": MessageLookupByLibrary.simpleMessage("Item Name"),
+    "items": MessageLookupByLibrary.simpleMessage("Items"),
     "items_must_be_filled": MessageLookupByLibrary.simpleMessage(
       "All fields must be filled",
     ),
     "langauge": MessageLookupByLibrary.simpleMessage("Language"),
     "legal": MessageLookupByLibrary.simpleMessage("Legal"),
+    "loading_map": MessageLookupByLibrary.simpleMessage("Loading Map"),
     "location": MessageLookupByLibrary.simpleMessage("Location"),
     "manage_your_orders": MessageLookupByLibrary.simpleMessage(
       "Manage Your Orders",
@@ -148,6 +185,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "new_password": MessageLookupByLibrary.simpleMessage("New Password"),
     "next": MessageLookupByLibrary.simpleMessage("Next"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
+    "no_account_found": MessageLookupByLibrary.simpleMessage(
+      "No account found with that name",
+    ),
     "no_items": MessageLookupByLibrary.simpleMessage("No Items"),
     "no_orders_found": MessageLookupByLibrary.simpleMessage("No orders found"),
     "no_stats_found": MessageLookupByLibrary.simpleMessage(
@@ -156,6 +196,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "no_tags_selected": MessageLookupByLibrary.simpleMessage(
       "No tags are selected",
     ),
+    "notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
     "order": MessageLookupByLibrary.simpleMessage("Order"),
     "order_history": MessageLookupByLibrary.simpleMessage("Order History"),
     "orders": MessageLookupByLibrary.simpleMessage("Orders"),
@@ -167,11 +208,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "password_updated_successfully": MessageLookupByLibrary.simpleMessage(
       "Password updated successfully",
     ),
+    "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
+      "Passwords don\'t match",
+    ),
     "price": MessageLookupByLibrary.simpleMessage("Price"),
     "price_of": MessageLookupByLibrary.simpleMessage("Price of"),
     "privacy_policy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),
     "profile": MessageLookupByLibrary.simpleMessage("Profile"),
     "rate_our_app": MessageLookupByLibrary.simpleMessage("Rate Our App"),
+    "reactivate": MessageLookupByLibrary.simpleMessage("Reactivate"),
     "record": MessageLookupByLibrary.simpleMessage("Record"),
     "reservation_at_table": MessageLookupByLibrary.simpleMessage(
       "Reservation at table",
@@ -183,6 +228,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "A password reset link has been sent to your email.",
     ),
     "reset_password": MessageLookupByLibrary.simpleMessage("Reset Password"),
+    "restauarant_accepted": MessageLookupByLibrary.simpleMessage(
+      "The Restaurant has accepted your order",
+    ),
     "restaurant_name": MessageLookupByLibrary.simpleMessage("Restaurant Name"),
     "saturday": MessageLookupByLibrary.simpleMessage("Saturday"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
@@ -190,9 +238,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "select_album_image": MessageLookupByLibrary.simpleMessage(
       "Select Album Image",
     ),
+    "select_favorites": MessageLookupByLibrary.simpleMessage(
+      "Select your favorite cuisines and dishes",
+    ),
     "select_location": MessageLookupByLibrary.simpleMessage("Select Location"),
     "select_primary_image": MessageLookupByLibrary.simpleMessage(
       "Select Primary Image",
+    ),
+    "select_proper_timing": MessageLookupByLibrary.simpleMessage(
+      "Please select a\ncorrect timing",
     ),
     "select_your_language": MessageLookupByLibrary.simpleMessage(
       "Select your language",
@@ -211,6 +265,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "sing_up": MessageLookupByLibrary.simpleMessage("Sign Up"),
     "start_working": MessageLookupByLibrary.simpleMessage("Start Working"),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistics"),
+    "status_off": MessageLookupByLibrary.simpleMessage("Status is off"),
+    "stop": MessageLookupByLibrary.simpleMessage("Stop"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggest"),
     "suggested_orders": MessageLookupByLibrary.simpleMessage(
       "Suggested Orders",
@@ -223,6 +279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "thursday": MessageLookupByLibrary.simpleMessage("Thursday"),
     "to_go": MessageLookupByLibrary.simpleMessage("To Go"),
+    "to_go_container": MessageLookupByLibrary.simpleMessage("TO\nGO"),
     "total_icnome": MessageLookupByLibrary.simpleMessage("Total Income"),
     "total_orders": MessageLookupByLibrary.simpleMessage("Total Orders"),
     "total_price": MessageLookupByLibrary.simpleMessage("Total Price"),
@@ -238,6 +295,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "wednesday": MessageLookupByLibrary.simpleMessage("Wednesday"),
     "weekly_orders": MessageLookupByLibrary.simpleMessage("Weekly Orders"),
+    "welcome_back_message": MessageLookupByLibrary.simpleMessage(
+      "Welcome Back, Glad you have\n made it to continue your setup 🥳",
+    ),
     "yes_cancel": MessageLookupByLibrary.simpleMessage("Yes, Cancel"),
     "yes_i_want": MessageLookupByLibrary.simpleMessage("Yes, I want"),
     "you_must_agree_to_terms": MessageLookupByLibrary.simpleMessage(

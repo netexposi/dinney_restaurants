@@ -1,7 +1,9 @@
+import 'package:dinney_restaurant/firebase_options.dart';
 import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/login_view.dart';
 import 'package:dinney_restaurant/pages/authentication/sign_up_view.dart';
 import 'package:dinney_restaurant/services/functions/firebase_api_provider.dart';
+import 'package:dinney_restaurant/services/functions/sound_player.dart';
 import 'package:dinney_restaurant/services/functions/system_functions.dart';
 import 'package:dinney_restaurant/utils/app_navigation.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
@@ -19,13 +21,16 @@ Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      name: 'secondary',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
   await Supabase.initialize(
     url: 'https://sxflfgrlveqeerzwlhhv.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4ZmxmZ3JsdmVxZWVyendsaGh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0Njg0MjAsImV4cCI6MjA2OTA0NDQyMH0.ZPZypzCiVynG_BGbXvggr2XVl-KOqKpl_hJZ1pQeht8',
   );
-
+  SoundEffectPlayer.preload();
   final supabase = Supabase.instance.client;
   supabase.auth.onAuthStateChange.listen((data) {
     final event = data.event;
@@ -34,9 +39,9 @@ Future<void> main() async{
       AppNavigation.navRouter.go('/reset-password');
     }
   });
-  final user = supabase.auth.currentUser?.id;
-  if (user != null) {
-    await supabase.from("restaurants").select().eq("email", supabase.auth.currentUser!.email!).single().then((response){
+  final session = supabase.auth.currentSession;
+  if (session != null && session.isExpired == false) {
+    await supabase.from("restaurants").select().eq("email", session.user.email!).single().then((response){
       print("The response is : $response");
       final id = response['id'];
       //function test if images are available;
@@ -296,3 +301,4 @@ class MyHomePage extends ConsumerWidget {
     );
   }
 }
+
