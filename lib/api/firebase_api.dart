@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io' show Platform, File;
+import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data';
 import 'package:dinney_restaurant/services/functions/graphic_operations.dart';
 import 'package:dinney_restaurant/services/models/notification.dart';
@@ -23,17 +25,14 @@ class FirebaseApi {
     description: 'This channel is used for push notifications',
     importance: Importance.high,
   );
-  
-
   final Ref ref; // Riverpod ref
 
   FirebaseApi(this.ref);
 
-
-
   Future<void> initLocalNotification() async {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const settings = InitializationSettings(android: androidSettings);
+    const iOSSettings = DarwinInitializationSettings();
+    const settings = InitializationSettings(android: androidSettings, iOS: iOSSettings);
 
     await _localNotifications.initialize(
       settings,
@@ -44,21 +43,25 @@ class FirebaseApi {
           final updated = data.copyWith(viewed: true);
           // Find existing notification by ID
           final index = box.values.toList().indexWhere((n) => n.id == data.id);
-
           if (index != -1) {
-            await box.putAt(index, updated); // ✅ update existing
+            await box.putAt(index, updated); // update existing
           } else {
             await box.add(updated); // fallback if not found (rare)
           }
-          ref.read(selectedIndex.notifier).state = 0;
-          AppNavigation.navRouter.go("/home");
+          ref.read(selectedIndex.notifier).state = 2;
+          AppNavigation.navRouter.go("/reservations");
         }
       },
     );
-
+    try{
+      String? ss = await _firebaseMessaging.getAPNSToken();
+      print("the token is $ss");
+    }catch(e){
+      print(e);
+    }
     token = await _firebaseMessaging.getToken();
-
-    // Ensure channel exists
+    print("the fcmtoken is: ${token}");
+    // Ensure channel exists on Android
     await _localNotifications
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(_androidChannel);
@@ -67,18 +70,26 @@ class FirebaseApi {
   Future<void> showNotification(Notifications notification) async {
     var result = await Hive.isBoxOpen('notifications');
     late Box<Notifications> box;
-    if(result){
+    if (result) {
       box = Hive.box<Notifications>('notifications');
-    }else {
+    } else {
       box = await Hive.openBox<Notifications>('notifications');
     }
-    //final box = Hive.box<Notifications>('notifications');
-    // add to Hive immediately
-    final language = await Hive.openBox('Language');
+
+    // Get language box
+    result = await Hive.isBoxOpen('Language');
+    late Box languageBox;
+    if (result) {
+      languageBox = Hive.box('Language');
+    } else {
+      languageBox = await Hive.openBox('Language');
+    }
+
     final Uint8List? imageBytes = notification.media.isNotEmpty
         ? await networkImageToUint8List(notification.media)
         : null;
 
+    // Android details
     final androidDetails = AndroidNotificationDetails(
       _androidChannel.id,
       _androidChannel.name,
@@ -88,9 +99,22 @@ class FirebaseApi {
       largeIcon: imageBytes != null ? ByteArrayAndroidBitmap(imageBytes) : null,
     );
 
-    final details = NotificationDetails(android: androidDetails);
-    String lang = language.values.isEmpty? "en" : languages[language.values.last];
-    var decision = await translator.translate(notification.body, to: lang);
+    // iOS details with attachment if image available
+    List<DarwinNotificationAttachment>? attachments;
+    if (imageBytes != null && Platform.isIOS) {
+      final tempDir = await getTemporaryDirectory();
+      final filePath = '${tempDir.path}/notification_image.png';
+      final file = File(filePath);
+      await file.writeAsBytes(imageBytes);
+      attachments = [DarwinNotificationAttachment(filePath)];
+    }
+    final iOSDetails = DarwinNotificationDetails(attachments: attachments);
+
+    final details = NotificationDetails(android: androidDetails, iOS: iOSDetails);
+
+    String lang = languageBox.values.isEmpty ? "en" : languages[languageBox.values.last as int];
+    final decision = await translator.translate(notification.body, to: lang);
+
     await _localNotifications.show(
       notification.hashCode,
       notification.title,
@@ -98,7 +122,7 @@ class FirebaseApi {
       details,
       payload: jsonEncode(notification.toJson()),
     );
-    await box.add(notification.copyWith(body: decision.text)); 
+    await box.add(notification.copyWith(body: decision.text));
   }
 
   Future<void> initPushNotification() async {
@@ -125,9 +149,8 @@ class FirebaseApi {
       title: msg.notification?.title ?? "No Title",
       body: msg.notification?.body ?? "No Body",
       viewed: false,
-      media: msg.notification?.android?.imageUrl ?? "",
+      media: msg.notification?.android?.imageUrl ?? msg.notification?.apple?.imageUrl ?? "",
     );
-
     await showNotification(notification);
   }
 
@@ -137,21 +160,18 @@ class FirebaseApi {
       Hive.registerAdapter(NotificationAdapter());
     }
     final box = await Hive.openBox<Notifications>('notifications');
-
     final notification = Notifications(
       id: msg.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: msg.notification?.title ?? "No Title",
       body: msg.notification?.body ?? "No Body",
       viewed: false,
-      media: msg.notification?.android?.imageUrl ?? "",
+      media: msg.notification?.android?.imageUrl ?? msg.notification?.apple?.imageUrl ?? "",
     );
-
     await box.add(notification);
   }
 
   Future<void> initNotification() async {
     await _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
-
     await initLocalNotification();
     await initPushNotification();
   }

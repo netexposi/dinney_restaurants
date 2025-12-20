@@ -54,7 +54,7 @@ Future<void> main() async{
       }
       //function test if schedule is setup
       else if(response['schedule'] == null || response['schedule'].length == 0){
-        AppNavigation.navRouter.go("/menu_creation/$id");
+        AppNavigation.navRouter.go("/schedule/$id");
       } //function test if location is set
       else if(response['lat'] == null || response['lng'] == null || response['wilaya'] == null){
         AppNavigation.navRouter.go("/location/$id");
@@ -91,6 +91,7 @@ class MyApp extends ConsumerWidget {
     getLanguage(ref);
     return Sizer(builder: (BuildContext , Orientation , ScreenType ) {
       return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerConfig: AppNavigation.navRouter,
       locale: S.delegate.supportedLocales[ref.watch(languageStateProvider)],
       localizationsDelegates: const [

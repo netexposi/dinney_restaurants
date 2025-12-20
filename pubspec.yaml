@@ -66,6 +66,7 @@ flutter:
     - assets/images/
     - assets/animations/
     - assets/sounds/
+  generate: true
 flutter_intl:
   enabled: true
 

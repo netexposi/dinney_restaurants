@@ -15,7 +15,7 @@
     "youre_not_registered_as_restaurant": "You are not registered as a restaurant!",
     "sign_successfully" : "You have signed in successfully!",
     "sign_failed" : "Sign-in failed. Please check your credentials.",
-    "auth_error" : "Authentication error: ",
+    "auth_error" : "Invalid credentials, please check your password again!",
     "unexpected_error" : "An unexpected error occurred: ",
     "schedule": "Schedule",
     "save": "Save",
@@ -147,7 +147,7 @@
     "email_sent" : "We have sent you a confirmation email\nPlease check your inbox!",
     "fields_empty" : "Fields are empty",
     "passwords_dont_match" : "Passwords don't match",
-    "no_account_found" : "No account found with that name",
+    "no_account_found" : "No account found with that email",
     "item" : "Item",
     "items" : "Items",
     "at_table_container" : "AT\nTABLE",
@@ -170,5 +170,8 @@
     "select_favorites" : "Select your favorite cuisines and dishes",
     "loading_map" : "Loading Map",
     "select_proper_timing" : "Please select a\ncorrect timing",
-    "error_loading" : "Error loading content\nPlease check your internet connection!"
+    "error_loading" : "Error loading content\nPlease check your internet connection!",
+    "order_completed" : "Order completed",
+    "complete":  "Complete",
+    "please_wait": "Please wait..."
 }

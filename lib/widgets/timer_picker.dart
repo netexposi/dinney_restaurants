@@ -1,44 +1,23 @@
 import 'package:dinney_restaurant/generated/l10n.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
-Future<TimeOfDay> pickTimeAppleDialog(BuildContext context, TimeOfDay initialTime) async {
-  TimeOfDay tempPicked = initialTime;
-
-  await showDialog(
+Future<TimeOfDay> pickTimeAppleDialog(
+  BuildContext context,
+  TimeOfDay initialTime,
+) async {
+  final TimeOfDay? picked = await showTimePicker(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        actionsAlignment: MainAxisAlignment.center,
-        contentPadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.sp)),
-        content: SizedBox(
-          height: 250,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.time,
-            initialDateTime: DateTime(
-              DateTime.now().year,
-              1,
-              1,
-              initialTime.hour,
-              initialTime.minute,
-            ),
-            use24hFormat: true,
-            onDateTimeChanged: (DateTime newTime) {
-              tempPicked = TimeOfDay(hour: newTime.hour, minute: newTime.minute);
-            },
-          ),
+    initialTime: initialTime,
+    builder: (context, child) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          alwaysUse24HourFormat: true,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(tempPicked),
-            child: Text(S.of(context).done),
-          ),
-        ],
+        child: child!,
       );
     },
+    helpText: S.of(context).done,
   );
 
-  return tempPicked;
+  return picked ?? initialTime;
 }

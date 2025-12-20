@@ -22,8 +22,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "about": MessageLookupByLibrary.simpleMessage("À propos"),
     "accept": MessageLookupByLibrary.simpleMessage("Accepter"),
     "accept_notes": MessageLookupByLibrary.simpleMessage("Accepter les notes"),
+    "account_already_exists": MessageLookupByLibrary.simpleMessage(
+      "Un compte avec cet email existe déjà",
+    ),
     "account_created_successfully": MessageLookupByLibrary.simpleMessage(
       "Compte créé avec succès",
     ),
@@ -36,18 +40,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "add_image": MessageLookupByLibrary.simpleMessage("Ajouter une image"),
     "add_item": MessageLookupByLibrary.simpleMessage("Ajouter un article"),
     "add_tags": MessageLookupByLibrary.simpleMessage("Ajouter des étiquettes"),
+    "agree_to_terms": MessageLookupByLibrary.simpleMessage(
+      "Acceptez-vous nos Conditions de service et notre Politique de confidentialité.",
+    ),
+    "akram_benhebbadj": MessageLookupByLibrary.simpleMessage(
+      "Akram Benhebbadj",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("Application"),
     "arabic": MessageLookupByLibrary.simpleMessage("Arabe"),
     "arriving_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes en arrivée",
     ),
     "at_table": MessageLookupByLibrary.simpleMessage("À table"),
+    "at_table_container": MessageLookupByLibrary.simpleMessage("À\nTABLE"),
     "auth_error": MessageLookupByLibrary.simpleMessage(
-      "Erreur d\'authentification : ",
+      "Identifiants invalides, veuillez vérifier à nouveau votre mot de passe !",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
-      "Connectez-vous avec votre compte Dinney",
+      "Connectez-vous avec un compte Dinnery",
     ),
+    "by": MessageLookupByLibrary.simpleMessage("Par"),
     "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
     "cancel_order": MessageLookupByLibrary.simpleMessage("Annuler la commande"),
     "cancel_order_warning": MessageLookupByLibrary.simpleMessage(
@@ -62,16 +74,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "category_name_item_required": MessageLookupByLibrary.simpleMessage(
       "Le nom de la catégorie et au moins un article sont requis",
     ),
+    "clear_all": MessageLookupByLibrary.simpleMessage("Tout effacer"),
+    "complete": MessageLookupByLibrary.simpleMessage("Compléter"),
     "confirm_password": MessageLookupByLibrary.simpleMessage(
       "Confirmer le mot de passe",
     ),
     "confirmed_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes confirmées",
     ),
-    "contact_us": MessageLookupByLibrary.simpleMessage("Nous contacter"),
+    "contact_us": MessageLookupByLibrary.simpleMessage("Contactez-nous"),
     "create_account": MessageLookupByLibrary.simpleMessage("Créer un compte"),
     "create_restaurant_account": MessageLookupByLibrary.simpleMessage(
-      "Créer un compte pour restaurant",
+      "Créer un compte restaurant",
     ),
     "da": MessageLookupByLibrary.simpleMessage("DA"),
     "day_off": MessageLookupByLibrary.simpleMessage("Jour de congé"),
@@ -85,11 +99,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "delete_category": MessageLookupByLibrary.simpleMessage(
       "Supprimer la catégorie",
     ),
+    "desgined_developed": MessageLookupByLibrary.simpleMessage(
+      "Conçu et développé",
+    ),
+    "developer": MessageLookupByLibrary.simpleMessage("Développeur"),
+    "development_team": MessageLookupByLibrary.simpleMessage(
+      "Équipe de développement",
+    ),
     "done": MessageLookupByLibrary.simpleMessage("Terminé"),
     "easily": MessageLookupByLibrary.simpleMessage("\nFacilement"),
     "edit": MessageLookupByLibrary.simpleMessage("Modifier"),
     "edit_album_image": MessageLookupByLibrary.simpleMessage(
-      "Modifier l\'image d\'album",
+      "Modifier l\'image de l\'album",
     ),
     "edit_gallery": MessageLookupByLibrary.simpleMessage("Modifier la galerie"),
     "edit_information": MessageLookupByLibrary.simpleMessage(
@@ -102,17 +123,37 @@ class MessageLookup extends MessageLookupByLibrary {
       "Modifier l\'image principale",
     ),
     "edit_schedule": MessageLookupByLibrary.simpleMessage(
-      "Modifier le planning",
+      "Modifier les horaires",
     ),
-    "email": MessageLookupByLibrary.simpleMessage("E-mail"),
+    "edit_tags": MessageLookupByLibrary.simpleMessage(
+      "Modifier les étiquettes",
+    ),
+    "email": MessageLookupByLibrary.simpleMessage("Email"),
     "email_changed_successfully": MessageLookupByLibrary.simpleMessage(
-      "E-mail modifié avec succès. Vérifiez votre courriel !",
+      "Email modifié avec succès. Vérifiez votre email !",
+    ),
+    "email_confirmed": MessageLookupByLibrary.simpleMessage("Email confirmé"),
+    "email_sent": MessageLookupByLibrary.simpleMessage(
+      "Nous vous avons envoyé un email de confirmation\nVeuillez vérifier votre boîte de réception !",
+    ),
+    "emergency_stop": MessageLookupByLibrary.simpleMessage("Arrêt d\'urgence"),
+    "emergency_stop_message": MessageLookupByLibrary.simpleMessage(
+      "Êtes-vous sûr de vouloir annuler toutes les réservations et arrêter ?",
     ),
     "empty": MessageLookupByLibrary.simpleMessage("Vide"),
     "english": MessageLookupByLibrary.simpleMessage("Anglais"),
     "error": MessageLookupByLibrary.simpleMessage("Erreur"),
+    "error_loading": MessageLookupByLibrary.simpleMessage(
+      "Erreur de chargement du contenu\nVeuillez vérifier votre connexion internet !",
+    ),
     "failed_add_restaurant": MessageLookupByLibrary.simpleMessage(
       "Échec de l\'ajout du restaurant :",
+    ),
+    "failed_to_add_restaurant": MessageLookupByLibrary.simpleMessage(
+      "Échec de l\'ajout du restaurant, réessayez",
+    ),
+    "fields_empty": MessageLookupByLibrary.simpleMessage(
+      "Les champs sont vides",
     ),
     "forgot_password": MessageLookupByLibrary.simpleMessage(
       "Mot de passe oublié",
@@ -124,19 +165,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "help_center": MessageLookupByLibrary.simpleMessage("Centre d\'aide"),
     "home": MessageLookupByLibrary.simpleMessage("Accueil"),
     "id": MessageLookupByLibrary.simpleMessage("ID"),
+    "if_youre_new": MessageLookupByLibrary.simpleMessage(
+      "SI VOUS ÊTES NOUVEAU ICI",
+    ),
     "info_changed_successfully": MessageLookupByLibrary.simpleMessage(
-      "Informations modifiées avec succès. Vérifiez votre courriel !",
+      "Informations modifiées avec succès. Vérifiez votre email !",
     ),
     "information": MessageLookupByLibrary.simpleMessage("Informations"),
     "internal_error": MessageLookupByLibrary.simpleMessage(
       "Erreur interne, réessayez !",
     ),
+    "invalid_credentials": MessageLookupByLibrary.simpleMessage(
+      "Identifiants invalides, l\'email ou le mot de passe pourrait être erroné",
+    ),
+    "islam_boussahel": MessageLookupByLibrary.simpleMessage("Islam Boussahel"),
+    "item": MessageLookupByLibrary.simpleMessage("Article"),
     "item_name": MessageLookupByLibrary.simpleMessage("Nom de l\'article"),
+    "items": MessageLookupByLibrary.simpleMessage("Articles"),
     "items_must_be_filled": MessageLookupByLibrary.simpleMessage(
       "Tous les champs doivent être remplis",
     ),
     "langauge": MessageLookupByLibrary.simpleMessage("Langue"),
     "legal": MessageLookupByLibrary.simpleMessage("Légal"),
+    "loading_map": MessageLookupByLibrary.simpleMessage(
+      "Chargement de la carte",
+    ),
     "location": MessageLookupByLibrary.simpleMessage("Emplacement"),
     "manage_your_orders": MessageLookupByLibrary.simpleMessage(
       "Gérer vos commandes",
@@ -148,32 +201,57 @@ class MessageLookup extends MessageLookupByLibrary {
       "Le message ne peut pas être vide",
     ),
     "message_sent_successfully": MessageLookupByLibrary.simpleMessage(
-      "Le message a été envoyé avec succès",
+      "Message envoyé avec succès",
     ),
     "monday": MessageLookupByLibrary.simpleMessage("Lundi"),
     "multi_sizes": MessageLookupByLibrary.simpleMessage("Tailles multiples"),
     "name": MessageLookupByLibrary.simpleMessage("Nom"),
     "name_changed_successfully": MessageLookupByLibrary.simpleMessage(
-      "Nom modifié avec succès. Vérifiez votre courriel !",
+      "Nom modifié avec succès. Vérifiez votre email !",
+    ),
+    "new_password": MessageLookupByLibrary.simpleMessage(
+      "Nouveau mot de passe",
     ),
     "next": MessageLookupByLibrary.simpleMessage("Suivant"),
     "no": MessageLookupByLibrary.simpleMessage("Non"),
+    "no_account_found": MessageLookupByLibrary.simpleMessage(
+      "Aucun compte trouvé avec ce email",
+    ),
     "no_items": MessageLookupByLibrary.simpleMessage("Aucun article"),
     "no_orders_found": MessageLookupByLibrary.simpleMessage(
       "Aucune commande trouvée",
     ),
-    "no_tags_selected": MessageLookupByLibrary.simpleMessage(
-      "Aucune étiquette sélectionnée",
+    "no_stats_found": MessageLookupByLibrary.simpleMessage(
+      "Aucune statistique trouvée",
     ),
+    "no_tags_selected": MessageLookupByLibrary.simpleMessage(
+      "Aucune étiquette n\'est sélectionnée",
+    ),
+    "notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
     "order": MessageLookupByLibrary.simpleMessage("Commande"),
+    "order_completed": MessageLookupByLibrary.simpleMessage(
+      "Commande terminée",
+    ),
     "order_history": MessageLookupByLibrary.simpleMessage(
       "Historique des commandes",
     ),
     "orders": MessageLookupByLibrary.simpleMessage("Commandes"),
     "orders_history": MessageLookupByLibrary.simpleMessage(
-      "Historique Des Commandes",
+      "Historique des commandes",
     ),
     "password": MessageLookupByLibrary.simpleMessage("Mot de passe"),
+    "password_dont_match": MessageLookupByLibrary.simpleMessage(
+      "Les mots de passe ne correspondent pas",
+    ),
+    "password_updated_successfully": MessageLookupByLibrary.simpleMessage(
+      "Mot de passe mis à jour avec succès",
+    ),
+    "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
+      "Les mots de passe ne correspondent pas",
+    ),
+    "please_wait": MessageLookupByLibrary.simpleMessage(
+      "Veuillez patienter...",
+    ),
     "price": MessageLookupByLibrary.simpleMessage("Prix"),
     "price_of": MessageLookupByLibrary.simpleMessage("Prix de"),
     "privacy_policy": MessageLookupByLibrary.simpleMessage(
@@ -181,8 +259,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "profile": MessageLookupByLibrary.simpleMessage("Profil"),
     "rate_our_app": MessageLookupByLibrary.simpleMessage(
-      "Noter notre application",
+      "Évaluez notre application",
     ),
+    "reactivate": MessageLookupByLibrary.simpleMessage("Réactiver"),
     "record": MessageLookupByLibrary.simpleMessage("Enregistrement"),
     "reservation_at_table": MessageLookupByLibrary.simpleMessage(
       "Réservation à table",
@@ -190,20 +269,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "reservation_to_go": MessageLookupByLibrary.simpleMessage(
       "Réservation à emporter",
     ),
+    "reset_link_sent": MessageLookupByLibrary.simpleMessage(
+      "Un lien de réinitialisation de mot de passe a été envoyé à votre email.",
+    ),
+    "reset_password": MessageLookupByLibrary.simpleMessage(
+      "Réinitialiser le mot de passe",
+    ),
+    "restauarant_accepted": MessageLookupByLibrary.simpleMessage(
+      "Le restaurant a accepté votre commande",
+    ),
     "restaurant_name": MessageLookupByLibrary.simpleMessage(
       "Nom du restaurant",
     ),
     "saturday": MessageLookupByLibrary.simpleMessage("Samedi"),
     "save": MessageLookupByLibrary.simpleMessage("Enregistrer"),
-    "schedule": MessageLookupByLibrary.simpleMessage("Planning"),
+    "schedule": MessageLookupByLibrary.simpleMessage("Horaires"),
     "select_album_image": MessageLookupByLibrary.simpleMessage(
-      "Sélectionner une image d\'album",
+      "Sélectionner l\'image de l\'album",
+    ),
+    "select_favorites": MessageLookupByLibrary.simpleMessage(
+      "Sélectionnez vos cuisines et plats préférés",
     ),
     "select_location": MessageLookupByLibrary.simpleMessage(
-      "Sélectionner un emplacement",
+      "Sélectionner l\'emplacement",
     ),
     "select_primary_image": MessageLookupByLibrary.simpleMessage(
       "Sélectionner l\'image principale",
+    ),
+    "select_proper_timing": MessageLookupByLibrary.simpleMessage(
+      "Veuillez sélectionner un\nhoraire correct",
     ),
     "select_your_language": MessageLookupByLibrary.simpleMessage(
       "Sélectionnez votre langue",
@@ -224,6 +318,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Commencer à travailler",
     ),
     "statistics": MessageLookupByLibrary.simpleMessage("Statistiques"),
+    "status_off": MessageLookupByLibrary.simpleMessage(
+      "Le statut est désactivé",
+    ),
+    "stop": MessageLookupByLibrary.simpleMessage("Arrêter"),
     "suggest": MessageLookupByLibrary.simpleMessage("Suggérer"),
     "suggested_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes suggérées",
@@ -236,6 +334,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "thursday": MessageLookupByLibrary.simpleMessage("Jeudi"),
     "to_go": MessageLookupByLibrary.simpleMessage("À emporter"),
+    "to_go_container": MessageLookupByLibrary.simpleMessage("À\nEMPORTER"),
     "total_icnome": MessageLookupByLibrary.simpleMessage("Revenu total"),
     "total_orders": MessageLookupByLibrary.simpleMessage("Total des commandes"),
     "total_price": MessageLookupByLibrary.simpleMessage("Prix total"),
@@ -246,16 +345,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "update_item": MessageLookupByLibrary.simpleMessage(
       "Mettre à jour l\'article",
     ),
+    "update_password": MessageLookupByLibrary.simpleMessage(
+      "Mettre à jour le mot de passe",
+    ),
     "view": MessageLookupByLibrary.simpleMessage("Voir"),
     "we_would_love_to_hear_from_you": MessageLookupByLibrary.simpleMessage(
-      "Nous aimerions avoir de vos nouvelles ! Si vous avez des questions, des suggestions ou des commentaires, n\'hésitez pas à nous contacter. Notre équipe est là pour vous aider et s\'assurer que vous viviez la meilleure expérience possible.",
+      "Nous serions ravis d\'avoir de vos nouvelles ! Si vous avez des questions, des suggestions ou des retours, n\'hésitez pas à nous contacter. Notre équipe est là pour vous assister et vous assurer la meilleure expérience possible.",
     ),
     "wednesday": MessageLookupByLibrary.simpleMessage("Mercredi"),
     "weekly_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes hebdomadaires",
     ),
+    "welcome_back_message": MessageLookupByLibrary.simpleMessage(
+      "Bienvenue de retour, Heureux que vous soyez revenu pour continuer votre configuration 🥳",
+    ),
     "yes_cancel": MessageLookupByLibrary.simpleMessage("Oui, annuler"),
     "yes_i_want": MessageLookupByLibrary.simpleMessage("Oui, je veux"),
+    "you_must_agree_to_terms": MessageLookupByLibrary.simpleMessage(
+      "Vous devez accepter les conditions pour continuer.",
+    ),
     "youre_not_registered_as_restaurant": MessageLookupByLibrary.simpleMessage(
       "Vous n\'êtes pas enregistré en tant que restaurant !",
     ),

@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:dinney_restaurant/generated/l10n.dart';
 import 'package:dinney_restaurant/pages/authentication/menu_creation_view.dart';
-import 'package:dinney_restaurant/services/functions/sound_player.dart';
 import 'package:dinney_restaurant/services/functions/storage_functions.dart';
 import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
-import 'package:dinney_restaurant/widgets/animated_snack_content.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
@@ -53,7 +51,7 @@ class GallerySettingView extends ConsumerWidget {
             children: [
               Align(
                 alignment: Alignment.center,
-                child: ThreeDotsIndicator()
+                child: ThreeDotsIndicator(index: 1,)
               ),
               Text(S.of(context).select_primary_image, style: Theme.of(context).textTheme.titleMedium,),
               InkWell(

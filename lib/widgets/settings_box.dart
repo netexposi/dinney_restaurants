@@ -260,9 +260,6 @@ class SettingsBox extends ConsumerWidget {
                                                                     context)
                                                                 .textTheme
                                                                 .bodySmall,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
                                                           ),
                                                         ],
                                                       ),

@@ -184,10 +184,10 @@ class S {
     );
   }
 
-  /// `Authentication error: `
+  /// `Invalid credentials, please check your password again!`
   String get auth_error {
     return Intl.message(
-      'Authentication error: ',
+      'Invalid credentials, please check your password again!',
       name: 'auth_error',
       desc: '',
       args: [],
@@ -1189,10 +1189,10 @@ class S {
     );
   }
 
-  /// `No account found with that name`
+  /// `No account found with that email`
   String get no_account_found {
     return Intl.message(
-      'No account found with that name',
+      'No account found with that email',
       name: 'no_account_found',
       desc: '',
       args: [],
@@ -1374,6 +1374,31 @@ class S {
     return Intl.message(
       'Error loading content\nPlease check your internet connection!',
       name: 'error_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Order completed`
+  String get order_completed {
+    return Intl.message(
+      'Order completed',
+      name: 'order_completed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Complete`
+  String get complete {
+    return Intl.message('Complete', name: 'complete', desc: '', args: []);
+  }
+
+  /// `Please wait...`
+  String get please_wait {
+    return Intl.message(
+      'Please wait...',
+      name: 'please_wait',
       desc: '',
       args: [],
     );

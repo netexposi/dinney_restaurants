@@ -51,7 +51,7 @@ List<String> days = [
           child: Column(
             spacing: 16.sp,
             children: [
-              ThreeDotsIndicator(),
+              ThreeDotsIndicator(index: 3,),
               Text(
                 S.of(context).schedule,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -124,7 +124,10 @@ List<String> days = [
                                                       final TimeOfDay? picked = await pickTimeAppleDialog(context, selectedTime);
                                                       setState((){
                                                         if(picked != null){
-                                                          schedule[index]["opening"] = "${picked.hour}:${picked.minute}";
+                                                          String formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+
+                                                          //schedule[index]["opening"] = "${picked.hour}:${picked.minute}";
+                                                          schedule[index]["opening"] = formatted;
                                                           changeProvider = true;
                                                         }
                                                       });
@@ -137,7 +140,8 @@ List<String> days = [
                                                       final TimeOfDay? picked = await pickTimeAppleDialog(context, selectedTime);
                                                       setState((){
                                                         if(picked != null){
-                                                          schedule[index]["closing"] = "${picked.hour}:${picked.minute}";
+                                                          String formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                                                          schedule[index]["closing"] = formatted;
                                                           changeProvider = true;
                                                         }
                                                       });

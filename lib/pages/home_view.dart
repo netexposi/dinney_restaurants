@@ -7,6 +7,7 @@ import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/blurry_container.dart';
 import 'package:dinney_restaurant/widgets/order_column.dart';
 import 'package:dinney_restaurant/widgets/order_container.dart';
+import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:dinney_restaurant/widgets/settings_box.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class HomeView extends ConsumerWidget{
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Image.asset("assets/images/logo.png", width: 20.w,),
+                    Image.asset("assets/images/logo.png", height: 9.w,),
                     Container(
                       alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(horizontal: 8.sp),
@@ -70,6 +71,7 @@ class HomeView extends ConsumerWidget{
                     .from('orders')
                     .stream(primaryKey: ['id'])
                     .eq('restaurant_id', ref.watch(userDocumentsProvider)['id'])
+                    .order("id", ascending: false)
                     .asBroadcastStream(),
                     builder: (context, snapshot){
                       if(snapshot.hasError){
@@ -95,11 +97,11 @@ class HomeView extends ConsumerWidget{
                           (item) => item['suggested'] && item['validated'] == false && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
                         // filtering to get confirmed orders
                         final confirmedOrders = snapshot.data!.where(
-                          (item) => item['validated'] == true && DateTime.parse(item['delivery_at']).isAfter(DateTime.now())).toList();
+                          (item) => item['validated'] == true && item['completed'] == false && DateTime.parse(item['delivery_at']).isAfter(DateTime.now().add(Duration(hours: 1)))).toList();
 
                         //idea this two lists are used to count the number of CONFIRMED orders at table and to pick up
-                        final atTableOrders = confirmedOrders.where((item) => item['at_table'] == true && item['completed'] == false).toList();
-                        final toPickUpOrders = confirmedOrders.where((item) => item['at_table'] == false && item['completed'] == false).toList();
+                        final atTableOrders = confirmedOrders.where((item) => item['at_table'] == true).toList();
+                        final toPickUpOrders = confirmedOrders.where((item) => item['at_table'] == false).toList();
                         
                         final numAtTable = atTableOrders.length;
                         final numToPickUp = toPickUpOrders.length;
@@ -114,28 +116,29 @@ class HomeView extends ConsumerWidget{
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(S.of(context).arriving_orders, style: Theme.of(context).textTheme.headlineLarge,),
-                                AnimatedRotation(
-                                  duration: Duration(milliseconds: 300),
-                                  turns: ref.watch(horizontalOrder)? 0.0 : 0.5,
-                                  child: IconButton(
-                                    onPressed: (){
-                                      ref.read(horizontalOrder.notifier).state = !ref.watch(horizontalOrder);
-                                    }, 
-                                    icon: HugeIcon(icon: HugeIcons.strokeRoundedRotateRight02, color: tertiaryColor)
-                                  ),
-                                )
+                                // AnimatedRotation(
+                                //   duration: Duration(milliseconds: 300),
+                                //   turns: ref.watch(horizontalOrder)? 0.0 : 0.5,
+                                //   child: IconButton(
+                                //     onPressed: (){
+                                //       ref.read(horizontalOrder.notifier).state = !ref.watch(horizontalOrder);
+                                //     }, 
+                                //     icon: HugeIcon(icon: HugeIcons.strokeRoundedRotateRight02, color: tertiaryColor)
+                                //   ),
+                                // )
                               ],
                             ),
-                            if(unrespondedOrders.isNotEmpty) ref.watch(horizontalOrder)? SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 16.sp,
-                                children: List.generate(unrespondedOrders.length, (index){
-                                  return OrderContainer(order: unrespondedOrders[index]);
-                                }),
-                              ),
-                            ) : Container(
+                            // ref.watch(horizontalOrder)? SingleChildScrollView(
+                            //   scrollDirection: Axis.horizontal,
+                            //   child: Row(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     spacing: 16.sp,
+                            //     children: List.generate(unrespondedOrders.length, (index){
+                            //       return OrderContainer(order: unrespondedOrders[index]);
+                            //     }),
+                            //   ),
+                            // ) : 
+                            if(unrespondedOrders.isNotEmpty) Container(
                               width: 100.w,
                               padding: EdgeInsets.all(16.sp),
                               decoration: BoxDecoration(
@@ -259,6 +262,10 @@ class HomeView extends ConsumerWidget{
                                                         print(numOrders);
                                                         return InkWell(
                                                           onTap: (){
+                                                            TimeOfDay time = TimeOfDay(hour: DateTime.parse(
+                                                              atTableOrders[index]['delivery_at']).hour, 
+                                                              minute: DateTime.parse(atTableOrders[index]['delivery_at']).minute);
+
                                                             showDialog(context: context, builder: (context){
                                                               return Dialog(
                                                                 backgroundColor: Colors.white,
@@ -268,7 +275,8 @@ class HomeView extends ConsumerWidget{
                                                                   child: IntrinsicHeight(
                                                                     child: Padding(
                                                                       padding: EdgeInsets.all(16.sp),
-                                                                      child: Column(
+                                                                      child: Consumer(builder: (context, ref, child){
+                                                                        return Column(
                                                                         spacing: 16.sp,
                                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                                         children: [
@@ -284,11 +292,11 @@ class HomeView extends ConsumerWidget{
                                                                                     : atTableOrders[index]['client_name']}', 
                                                                                     style: Theme.of(context).textTheme.headlineMedium!),
                                                                                   Text(atTableOrders[index]["at_table"]? "At Table" : "To Pick Up", 
-                                                                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                                    style: Theme.of(context).textTheme.bodyLarge),
                                                                                 ],
                                                                               ),
                                                                               Text(DateFormat.Hm().format(timestamp), 
-                                                                                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                                style: Theme.of(context).textTheme.headlineLarge),
                                                                             ],
                                                                           ),
                                                                           Container(
@@ -316,61 +324,107 @@ class HomeView extends ConsumerWidget{
                                                                               Text("$totalPrice ${S.of(context).da}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                                                                             ],
                                                                           ),
-                                                                          Center(
-                                                                            child: TextButton(
-                                                                              style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                                                                              ),
-                                                                              onPressed: (){
-                                                                                showDialog(
-                                                                                  context: context, 
-                                                                                  builder: (context){
-                                                                                    return AlertDialog(
-                                                                                      title: Text(S.of(context).cancel_order),
-                                                                                      content: Text(S.of(context).cancel_order_warning),
-                                                                                      actionsAlignment: MainAxisAlignment.spaceEvenly,
-                                                                                      actions: [
-                                                                                        ref.watch(savingLoadingButton)? LoadingSpinner() : TextButton(
-                                                                                          style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                            foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                                                                                          ),
-                                                                                          onPressed: () async {
-                                                                                            ref.read(savingLoadingButton.notifier).state = true;
-                                                                                            await sendNotification(
-                                                                                              ref.watch(userDocumentsProvider)['name'], 
-                                                                                              "Sorry, restaurant has canceled your order", 
-                                                                                              atTableOrders[index]['client_fcm'],
-                                                                                              image: ref.watch(userDocumentsProvider)['urls'][0]
-                                                                                            );
-                                                                                            await supabase.from('orders')
-                                                                                            .delete()
-                                                                                            .eq('id', atTableOrders[index]['id']);
-                                                                                            Navigator.of(context).pop();
-                                                                                            Navigator.of(context).pop();
-                                                                                            Navigator.of(context).pop();
-                                                                                          }, 
-                                                                                          child: Text(S.of(context).yes_cancel)
-                                                                                        ),
-                                                                                        TextButton(
-                                                                                          style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                            foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
-                                                                                          ),
-                                                                                          onPressed: () => Navigator.of(context).pop(), 
-                                                                                          child: Text(S.of(context).no)
-                                                                                        ),
-                                                                                        
-                                                                                      ],
+                                                                          ref.watch(savingLoadingButton) ? Center(child: LoadingSpinner()) : Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                            children: [
+                                                                              
+                                                                              ConstrainedBox(
+                                                                                constraints: BoxConstraints(maxWidth: 40.w),
+                                                                                child: TextButton(
+                                                                                  style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                    foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                                                                                  ),
+                                                                                  onPressed: (){
+                                                                                    showDialog(
+                                                                                      context: context, 
+                                                                                      builder: (context){
+                                                                                        return AlertDialog(
+                                                                                          title: Text(S.of(context).cancel_order),
+                                                                                          content: Text(S.of(context).cancel_order_warning),
+                                                                                          actionsAlignment: MainAxisAlignment.spaceEvenly,
+                                                                                          actions: [
+                                                                                            Consumer(builder: (context, ref, child){
+                                                                                              return ref.watch(savingLoadingButton)? LoadingSpinner() : Row(
+                                                                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                                                children: [
+                                                                                                  TextButton(
+                                                                                                  style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                                    foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                                                                                                  ),
+                                                                                                  onPressed: () async {
+                                                                                                    ref.read(savingLoadingButton.notifier).state = true;
+                                                                                                    await sendNotification(
+                                                                                                      ref.watch(userDocumentsProvider)['name'], 
+                                                                                                      "Sorry, restaurant has canceled your order", 
+                                                                                                      atTableOrders[index]['client_fcm'],
+                                                                                                      image: ref.watch(userDocumentsProvider)['urls'][0]
+                                                                                                    );
+                                                                                                    await supabase.from('orders')
+                                                                                                    .delete()
+                                                                                                    .eq('id', atTableOrders[index]['id']);
+                                                                                                    ref.read(savingLoadingButton.notifier).state = false;
+                                                                                                    Navigator.of(context).pop();
+                                                                                                    Navigator.of(context).pop();
+                                                                                                    Navigator.of(context).pop();
+                                                                                                  }, 
+                                                                                                  child: Text(S.of(context).yes_cancel)
+                                                                                                ),
+                                                                                                TextButton(
+                                                                                                  style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                                    foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
+                                                                                                  ),
+                                                                                                  onPressed: () => Navigator.of(context).pop(), 
+                                                                                                  child: Text(S.of(context).no)
+                                                                                                ),
+                                                                                                ],
+                                                                                              );
+                                                                                            })
+                                                                                            
+                                                                                          ],
+                                                                                        );
+                                                                                      }
                                                                                     );
-                                                                                  }
-                                                                                );
-                                                                                ref.read(savingLoadingButton.notifier).state = false;
-                                                                                                                      
-                                                                              }, 
-                                                                              child: Text(S.of(context).cancel_order)
-                                                                            ),
+                                                                                    ref.read(savingLoadingButton.notifier).state = false;
+                                                                                                                          
+                                                                                  }, 
+                                                                                  child: Text(S.of(context).cancel_order)
+                                                                                ),
+                                                                              ),
+                                                                              if(TimeOfDay.now().isAfter(time) || TimeOfDay.now().isAtSameTimeAs(time)) 
+                                                                              ConstrainedBox(
+                                                                                constraints: BoxConstraints(maxWidth: 40.w),
+                                                                                child: ElevatedButton(
+                                                                                  onPressed: () async{
+                                                                                    try{
+                                                                                      ref.read(savingLoadingButton.notifier).state = true;
+                                                                                      await supabase.from("orders").update({
+                                                                                        "completed" : true
+                                                                                      })
+                                                                                      .eq("id", atTableOrders[index]['id'])
+                                                                                      .whenComplete(() async{
+                                                                                        await sendNotification(
+                                                                                          ref.watch(userDocumentsProvider)['name'], 
+                                                                                          "Your command has been completed. Make sure to come again 😊", 
+                                                                                          atTableOrders[index]['client_fcm'],
+                                                                                          image: ref.watch(userDocumentsProvider)['urls'][0]
+                                                                                        );
+                                                                                        ref.read(savingLoadingButton.notifier).state = false;
+                                                                                        Navigator.of(context).pop();
+                                                                                        Navigator.of(context).pop();
+                                                                                        ScaffoldMessenger.of(context).showSnackBar(SuccessMessage(S.of(context).order_completed));
+                                                                                      });
+                                                                                    }catch(e){
+                                                                                      print(e);
+                                                                                    }
+                                                                                  }, 
+                                                                                  child: Text(S.of(context).complete)
+                                                                                  ),
+                                                                              ),
+                                                                            ],
                                                                           )
                                                                         ],
-                                                                      ),
+                                                                      );
+                                                                      })
                                                                     ),
                                                                   ),
                                                                 ),
@@ -397,9 +451,9 @@ class HomeView extends ConsumerWidget{
                                                                         Row(
                                                                           spacing: 8.sp,
                                                                           children: [
-                                                                            Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                            Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge),
                                                                             Text(atTableOrders[index]["at_table"]? "• ${S.of(context).at_table}" : "• ${S.of(context).to_go}", 
-                                                                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                              style: Theme.of(context).textTheme.bodyLarge),
                                                                           ],
                                                                         ),
                                                                       ],
@@ -441,7 +495,7 @@ class HomeView extends ConsumerWidget{
                                     }
                                   },
                                   borderRadius: BorderRadius.circular(24.sp),
-                                  child: Expanded(
+                                  child: IntrinsicWidth(
                                     child: Container(
                                       alignment: Alignment.bottomCenter,
                                       padding: EdgeInsets.all(16.sp),
@@ -496,6 +550,9 @@ class HomeView extends ConsumerWidget{
                                                         print(numOrders);
                                                         return InkWell(
                                                           onTap: (){
+                                                            TimeOfDay time = TimeOfDay(hour: DateTime.parse(
+                                                              toPickUpOrders[index]['delivery_at']).hour, 
+                                                              minute: DateTime.parse(toPickUpOrders[index]['delivery_at']).minute);
                                                             showDialog(context: context, builder: (context){
                                                               return Dialog(
                                                                 insetPadding: EdgeInsets.all(8.sp),
@@ -504,7 +561,8 @@ class HomeView extends ConsumerWidget{
                                                                   child: IntrinsicHeight(
                                                                     child: Padding(
                                                                       padding: EdgeInsets.all(16.sp),
-                                                                      child: Column(
+                                                                      child: Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                                                        return Column(
                                                                         spacing: 16.sp,
                                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                                         children: [
@@ -520,11 +578,11 @@ class HomeView extends ConsumerWidget{
                                                                                     : toPickUpOrders[index]['client_name']}', 
                                                                                     style: Theme.of(context).textTheme.headlineMedium),
                                                                                   Text(toPickUpOrders[index]["at_table"]? S.of(context).at_table : S.of(context).to_go, 
-                                                                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                                    style: Theme.of(context).textTheme.bodyLarge),
                                                                                 ],
                                                                               ),
                                                                               Text(DateFormat.Hm().format(timestamp), 
-                                                                                style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                                style: Theme.of(context).textTheme.headlineLarge),
                                                                             ],
                                                                           ),
                                                                           Container(
@@ -552,61 +610,98 @@ class HomeView extends ConsumerWidget{
                                                                               Text("$totalPrice ${S.of(context).da}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                                                                             ],
                                                                           ),
-                                                                          Center(
-                                                                            child: TextButton(
-                                                                              style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                                                                              ),
-                                                                              onPressed: (){
-                                                                                showDialog(
-                                                                                  context: context, 
-                                                                                  builder: (context){
-                                                                                    return AlertDialog(
-                                                                                      title: Text(S.of(context).cancel_order),
-                                                                                      content: Text(S.of(context).cancel_order_warning),
-                                                                                      actionsAlignment: MainAxisAlignment.spaceEvenly,
-                                                                                      actions: [
-                                                                                        TextButton(
-                                                                                          style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                            foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
-                                                                                          ),
-                                                                                          onPressed: () async {
-                                                                                            await sendNotification(
-                                                                                              ref.watch(userDocumentsProvider)['name'], 
-                                                                                              "Sorry, restaurant has canceled your order", 
-                                                                                              toPickUpOrders[index]['client_fcm'],
-                                                                                              image: ref.watch(userDocumentsProvider)['urls'][0]
-                                                                                            );
-                                                                                            await supabase.from('orders')
-                                                                                            .delete()
-                                                                                            .eq('id', toPickUpOrders[index]['id']);
-                                                                                            Navigator.of(context).pop();
-                                                                                            Navigator.of(context).pop();
-                                                                                            Navigator.of(context).pop();
-                                                                                          }, 
-                                                                                          child: Text(S.of(context).yes_cancel)
-                                                                                        ),
-                                                                                        TextButton(
-                                                                                          style: Theme.of(context).textButtonTheme.style?.copyWith(
-                                                                                            foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
-                                                                                          ),
-                                                                                          onPressed: () => Navigator.of(context).pop(), 
-                                                                                          child: Text(S.of(context).no)
-                                                                                        ),
-                                                                                        
-                                                                                      ],
+                                                                          ref.watch(savingLoadingButton)? Center(child: LoadingSpinner(),) : Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                            children: [
+                                                                              ConstrainedBox(
+                                                                                constraints: BoxConstraints(maxWidth: 40.w),
+                                                                                child: TextButton(
+                                                                                  style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                    foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                                                                                  ),
+                                                                                  onPressed: (){
+                                                                                    showDialog(
+                                                                                      context: context, 
+                                                                                      builder: (context){
+                                                                                        return AlertDialog(
+                                                                                          title: Text(S.of(context).cancel_order),
+                                                                                          content: Text(S.of(context).cancel_order_warning),
+                                                                                          actionsAlignment: MainAxisAlignment.spaceEvenly,
+                                                                                          actions: [
+                                                                                            TextButton(
+                                                                                              style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                                foregroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                                                                                              ),
+                                                                                              onPressed: () async {
+                                                                                                await sendNotification(
+                                                                                                  ref.watch(userDocumentsProvider)['name'], 
+                                                                                                  "Sorry, restaurant has canceled your order", 
+                                                                                                  toPickUpOrders[index]['client_fcm'],
+                                                                                                  image: ref.watch(userDocumentsProvider)['urls'][0]
+                                                                                                );
+                                                                                                await supabase.from('orders')
+                                                                                                .delete()
+                                                                                                .eq('id', toPickUpOrders[index]['id']);
+                                                                                                Navigator.of(context).pop();
+                                                                                                Navigator.of(context).pop();
+                                                                                                Navigator.of(context).pop();
+                                                                                              }, 
+                                                                                              child: Text(S.of(context).yes_cancel)
+                                                                                            ),
+                                                                                            TextButton(
+                                                                                              style: Theme.of(context).textButtonTheme.style?.copyWith(
+                                                                                                foregroundColor: WidgetStateProperty.all<Color>(tertiaryColor),
+                                                                                              ),
+                                                                                              onPressed: () => Navigator.of(context).pop(), 
+                                                                                              child: Text(S.of(context).no)
+                                                                                            ),
+                                                                                            
+                                                                                          ],
+                                                                                        );
+                                                                                      }
                                                                                     );
-                                                                                  }
-                                                                                );
-                                                                                //TODO First we inform the client with a push notification
-                                                                                //TODO Then we remove the row from the database
-                                                
-                                                                              }, 
-                                                                              child: Text(S.of(context).cancel_order)
-                                                                            ),
+                                                                                    //TODO First we inform the client with a push notification
+                                                                                    //TODO Then we remove the row from the database
+                                                                                                                                
+                                                                                  }, 
+                                                                                  child: Text(S.of(context).cancel_order)
+                                                                                ),
+                                                                              ),
+                                                                              if(TimeOfDay.now().isAfter(time) || TimeOfDay.now().isAtSameTimeAs(time)) 
+                                                                              ConstrainedBox(
+                                                                                constraints: BoxConstraints(maxWidth: 40.w),
+                                                                                child: ElevatedButton(
+                                                                                  onPressed: () async{
+                                                                                    try{
+                                                                                      ref.read(savingLoadingButton.notifier).state = true;
+                                                                                      await supabase.from("orders").update({
+                                                                                        "completed" : true
+                                                                                      })
+                                                                                      .eq("id", toPickUpOrders[index]['id'])
+                                                                                      .whenComplete(() async{
+                                                                                        await sendNotification(
+                                                                                          ref.watch(userDocumentsProvider)['name'], 
+                                                                                          "Your command has been completed. Make sure to come again 😊", 
+                                                                                          toPickUpOrders[index]['client_fcm'],
+                                                                                          image: ref.watch(userDocumentsProvider)['urls'][0]
+                                                                                        );
+                                                                                        ref.read(savingLoadingButton.notifier).state = false;
+                                                                                        Navigator.of(context).pop();
+                                                                                        Navigator.of(context).pop();
+                                                                                        ScaffoldMessenger.of(context).showSnackBar(SuccessMessage(S.of(context).order_completed));
+                                                                                      });
+                                                                                    }catch(e){
+                                                                                      print(e);
+                                                                                    }
+                                                                                  }, 
+                                                                                  child: Text(S.of(context).complete)
+                                                                                  ),
+                                                                              ),
+                                                                            ],
                                                                           )
                                                                         ],
-                                                                      ),
+                                                                      );
+                                                                      },)
                                                                     ),
                                                                   ),
                                                                 ),
@@ -633,9 +728,9 @@ class HomeView extends ConsumerWidget{
                                                                         Row(
                                                                           spacing: 8.sp,
                                                                           children: [
-                                                                            Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                            Text(DateFormat.Hm().format(timestamp), style: Theme.of(context).textTheme.bodyLarge),
                                                                             Text(toPickUpOrders[index]["at_table"]? "• ${S.of(context).at_table}" : "• ${S.of(context).to_go}", 
-                                                                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: tertiaryColor.withOpacity(0.5))),
+                                                                              style: Theme.of(context).textTheme.bodyLarge),
                                                                           ],
                                                                         ),
                                                                       ],
@@ -677,7 +772,7 @@ class HomeView extends ConsumerWidget{
                                     }
                                   },
                                   borderRadius: BorderRadius.circular(24.sp),
-                                  child: Expanded(
+                                  child: IntrinsicWidth(
                                     child: Container(
                                       alignment: Alignment.bottomCenter,
                                       padding: EdgeInsets.all(16.sp),
@@ -730,7 +825,7 @@ class suggestionDialog extends ConsumerWidget{
   final suggestionProvider = StateProvider<List<bool>>((ref) => [true, false]);
   final suggestionButton = StateProvider<bool>((ref) => false);
   int selectedHour = DateTime.now().hour;
-  int selectedMinute = DateTime.now().minute;
+  int selectedMinute = 0;
   TimeOfDay? parseTimeString(String timeString) {
     try {
       // Split the time string by ':'
@@ -770,6 +865,7 @@ class suggestionDialog extends ConsumerWidget{
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24.sp),
       ),
+      insetPadding: EdgeInsets.all(8.sp),
       child: Consumer(builder: (context, ref, child){
         return IntrinsicWidth(
         stepWidth: 100.w,
@@ -783,25 +879,28 @@ class suggestionDialog extends ConsumerWidget{
               children: [
                 Row(
                   spacing: 16.sp,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(2, (index){
-                    return OutlinedButton(
-                      onPressed: (){
-                        if(index == 0){
-                          ref.read(suggestionProvider.notifier).state = [true, false];
-                        }else{
-                          ref.read(suggestionProvider.notifier).state = [false, true];
-                        }
-                      },
-                      style: outlinedBeige.copyWith(
-                        fixedSize: WidgetStateProperty.all<Size>(Size(33.w, 4.h)),
-                        backgroundColor: WidgetStateProperty.all<Color>(ref.watch(suggestionProvider)[index]? secondaryColor : Colors.transparent),
-                      ), 
-                      child: Text(suggestions[index], 
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: ref.watch(suggestionProvider)[index]? Colors.white : tertiaryColor,
-                          fontWeight: ref.watch(suggestionProvider)[index]? FontWeight.bold : FontWeight.normal
-                        ))
-                      );
+                    return Expanded(
+                      child: OutlinedButton(
+                        onPressed: (){
+                          if(index == 0){
+                            ref.read(suggestionProvider.notifier).state = [true, false];
+                          }else{
+                            ref.read(suggestionProvider.notifier).state = [false, true];
+                          }
+                        },
+                        style: outlinedBeige.copyWith(
+                          //fixedSize: WidgetStateProperty.all<Size>(Size(33.w, 4.h)),
+                          backgroundColor: WidgetStateProperty.all<Color>(ref.watch(suggestionProvider)[index]? secondaryColor : Colors.transparent),
+                        ), 
+                        child: Text(suggestions[index], 
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: ref.watch(suggestionProvider)[index]? Colors.white : tertiaryColor,
+                            fontWeight: ref.watch(suggestionProvider)[index]? FontWeight.bold : FontWeight.normal
+                          ))
+                        ),
+                    );
                   }),
                 ),
                 SizedBox(
@@ -816,11 +915,14 @@ class suggestionDialog extends ConsumerWidget{
                         child: ListWheelScrollView.useDelegate(
                           itemExtent: 5.h, // Responsive item height
                           diameterRatio: 1.5, // Controls the wheel curvature
+                          physics: FixedExtentScrollPhysics(), // Snap to each item
+                          squeeze: 0.8, // Squeeze items toward the center
+                          offAxisFraction: -0.3, // Adjust for better centering
                           magnification: 1.3, // Magnify selected item
                           useMagnifier: true, // Enable magnification effect
                           onSelectedItemChanged: (index) {
                             selectedHour = openingTime!.hour + index;
-                            final selectedTime = parseTimeString("$selectedHour:$selectedMinute");
+                            final selectedTime = parseTimeString("$selectedHour:$selectedMinute:00");
                             print("the selected time is $selectedTime");
                             if(selectedTime!.isAfter(openingTime) && selectedTime.isBefore(closingTime)){
                               ref.read(suggestionButton.notifier).state = true;
@@ -857,6 +959,9 @@ class suggestionDialog extends ConsumerWidget{
                           itemExtent: 5.h, // Responsive item height
                           diameterRatio: 1.5,
                           magnification: 1.3, // Magnify selected item
+                          physics: FixedExtentScrollPhysics(), // Snap to each item
+                          squeeze: 0.8, // Squeeze items toward the center
+                          offAxisFraction: -0.3, // Adjust for better centering
                           useMagnifier: true,
                           onSelectedItemChanged: (index) { 
                             print('Minute: $index');
@@ -870,6 +975,7 @@ class suggestionDialog extends ConsumerWidget{
                           },
                           childDelegate: ListWheelChildBuilderDelegate(
                             builder: (context, index) {
+                              //var minute = openingTime!.minute + index;
                               return Center(
                                 child: Text(
                                   index.toString().padLeft(2, '0'),
@@ -906,6 +1012,7 @@ class suggestionDialog extends ConsumerWidget{
                       image: image
                     );
                     if(context.mounted){
+                      ref.read(savingLoadingButton.notifier).state = false;
                       Navigator.pop(context);
                       if(Navigator.canPop(context)){
                         Navigator.of(context).pop();

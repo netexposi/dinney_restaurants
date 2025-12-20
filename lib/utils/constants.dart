@@ -13,7 +13,7 @@ final Map<String, String> tagImages = {
   "breakfast" : "assets/images/breakfast.jpg",
   "pizza/tacos" : "assets/images/pizzatacos.jpg",
   "american" : "assets/images/american.png",
-  "plats" : "assets/images/plats.jpg",
+  "main dishes" : "assets/images/plats.jpg",
   "sandwichs" : "assets/images/sandwichs.jpg",
   "sugary" : "assets/images/sugary.png",
   "seafood" : "assets/images/seafood.jpg",
@@ -22,3 +22,4 @@ final Map<String, String> tagImages = {
 };
 final flagsList = ['🇬🇧', '🇩🇿', '🇫🇷'];
 final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm');
+List<String> sizes = ["L", "XL", "XXL"];

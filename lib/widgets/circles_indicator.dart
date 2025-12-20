@@ -6,9 +6,10 @@ import 'package:sizer/sizer.dart';
 
 
 class ThreeDotsIndicator extends ConsumerWidget {
-
+  int? index;
   ThreeDotsIndicator({
-    super.key,
+    this.index,
+    super.key
   });
   final activeColor = secondaryColor;
   final inactiveColor = tertiaryColor.withOpacity(0.7);
@@ -17,15 +18,15 @@ class ThreeDotsIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeIndex = ref.watch(signUpProvider);
-
+    final activeIndex = index?? ref.watch(signUpProvider);
+    print("the index is: ${activeIndex}");
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(5, (index) {
         final bool isActive = index == activeIndex;
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.sp),
-          child: index >= ref.watch(signUpProvider)? AnimatedContainer(
+          child: index >= activeIndex!? AnimatedContainer(
             alignment: Alignment.center,
             duration: const Duration(milliseconds: 300),
             width: isActive ? activeSize : inactiveSize,
@@ -34,8 +35,8 @@ class ThreeDotsIndicator extends ConsumerWidget {
               color: isActive ? activeColor : inactiveColor,
               shape: BoxShape.circle,
             ),
-            child: index == ref.watch(signUpProvider)?
-            Text("${ref.watch(signUpProvider)+1}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),)
+            child: index == activeIndex?
+            Text("${activeIndex+1}", style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),)
             : SizedBox.shrink(),
           ) : AnimatedContainer(
               alignment: Alignment.center,

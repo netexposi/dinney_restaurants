@@ -7,7 +7,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:780773194525:android:bfd4d4b1d415bd77033ff4",
+        "mobilesdk_app_id": "1:780773194525:android:adb1cb199b5a8e2a033ff4",
+        "android_client_info": {
+          "package_name": "com.dinney.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvVn3lfmJpBKoVuu8gto6CnVmA0SQxddE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780773194525:android:c77e72fc110602e9033ff4",
         "android_client_info": {
           "package_name": "com.dinney.restaurant"
         }

@@ -51,7 +51,7 @@ class OrderColumn extends ConsumerWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${order['client_name']}', style: Theme.of(context).textTheme.headlineLarge!.copyWith(fontSize: 20.sp)!),
-                  Text(order["at_table"]? S.of(context).reservation_at_table : S.of(context).reservation_to_go, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: tertiaryColor),),
+                  Text(order["at_table"]? S.of(context).reservation_at_table : S.of(context).reservation_to_go, style: Theme.of(context).textTheme.bodyMedium),
                   
                 ],
               ),
@@ -103,8 +103,8 @@ class OrderColumn extends ConsumerWidget{
             ],
           ),
           if(!last) Divider(
-            color: tertiaryColor,
-            thickness: 1.sp,
+            color: Colors.blueGrey,
+            thickness: 3.sp,
           ),
         ],
       ),

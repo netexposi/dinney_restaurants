@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,38 +39,46 @@ class OrderContainer extends ConsumerWidget{
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.headlineMedium,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: order['client_name'].toString().length > 15
-                          ? order['client_name'].toString().substring(0, 15) + '...'
-                          : order['client_name'].toString(),
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.headlineMedium,
+                        children: [
+                          TextSpan(
+                            text: order['client_name'].toString().length > 15
+                                ? order['client_name'].toString().substring(0, 15) + '...'
+                                : order['client_name'].toString(),
+                          ),
+                          TextSpan(text: "  "), // spacing
+                          
+                        ],
+                      ),
                     ),
-                    TextSpan(text: "  "), // spacing
-                    TextSpan(
-                      text: "#${order['id']}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium!
-                          .copyWith(color: tertiaryColor, fontWeight: FontWeight.normal),
-                    ),
+                    Text(
+                        "#${order['id']}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium!
+                            .copyWith(color: tertiaryColor, fontWeight: FontWeight.normal),
+                      ),
+                    Text(order['at_table']? S.of(context).reservation_at_table : S.of(context).reservation_to_go, 
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Icon(Iconsax.calendar, color: tertiaryColor.withOpacity(0.5),),
+                  Lottie.asset('assets/animations/notification.json', width: 8.w, height: 8.w),
                   Text(DateFormat.Hm().format(DateTime.parse(order['delivery_at'])), 
                     style: Theme.of(context).textTheme.headlineLarge),
                     Text(
                     DateFormat.MMMEd().format(DateTime.parse(order['delivery_at'])),
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: tertiaryColor),
                   ),
-                  Text(order['at_table']? S.of(context).reservation_at_table : S.of(context).reservation_to_go, 
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.bold)),
                 ],
               ),
             ],
@@ -81,39 +90,46 @@ class OrderContainer extends ConsumerWidget{
               color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(20.sp)
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16.sp,
-              children: [
-                Text(S.of(context).order, style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: tertiaryColor)),
-                Column(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 50.h,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 16.sp,
-                  children: List.generate(order['items'].length, (itemIndex){
-                    return Column(
+                  children: [
+                    Text(S.of(context).order, style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: tertiaryColor)),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "${order['items'][itemIndex]['quantity']} x ",
-                                style: Theme.of(context).textTheme.bodyLarge
+                      spacing: 16.sp,
+                      children: List.generate(order['items'].length, (itemIndex){
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "${order['items'][itemIndex]['quantity']} x ",
+                                    style: Theme.of(context).textTheme.bodyLarge
+                                  ),
+                                  TextSpan(
+                                    text: "${order['items'][itemIndex]['category']} ${order['items'][itemIndex]['name']} ${order['items'][itemIndex]['size'] ?? ""}",
+                                    style: Theme.of(context).textTheme.headlineSmall
+                                  ),
+                                ],
                               ),
-                              TextSpan(
-                                text: "${order['items'][itemIndex]['category']} ${order['items'][itemIndex]['name']} ${order['items'][itemIndex]['size'] ?? ""}",
-                                style: Theme.of(context).textTheme.headlineSmall
-                              ),
-                            ],
-                          ),
-                        ),
-                        if(order['items'][itemIndex]['note'] != null) Text(" • ${order['items'][itemIndex]['note']}", style: Theme.of(context).textTheme.titleSmall!.copyWith(color: tertiaryColor, fontWeight: FontWeight.normal),)
-                      ],
-                    );
-                  }),
+                            ),
+                            if(order['items'][itemIndex]['note'] != null) Text(" • ${order['items'][itemIndex]['note']}", style: Theme.of(context).textTheme.titleSmall!.copyWith(color: tertiaryColor, fontWeight: FontWeight.normal),)
+                          ],
+                        );
+                      }),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           
@@ -140,7 +156,7 @@ class OrderContainer extends ConsumerWidget{
                         order['client_fcm'], 
                         image: ref.watch(userDocumentsProvider)['urls'][0]
                       );
-                      //ref.read(savingLoadingButton.notifier).state = false;
+                      ref.read(savingLoadingButton.notifier).state = false;
                       if(context.mounted){
                         if(Navigator.canPop(context)){
                         Navigator.of(context).pop();

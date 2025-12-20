@@ -6,6 +6,7 @@ import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/circles_indicator.dart';
 import 'package:dinney_restaurant/widgets/maps_view.dart';
 import 'package:dinney_restaurant/widgets/pop_up_message.dart';
+import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,7 +27,7 @@ class LocationSelection extends ConsumerWidget{
           child: Column(
             spacing: 16.sp,
             children: [
-              ThreeDotsIndicator(),
+              ThreeDotsIndicator(index: 4,),
               Text(
                 S.of(context).select_location,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -42,7 +43,7 @@ class LocationSelection extends ConsumerWidget{
                 ),
               ),
               Align(
-                child: ElevatedButton(
+                child: ref.watch(savingLoadingButton)? LoadingSpinner() : ElevatedButton(
                   onPressed: () async{
                     ref.read(savingLoadingButton.notifier).state = true;
                     final supabase = Supabase.instance.client;
@@ -57,7 +58,7 @@ class LocationSelection extends ConsumerWidget{
                       "lat" : markerPosition.latitude,
                       "lng" : markerPosition.longitude,
                       "wilaya" : wilayaId,
-                      "fcm_token" : token,
+                      "fcm_token" : [token],
                       "uid": uid
                     }).eq("id", id)
                     .whenComplete((){

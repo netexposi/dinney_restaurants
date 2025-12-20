@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:translator/translator.dart';
 
 final tagsProvider = StateProvider<List<String>>((ref) => []);
 
@@ -22,6 +23,8 @@ class MenuCreationView extends ConsumerWidget {
   final menuProvider = StateProvider<List<Map<String, dynamic>>>((ref) => []);
 
   final SupabaseClient supabase = Supabase.instance.client;
+  final translator = GoogleTranslator();
+  final languages = ["en", "ar", "fr"];
   
 
   @override
@@ -35,7 +38,7 @@ class MenuCreationView extends ConsumerWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 16.sp),
-              child: ThreeDotsIndicator(),
+              child: ThreeDotsIndicator(index: 2,),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.sp),
@@ -100,20 +103,30 @@ class MenuCreationView extends ConsumerWidget {
                         child: Padding(
                           padding: EdgeInsets.all(8.sp),
                           child: BlurryContainer(
-                            width: 24.w,
-                            height: 10.w,
+                            padding: 4.sp,
                             borderRadius: BorderRadius.circular(24.sp),
                             child: Center(
-                              child: Text(
-                                ref.watch(tagsProvider)[index],
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.4),
-                                    offset: Offset(2, 2),
-                                    blurRadius: 24,
-                                  ),
-                                ]),
-                                ))
+                              child: FutureBuilder(
+                                future: translator.translate(ref.watch(tagsProvider)[index], to: languages[ref.watch(languageStateProvider)]), 
+                                builder: (context, translation){
+                                  if(translation.data != null && translation.hasData){
+                                    return Text(
+                                      translation.data!.text,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 14.sp, shadows: [
+                                        Shadow(
+                                          color: Colors.black.withOpacity(0.4),
+                                          offset: Offset(2, 2),
+                                          blurRadius: 24,
+                                        ),
+                                      ]),
+                                    );
+                                  }else{
+                                    return SizedBox.shrink();
+                                  }
+                                }
+                                )
+                              )
                             ),
                         ),
                       );
@@ -157,7 +170,6 @@ class MenuCreationView extends ConsumerWidget {
                             })
                           .eq("id", restaurantId)
                           .whenComplete((){
-                            ref.read(savingLoadingButton.notifier).state = false;
                             ref.read(signUpProvider.notifier).state = 3; // update the sign up state to 3
                             Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleView(id: restaurantId,)));
                           });
@@ -166,8 +178,10 @@ class MenuCreationView extends ConsumerWidget {
                       } on PostgrestException catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).failed_add_restaurant} ${e.message}"));
                       } catch (e) {
+                        
                         ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} $e"));
                       }
+                      ref.read(savingLoadingButton.notifier).state = false;
                 }, 
                 child: Text(S.of(context).save)
               ) : LoadingSpinner(),
@@ -197,96 +211,132 @@ class MenuCreationView extends ConsumerWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.sp),
-                child: Column(
-                  spacing: 16.sp,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InputField(
-                      controller: categoryController,
-                      hintText: S.of(context).caregory_name,
-                    ),
-                    if(currentItems.isEmpty) Row(
-                      children: [
-                        Text(S.of(context).multi_sizes),
-                        Checkbox(
-                          value: multiSizes,
-                          onChanged: (value) {
-                            setState(() {
-                              multiSizes = value!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    if(currentItems.isEmpty) Row(
-                      children: [
-                        Text(S.of(context).accept_notes),
-                        Checkbox(
-                          value: notable,
-                          onChanged: (value) {
-                            setState(() {
-                              notable = value!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    currentItems.isEmpty
-                        ? Text(S.of(context).no_items)
-                        : Column(
-                            spacing: 16.sp,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: List.generate(currentItems.length, (index) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.sp),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(currentItems[index]["name"]),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        if (multiSizes)
-                                        Text("X    XL    XXL"),
-                                        Text(multiSizes
-                                            ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
-                                            : "${currentItems[index]["sizes"][0]}"),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 16.sp,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      InputField(
+                        controller: categoryController,
+                        hintText: S.of(context).caregory_name,
+                      ),
+                      if(currentItems.isEmpty) Row(
+                        children: [
+                          Text(S.of(context).multi_sizes),
+                          Checkbox(
+                            value: multiSizes,
+                            onChanged: (value) {
+                              setState(() {
+                                multiSizes = value!;
+                              });
+                            },
                           ),
-                    OutlinedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, setState, multiSizes, currentItems);
-                      },
-                      child: Text(S.of(context).add_item),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (categoryController.text.isEmpty || currentItems.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Category name and at least one item are required")),
-                          );
-                          return;
-                        }
-                        final newCategory = {
-                          "name": categoryController.text,
-                          "multiSizes": multiSizes,
-                          "items": currentItems,
-                          "notable": notable
-                        };
-                        //await _saveToSupabase(newCategory, restaurantId);
-                        ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
-                        Navigator.pop(context1);
-                      },
-                      child: Text(S.of(context).save),
-                    ),
-                  ],
+                        ],
+                      ),
+                      if(currentItems.isEmpty) Row(
+                        children: [
+                          Text(S.of(context).accept_notes),
+                          Checkbox(
+                            value: notable,
+                            onChanged: (value) {
+                              setState(() {
+                                notable = value!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      currentItems.isEmpty
+                          ? Text(S.of(context).no_items)
+                          : SizedBox(
+                            height: 50.h,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                  spacing: 16.sp,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: List.generate(currentItems.length, (index) {
+                                    return Container(
+                                      padding: EdgeInsets.all(16.sp),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20.sp),
+                                        color: tertiaryColor.withOpacity(0.1)
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(currentItems[index]["name"],
+                                          style: Theme.of(context).textTheme.headlineSmall,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              if (multiSizes)
+                                                ...List.generate(
+                                                  currentItems[index]["sizes"].length,
+                                                  (i) => Padding(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        Text(sizes[i]), // e.g. "L", "XL", "XXL"
+                                                        Text(
+                                                          "${currentItems[index]["sizes"][i]} ${S.of(context).da}",
+                                                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              else
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      "${currentItems[index]["sizes"][0]} ${S.of(context).da}",
+                                                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                      
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ),
+                            ),
+                          ),
+                      OutlinedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, setState, multiSizes, currentItems);
+                        },
+                        child: Text(S.of(context).add_item),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Category name and at least one item are required")),
+                            );
+                            return;
+                          }
+                          final newCategory = {
+                            "name": categoryController.text,
+                            "multiSizes": multiSizes,
+                            "items": currentItems,
+                            "notable": notable
+                          };
+                          //await _saveToSupabase(newCategory, restaurantId);
+                          ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
+                          Navigator.pop(context1);
+                        },
+                        child: Text(S.of(context).save),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -315,111 +365,157 @@ class MenuCreationView extends ConsumerWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.all(16.sp),
-                child: Column(
-                  spacing: 16.sp,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InputField(
-                      controller: categoryController,
-                      hintText: S.of(context).caregory_name,
-                    ),
-                    currentItems.isEmpty
-                        ? Text(S.of(context).no_items)
-                        : Column(
-                            spacing: 16.sp,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: List.generate(currentItems.length, (index) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.sp),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(currentItems[index]["name"]),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        if (multiSizes)
-                                        Text("X    XL    XXL"),
-                                        Text(multiSizes
-                                            ? "${currentItems[index]["sizes"][0]} ${currentItems[index]["sizes"][1]} ${currentItems[index]["sizes"][2]}"
-                                            : "${currentItems[index]["sizes"][0]}"),
-                                      ],
-                                    ),
-                                    Switch(
-                                      value: currentItems[index]["isActive"] ?? true,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          currentItems[index]["isActive"] = value;
-                                        });
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.edit, size: 16.sp),
-                                      onPressed: () {
-                                        _showEditItemDialog(context, setState, multiSizes, currentItems, index);
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, size: 16.sp),
-                                      onPressed: () {
-                                        setState(() {
-                                          currentItems.removeAt(index);
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ),
-                    OutlinedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, setState, multiSizes, currentItems);
-                      },
-                      child: Text(S.of(context).add_item),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (categoryController.text.isEmpty || currentItems.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(S.of(context).category_name_item_required)),
-                          );
-                          return;
-                        }
-                        final updatedCategory = {
-                          "name": categoryController.text,
-                          "multiSizes": multiSizes,
-                          "items": currentItems,
-                          "notable": notable
-                        };
-                        //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
-                        ref.read(menuProvider.notifier).update((state) {
-                          final newState = List<Map<String, dynamic>>.from(state);
-                          newState[categoryIndex] = updatedCategory;
-                          return newState;
-                        });
-                        Navigator.pop(context1);
-                      },
-                      child: Text(S.of(context).save),
-                    ),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.red),
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 16.sp,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      InputField(
+                        controller: categoryController,
+                        hintText: S.of(context).caregory_name,
                       ),
-                      onPressed: () async {
-                        //await _deleteCategoryFromSupabase(category, restaurantId);
-                        ref.read(menuProvider.notifier).update((state) {
-                          final newState = List<Map<String, dynamic>>.from(state);
-                          newState.removeAt(categoryIndex);
-                          return newState;
-                        });
-                        Navigator.pop(context1);
-                      },
-                      child: Text(S.of(context).delete_category, style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
+                      currentItems.isEmpty
+                          ? Text(S.of(context).no_items)
+                          : SizedBox(
+                            height: 50.h,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                  spacing: 16.sp,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: List.generate(currentItems.length, (index) {
+                                    return Container(
+                                      padding: EdgeInsets.all(16.sp),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24.sp),
+                                        color: tertiaryColor.withOpacity(0.1)
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(currentItems[index]["name"],
+                                              style: Theme.of(context).textTheme.headlineSmall
+                                              ),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  if (multiSizes)
+                                                    ...List.generate(
+                                                      currentItems[index]["sizes"].length,
+                                                      (i) => Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                        child: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                                          children: [
+                                                            Text(sizes[i]), // e.g. "L", "XL", "XXL"
+                                                            Text(
+                                                              "${currentItems[index]["sizes"][i]} ${S.of(context).da}",
+                                                              style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  else
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: [
+                                                        Text(sizes[0]),
+                                                        Text(
+                                                          "${currentItems[index]["sizes"][0]} ${S.of(context).da}",
+                                                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  Switch(
+                                                    activeColor: secondaryColor,
+                                                    value: currentItems[index]["isActive"] ?? true,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        currentItems[index]["isActive"] = value;
+                                                      });
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: Icon(Icons.edit, size: 16.sp),
+                                                    onPressed: () {
+                                                      _showEditItemDialog(context, setState, multiSizes, currentItems, index);
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: Icon(Icons.delete, size: 16.sp, color: Colors.red,),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        currentItems.removeAt(index);
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ),
+                            ),
+                          ),
+                      OutlinedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, setState, multiSizes, currentItems);
+                        },
+                        child: Text(S.of(context).add_item),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(S.of(context).category_name_item_required)),
+                            );
+                            return;
+                          }
+                          final updatedCategory = {
+                            "name": categoryController.text,
+                            "multiSizes": multiSizes,
+                            "items": currentItems,
+                            "notable": notable
+                          };
+                          //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
+                          ref.read(menuProvider.notifier).update((state) {
+                            final newState = List<Map<String, dynamic>>.from(state);
+                            newState[categoryIndex] = updatedCategory;
+                            return newState;
+                          });
+                          Navigator.pop(context1);
+                        },
+                        child: Text(S.of(context).save),
+                      ),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.red),
+                        ),
+                        onPressed: () async {
+                          //await _deleteCategoryFromSupabase(category, restaurantId);
+                          ref.read(menuProvider.notifier).update((state) {
+                            final newState = List<Map<String, dynamic>>.from(state);
+                            newState.removeAt(categoryIndex);
+                            return newState;
+                          });
+                          Navigator.pop(context1);
+                        },
+                        child: Text(S.of(context).delete_category, style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -432,7 +528,6 @@ class MenuCreationView extends ConsumerWidget {
   void _showAddItemDialog(
       BuildContext context, StateSetter setState, bool multiSizes, List<Map<String, dynamic>> currentItems) {
     TextEditingController itemController = TextEditingController();
-    List<String> sizes = ["X", "XL", "XXL"];
     List<TextEditingController> sizeControllers = [
       TextEditingController(),
       TextEditingController(),
@@ -451,54 +546,61 @@ class MenuCreationView extends ConsumerWidget {
           child: SizedBox(
             child: Padding(
               padding: EdgeInsets.all(16.sp),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 16.sp,
-                children: [
-                  InputField(
-                    controller: itemController,
-                    hintText: S.of(context).item_name,
-                  ),
-                  Column(
-                    spacing: 16.sp,
-                    children: List.generate(multiSizes ? 3 : 1, (index) {
-                      return InputField(
-                        keyboard: true,
-                        controller: sizeControllers[index],
-                        hintText: multiSizes ? "${S.of(context).price_of} ${sizes[index]}" : S.of(context).price,
-                      );
-                    }),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (itemController.text.isEmpty ||
-                          (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
-                          (!multiSizes && sizeControllers[0].text.isEmpty)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.of(context).items_must_be_filled)),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 16.sp,
+                  children: [
+                    InputField(
+                      controller: itemController,
+                      hintText: S.of(context).item_name,
+                    ),
+                    Column(
+                      spacing: 16.sp,
+                      children: List.generate(multiSizes ? 3 : 1, (index) {
+                        return InputField(
+                          keyboard: true,
+                          controller: sizeControllers[index],
+                          hintText: multiSizes ? "${S.of(context).price_of} ${sizes[index]}" : S.of(context).price,
                         );
-                        return;
-                      }
-                      setState(() {
-                        currentItems.add({
-                          "name": itemController.text,
-                          "sizes": multiSizes
-                              ? [
-                                  int.parse(sizeControllers[0].text),
-                                  int.parse(sizeControllers[1].text),
-                                  int.parse(sizeControllers[2].text),
-                                ]
-                              : [int.parse(sizeControllers[0].text)],
-                          "isActive": true,
+                      }),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (itemController.text.isEmpty ||
+                            (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                            (!multiSizes && sizeControllers[0].text.isEmpty)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(S.of(context).items_must_be_filled)),
+                          );
+                          return;
+                        }
+                        setState(() {
+                          try{
+                            currentItems.add({
+                              "name": itemController.text,
+                              "sizes": multiSizes
+                                  ? [
+                                      int.parse(sizeControllers[0].text),
+                                      int.parse(sizeControllers[1].text),
+                                      int.parse(sizeControllers[2].text),
+                                    ]
+                                  : [int.parse(sizeControllers[0].text)],
+                              "isActive": true,
+                            });                       
+                            
+                          }catch (e){
+                            ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                          }
+                          print(currentItems);
+                          Navigator.pop(context2);
                         });
-                        print(currentItems);
-                        Navigator.pop(context2);
-                      });
-                    },
-                    child: Text(S.of(context).add_item),
-                  ),
-                ],
+                      },
+                      child: Text(S.of(context).add_item),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -511,7 +613,6 @@ class MenuCreationView extends ConsumerWidget {
       BuildContext context, StateSetter setState, bool multiSizes, List<Map<String, dynamic>> currentItems, int itemIndex) {
     final item = currentItems[itemIndex];
     TextEditingController itemController = TextEditingController(text: item["name"]);
-    List<String> sizes = ["X", "XL", "XXL"];
     List<TextEditingController> sizeControllers = List.generate(
       multiSizes ? 3 : 1,
       (index) => TextEditingController(text: item["sizes"][index]?.toString() ?? ""),
@@ -528,53 +629,59 @@ class MenuCreationView extends ConsumerWidget {
           ),
           child: Padding(
             padding: EdgeInsets.all(16.sp),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 16.sp,
-              children: [
-                InputField(
-                  controller: itemController,
-                  hintText: S.of(context).item_name,
-                ),
-                Column(
-                  spacing: 16.sp,
-                  children: List.generate(multiSizes ? 3 : 1, (index) {
-                    return InputField(
-                      keyboard: true,
-                      controller: sizeControllers[index],
-                      hintText: sizes[index],
-                    );
-                  },
-                  )
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (itemController.text.isEmpty ||
-                        (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
-                        (!multiSizes && sizeControllers[0].text.isEmpty)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(S.of(context).items_must_be_filled)),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 16.sp,
+                children: [
+                  InputField(
+                    controller: itemController,
+                    hintText: S.of(context).item_name,
+                  ),
+                  Column(
+                    spacing: 16.sp,
+                    children: List.generate(multiSizes ? 3 : 1, (index) {
+                      return InputField(
+                        keyboard: true,
+                        controller: sizeControllers[index],
+                        hintText: sizes[index],
                       );
-                      return;
-                    }
-                    setState(() {
-                      currentItems[itemIndex] = {
-                        "name": itemController.text,
-                        "sizes": multiSizes
-                            ? [
-                                int.parse(sizeControllers[0].text),
-                                int.parse(sizeControllers[1].text),
-                                int.parse(sizeControllers[2].text),
-                              ]
-                            : [int.parse(sizeControllers[0].text)],
-                        "isActive": currentItems[itemIndex]["isActive"] ?? true,
-                      };
-                      Navigator.pop(context2);
-                    });
-                  },
-                  child: Text(S.of(context).update_item),
-                ),
-              ],
+                    },
+                    )
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (itemController.text.isEmpty ||
+                          (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                          (!multiSizes && sizeControllers[0].text.isEmpty)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(S.of(context).items_must_be_filled)),
+                        );
+                        return;
+                      }
+                      setState(() {
+                        try{
+                          currentItems[itemIndex] = {
+                          "name": itemController.text,
+                          "sizes": multiSizes
+                              ? [
+                                  int.parse(sizeControllers[0].text),
+                                  int.parse(sizeControllers[1].text),
+                                  int.parse(sizeControllers[2].text),
+                                ]
+                              : [int.parse(sizeControllers[0].text)],
+                          "isActive": currentItems[itemIndex]["isActive"] ?? true,
+                        };
+                        }catch(e){
+                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                        }
+                        Navigator.pop(context2);
+                      });
+                    },
+                    child: Text(S.of(context).update_item),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -586,20 +693,33 @@ class TagsDialog extends ConsumerWidget{
   TagsDialog({super.key});
 
   final supabase = Supabase.instance.client;
+  final translator = GoogleTranslator();
+  final languages = ["en", "ar", "fr"];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Dialog(
-      insetPadding: EdgeInsets.all(16.sp),
+      insetPadding: EdgeInsets.all(8.sp),
       backgroundColor: Colors.white,
       child: Padding(
-        padding: EdgeInsets.all(16.sp),
+        padding: EdgeInsets.all(8.sp),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           spacing: 16.sp,
           children: [
-            Text(S.of(context).tags),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(S.of(context).tags),
+                if(ref.watch(tagsProvider).isNotEmpty)TextButton(
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(S.of(context).save),
+                  ),
+              ],
+            ),
             SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: GridView.builder(
@@ -638,20 +758,30 @@ class TagsDialog extends ConsumerWidget{
                       child: Padding(
                         padding: EdgeInsets.all(8.sp),
                         child: BlurryContainer(
-                          width: 19.w,
-                          height: 10.w,
+                          padding: 4.sp,
                           borderRadius: BorderRadius.circular(24.sp),
                           child: Center(
-                            child: Text(
-                              "${tagImages.entries.elementAt(ind).key}",
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600, shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.4),
-                                  offset: Offset(2, 2),
-                                  blurRadius: 24,
-                                ),
-                              ]),
-                              ))
+                            child: FutureBuilder(
+                              future: translator.translate(tagImages.entries.elementAt(ind).key, to: languages[ref.watch(languageStateProvider)]), 
+                              builder: (context, translation){
+                                if(translation.data != null && translation.hasData){
+                                  return Text(
+                                    translation.data!.text,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 14.sp, shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.4),
+                                        offset: Offset(2, 2),
+                                        blurRadius: 24,
+                                      ),
+                                    ]),
+                                    );
+                                }else{
+                                  return SizedBox.shrink();
+                                }
+                              }
+                            )
+                            )
                           ),
                       ),
                     ),
@@ -659,15 +789,6 @@ class TagsDialog extends ConsumerWidget{
                 },
               ),
             ),
-            if(ref.watch(tagsProvider).isNotEmpty) Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: (){
-                  Navigator.of(context).pop();
-                }, 
-                child: Text(S.of(context).save)
-              ),
-            )
           ],
         ),
       ),

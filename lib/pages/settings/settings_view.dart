@@ -136,12 +136,14 @@ class SettingsView extends ConsumerWidget{
                                                   "active" : false
                                                 }).eq("id", ref.watch(userDocumentsProvider)['id']).whenComplete((){
                                                   if(context.mounted){
+                                                    ref.read(savingLoadingButton.notifier).state = false;
                                                     if(Navigator.of(context).canPop()){
                                                       Navigator.of(context).pop();
                                                     }
                                                   }
                                                 });
                                               }
+                                              ref.read(savingLoadingButton.notifier).state = false;
                                             }, 
                                             child: Text(S.of(context).yes_cancel, style: TextStyle(color: Colors.red),)
                                           ),
@@ -246,7 +248,7 @@ class SettingsView extends ConsumerWidget{
                       SettingsElement(settingColor: colors[4], onClicked: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> FeedbackView()));
                       }, icon: HugeIcons.strokeRoundedMail01, title: S.of(context).contact_us,),
-                      SettingsElement(settingColor: colors[5], onClicked: () {  }, icon: HugeIcons.strokeRoundedAsteroid02, title: S.of(context).rate_our_app,),
+                      // SettingsElement(settingColor: colors[5], onClicked: () {  }, icon: HugeIcons.strokeRoundedAsteroid02, title: S.of(context).rate_our_app,),
                     ],
                   ),
                   SettingsElement(
@@ -337,7 +339,7 @@ class SettingsView extends ConsumerWidget{
                       Text(S.of(context).legal, style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: tertiaryColor)),
                       SizedBox(height: 16.sp,),
                       SettingsElement(settingColor: colors[6], onClicked: () {
-                        showAdaptiveDialog(context: context, builder: (context){
+                        showAdaptiveDialog(context: context, barrierDismissible: true, builder: (context){
                           return Dialog(
                             backgroundColor: Colors.white,
                             insetPadding: EdgeInsets.all(16.sp),

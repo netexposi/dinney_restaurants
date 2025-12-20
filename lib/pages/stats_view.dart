@@ -1,4 +1,6 @@
 import 'package:dinney_restaurant/generated/l10n.dart';
+import 'package:dinney_restaurant/services/functions/array_handlings.dart';
+import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
@@ -20,6 +22,7 @@ class StatsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final today = DateTime.now();
     final supabase = Supabase.instance.client;
     return Scaffold(
       body: SafeArea(
@@ -57,7 +60,7 @@ class StatsView extends ConsumerWidget {
 
                 //SECTION Counting weekly orders
                 final now = DateTime.now();
-                final startOfWeek = now.subtract(Duration(days: 5)).startOfDay();
+                final startOfWeek = now.subtract(Duration(days: 6)).startOfDay();
                 var ordersPerDay = List<int>.filled(7, 0);
 
                 for (var order in completedOrders) {
@@ -73,7 +76,7 @@ class StatsView extends ConsumerWidget {
                     }
                   }
                 }
-                ordersPerDay = [23, 35, 750, 1000, 21, 34, 500];
+                //ordersPerDay = [23, 35, 750, 1000, 21, 34, 500];
 
                 // Debug print to verify counts
                 // ignore: avoid_print
@@ -105,7 +108,7 @@ class StatsView extends ConsumerWidget {
                                       height: (100.w - 16.sp * 3) / 6,
                                       child: Padding(
                                         padding: EdgeInsets.all(16.sp),
-                                        child: Text(S.of(context).total_orders,
+                                        child: Text(S.of(context).confirmed_orders,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodySmall),
@@ -216,56 +219,68 @@ class StatsView extends ConsumerWidget {
                                             Theme.of(context).textTheme.bodySmall),
                                   ),
                                   SizedBox(height: 16.sp),
-                                  Expanded(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 16.sp),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: List.generate(7, (index) {
-                                          final maxOrders = ordersPerDay.isNotEmpty
-                                          ? ordersPerDay.reduce((a, b) => a > b ? a : b)
-                                          : 1; // avoid divide-by-zero
-                                          return ordersPerDay[index] >= 2
-                                              ? Container(
-                                                  alignment: Alignment.center,
-                                                  width: (100.w - 16.sp * 6) / 7,
-                                                  height: (ordersPerDay[index] / maxOrders) < 0.1 ? 22.sp : (ordersPerDay[index] / maxOrders) * (55.sp),
-                                                  decoration: BoxDecoration(
-                                                    color: index !=
-                                                            ordersPerDay.length - 1
-                                                        ? secondaryColor
-                                                            .withOpacity(0.8)
-                                                        : secondaryColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(8.sp),
-                                                  ),
-                                                  child: Text(
-                                                    "${ordersPerDay[index]}",
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall!
-                                                        .copyWith(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.bold),
-                                                  ),
-                                                )
-                                              : Text(
-                                                  "${ordersPerDay[index]}",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .copyWith(
-                                                          color: secondaryColor),
-                                                );
-                                        }),
-                                      ),
-                                    ),
-                                  ),
+
+Expanded(
+  child: Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.sp),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(7, (index) {
+        final maxOrders = ordersPerDay.isNotEmpty
+            ? ordersPerDay.reduce((a, b) => a > b ? a : b)
+            : 1;
+
+        // Oldest → newest (today is last)
+        final dayDate = today.subtract(Duration(days: 6 - index));
+        final dayLabel = getDayAbbreviation(dayDate, ref.watch(languageStateProvider));
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ordersPerDay[index] >= 2
+                ? Container(
+                    alignment: Alignment.center,
+                    width: (100.w - 16.sp * 6) / 7,
+                    height: (ordersPerDay[index] / maxOrders) < 0.1
+                        ? 22.sp
+                        : (ordersPerDay[index] / maxOrders) * 55.sp,
+                    decoration: BoxDecoration(
+                      color: index != ordersPerDay.length - 1
+                          ? secondaryColor.withOpacity(0.8)
+                          : secondaryColor,
+                      borderRadius: BorderRadius.circular(8.sp),
+                    ),
+                    child: Text(
+                      "${ordersPerDay[index]}",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  )
+                : Text(
+                    "${ordersPerDay[index]}",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: secondaryColor,
+                        ),
+                  ),
+
+            SizedBox(height: 6.sp),
+
+            Text(
+              dayLabel,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    color: Colors.grey,
+                  ),
+            ),
+          ],
+        );
+      }),
+    ),
+  ),
+),
+
                                 ],
                               ),
                             ),

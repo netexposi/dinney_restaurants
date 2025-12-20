@@ -34,215 +34,217 @@ class LoginView extends ConsumerWidget {
       appBar: AppBar(
         title: Text(S.of(context).sign_in),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.sp),
-        child: !ref.watch(emailConfirmationProvider)
-            ? Column(
-                spacing: 16.sp,
-                children: [
-                  InputField(
-                      controller: emailController,
-                      hintText: S.of(context).email),
-                  InputField(
-                    controller: passwordController,
-                    hintText: S.of(context).password,
-                    obscureText: true,
-                  ),
-                  ref.watch(savingLoadingButton)
-                      ? LoadingSpinner()
-                      : ElevatedButton(
-                          onPressed: () async {
-                            ref.read(savingLoadingButton.notifier).state = true;
-                            final supabase = Supabase.instance.client;
-
-                            try {
-                              // ✅ Check if account exists
-                              var result = await supabase
-                                  .from("restaurants")
-                                  .select()
-                                  .eq("email", emailController.text.trim());
-
-                              if (result.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  ErrorMessage(S.of(context).no_account_found),
-                                );
-                                throw AuthException("No Account Found!");
-                              }
-
-                              // ✅ Check email confirmation
-                              final response = await supabase.rpc(
-                                'is_email_confirmed',
-                                params: {
-                                  'email': emailController.text.trim(),
-                                },
-                              );
-
-                              if (!response) {
-                                ref
-                                    .read(emailConfirmationProvider.notifier)
-                                    .state = true;
-
-                                // Poll until email confirmed
-                                Timer.periodic(const Duration(seconds: 5),
-                                    (timer) async {
-                                  final confirmed = await supabase.rpc(
-                                    'is_email_confirmed',
-                                    params: {
-                                      'email': emailController.text.trim(),
-                                    },
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.sp),
+          child: !ref.watch(emailConfirmationProvider)
+              ? Column(
+                  spacing: 16.sp,
+                  children: [
+                    InputField(
+                        controller: emailController,
+                        hintText: S.of(context).email),
+                    InputField(
+                      controller: passwordController,
+                      hintText: S.of(context).password,
+                      obscureText: true,
+                    ),
+                    ref.watch(savingLoadingButton)
+                        ? LoadingSpinner()
+                        : ElevatedButton(
+                            onPressed: () async {
+                              ref.read(savingLoadingButton.notifier).state = true;
+                              final supabase = Supabase.instance.client;
+        
+                              try {
+                                // ✅ Check if account exists
+                                var result = await supabase
+                                    .from("restaurants")
+                                    .select()
+                                    .eq("email", emailController.text.trim());
+        
+                                if (result.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    ErrorMessage(S.of(context).no_account_found),
                                   );
-
-                                  if (confirmed == true) {
-                                    timer.cancel();
-                                    ref
-                                        .read(emailConfirmed.notifier)
-                                        .state = true;
-
-                                    Future.delayed(
-                                        const Duration(seconds: 2), () async {
-                                      await _handleSignInAndNavigation(
-                                          context, ref, supabase,
-                                          emailController.text.trim(),
-                                          passwordController.text.trim());
-                                    });
-                                  } else {
-                                    print('⏳ Still not confirmed...');
-                                  }
-                                });
-                              } else {
-                                // ✅ Already confirmed, try sign-in directly
-                                await _handleSignInAndNavigation(
-                                    context,
-                                    ref,
-                                    supabase,
-                                    emailController.text.trim(),
-                                    passwordController.text.trim());
+                                  throw AuthException("No Account Found!");
+                                }
+        
+                                // ✅ Check email confirmation
+                                final response = await supabase.rpc(
+                                  'is_email_confirmed',
+                                  params: {
+                                    'email': emailController.text.trim(),
+                                  },
+                                );
+        
+                                if (!response) {
+                                  ref
+                                      .read(emailConfirmationProvider.notifier)
+                                      .state = true;
+        
+                                  // Poll until email confirmed
+                                  Timer.periodic(const Duration(seconds: 5),
+                                      (timer) async {
+                                    final confirmed = await supabase.rpc(
+                                      'is_email_confirmed',
+                                      params: {
+                                        'email': emailController.text.trim(),
+                                      },
+                                    );
+        
+                                    if (confirmed == true) {
+                                      timer.cancel();
+                                      ref
+                                          .read(emailConfirmed.notifier)
+                                          .state = true;
+        
+                                      Future.delayed(
+                                          const Duration(seconds: 2), () async {
+                                        await _handleSignInAndNavigation(
+                                            context, ref, supabase,
+                                            emailController.text.trim(),
+                                            passwordController.text.trim());
+                                      });
+                                    } else {
+                                      print('⏳ Still not confirmed...');
+                                    }
+                                  });
+                                } else {
+                                  // ✅ Already confirmed, try sign-in directly
+                                  await _handleSignInAndNavigation(
+                                      context,
+                                      ref,
+                                      supabase,
+                                      emailController.text.trim(),
+                                      passwordController.text.trim());
+                                }
+                              } on AuthException catch (error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  ErrorMessage(
+                                      S.of(context).error),
+                                );
+                              } catch (error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  ErrorMessage(
+                                      S.of(context).unexpected_error),
+                                );
                               }
-                            } on AuthException catch (error) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                ErrorMessage(
-                                    S.of(context).error),
-                              );
-                            } catch (error) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                ErrorMessage(
-                                    S.of(context).unexpected_error),
-                              );
-                            }
-
-                            ref.read(savingLoadingButton.notifier).state = false;
-                          },
-                          style: blackButton,
-                          child: Text(S.of(context).sign_in),
-                        ),
-                  TextButton(
-                    onPressed: () async {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          TextEditingController resetEmailController =
-                              TextEditingController();
-                          return Dialog(
-                            insetPadding: EdgeInsets.all(16.sp),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24.sp),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(16.sp),
-                              child: Column(
-                                spacing: 16.sp,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  InputField(
-                                    controller: resetEmailController,
-                                    hintText: S.of(context).email,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      if (resetEmailController.text.isEmpty) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          ErrorMessage(S
-                                              .of(context)
-                                              .items_must_be_filled),
-                                        );
-                                        return;
-                                      }
-
-                                      try {
-                                        await Supabase.instance.client.auth
-                                            .resetPasswordForEmail(
-                                          resetEmailController.text.trim(),
-                                          redirectTo:
-                                              'com.dinney.restaurant://reset-password',
-                                        );
-                                        Navigator.pop(context);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SuccessMessage(S
-                                              .of(context)
-                                              .reset_link_sent),
-                                        );
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          ErrorMessage(
-                                              "${S.of(context).error}: $e"),
-                                        );
-                                      }
-                                    },
-                                    child: Text(S.of(context).send),
-                                  ),
-                                ],
+        
+                              ref.read(savingLoadingButton.notifier).state = false;
+                            },
+                            style: blackButton,
+                            child: Text(S.of(context).sign_in),
+                          ),
+                    TextButton(
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            TextEditingController resetEmailController =
+                                TextEditingController();
+                            return Dialog(
+                              insetPadding: EdgeInsets.all(16.sp),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24.sp),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Text(S.of(context).forgot_password),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignUpView()),
-                      );
-                    },
-                    child: Text(S.of(context).create_account),
-                  ),
-                ],
-              )
-            : ref.watch(emailConfirmed)
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 16.sp,
-                      children: [
-                        Lottie.asset('assets/animations/checkmark.json',
-                            width: 50.w),
-                        Text(
-                          S.of(context).email_confirmed,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge!
-                              .copyWith(color: Colors.green),
-                        )
-                      ],
+                              child: Padding(
+                                padding: EdgeInsets.all(16.sp),
+                                child: Column(
+                                  spacing: 16.sp,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    InputField(
+                                      controller: resetEmailController,
+                                      hintText: S.of(context).email,
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (resetEmailController.text.isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            ErrorMessage(S
+                                                .of(context)
+                                                .items_must_be_filled),
+                                          );
+                                          return;
+                                        }
+        
+                                        try {
+                                          await Supabase.instance.client.auth
+                                              .resetPasswordForEmail(
+                                            resetEmailController.text.trim(),
+                                            redirectTo:
+                                                'com.dinney.restaurant://reset-password',
+                                          );
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SuccessMessage(S
+                                                .of(context)
+                                                .reset_link_sent),
+                                          );
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            ErrorMessage(
+                                                "${S.of(context).error}: $e"),
+                                          );
+                                        }
+                                      },
+                                      child: Text(S.of(context).send),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(S.of(context).forgot_password),
                     ),
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 16.sp,
-                      children: [
-                        LoadingSpinner(),
-                        Text(S.of(context).email_sent, textAlign: TextAlign.center,),
-                      ],
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignUpView()),
+                        );
+                      },
+                      child: Text(S.of(context).create_account),
                     ),
-                  ),
+                  ],
+                )
+              : ref.watch(emailConfirmed)
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 16.sp,
+                        children: [
+                          Lottie.asset('assets/animations/checkmark.json',
+                              width: 50.w),
+                          Text(
+                            S.of(context).email_confirmed,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineLarge!
+                                .copyWith(color: Colors.green),
+                          )
+                        ],
+                      ),
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 16.sp,
+                        children: [
+                          LoadingSpinner(),
+                          Text(S.of(context).email_sent, textAlign: TextAlign.center,),
+                        ],
+                      ),
+                    ),
+        ),
       ),
     );
   }

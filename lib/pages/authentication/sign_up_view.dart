@@ -144,31 +144,32 @@ class SignUpView extends ConsumerWidget{
                                 .insert(restaurant.toJson())
                                 .whenComplete(() async{
                                   ref.read(emailConfirmationProvider.notifier).state = true;
-                                  Timer.periodic(const Duration(seconds: 5), (timer) async {
-                                    final response = await supabase.rpc('is_email_confirmed', params: {'email': emailController.text.trim()});
-                                    final confirmed = response;
-                                    if (confirmed) {
-                                      timer.cancel();
-                                      ref.read(emailConfirmed.notifier).state = true;
-                                      Future.delayed(Duration(seconds: 2), () async{
-                                        await supabase.auth.signInWithPassword(
-                                          email: emailController.text.trim(), 
-                                          password: passwordController.text.trim()).whenComplete(() async{
-                                            await supabase.from("restaurants").update({
-                                              "fcm_token" : token != null ? [token] : []
-                                              }).eq("email", emailController.text.trim())
-                                              .whenComplete(() async{
-                                                ref.read(signUpProvider.notifier).state = 1;
-                                                res = await supabase.from("restaurants").select().eq("email", emailController.text.trim());
-                                                int id = res[0]['id'];
-                                                Navigator.push(context, MaterialPageRoute(builder: (context)=> GallerySettingView(id)));
-                                            });
-                                          });
+                                  await supabase.auth.signInWithPassword(
+                                    email: emailController.text.trim(), 
+                                    password: passwordController.text.trim()).whenComplete(() async{
+                                      await supabase.from("restaurants").update({
+                                        "fcm_token" : token != null ? [token] : []
+                                        }).eq("email", emailController.text.trim())
+                                        .whenComplete(() async{
+                                          ref.read(signUpProvider.notifier).state = 1;
+                                          res = await supabase.from("restaurants").select().eq("email", emailController.text.trim());
+                                          int id = res[0]['id'];
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=> GallerySettingView(id)));
                                       });
-                                    } else {
-                                      ref.read(emailConfirmationProvider.notifier).state = true;
-                                    }
                                   });
+                                  // Timer.periodic(const Duration(seconds: 5), (timer) async {
+                                  //   final response = await supabase.rpc('is_email_confirmed', params: {'email': emailController.text.trim()});
+                                  //   final confirmed = response;
+                                  //   if (confirmed) {
+                                  //     timer.cancel();
+                                  //     ref.read(emailConfirmed.notifier).state = true;
+                                  //     Future.delayed(Duration(seconds: 2), () async{
+                                        
+                                  //     });
+                                  //   } else {
+                                  //     ref.read(emailConfirmationProvider.notifier).state = true;
+                                  //   }
+                                  // });
                                 });
                               // You can return or use the insertedClient if needed
                             } on PostgrestException catch (e) {
@@ -222,7 +223,7 @@ class SignUpView extends ConsumerWidget{
                 spacing: 16.sp,
                 children: [
                   LoadingSpinner(),
-                  Text(S.of(context).email_sent)
+                  Text(S.of(context).please_wait)
                 ],
               ),
             ),

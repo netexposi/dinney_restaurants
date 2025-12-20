@@ -50,7 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "at_table": MessageLookupByLibrary.simpleMessage("At Table"),
     "at_table_container": MessageLookupByLibrary.simpleMessage("AT\nTABLE"),
     "auth_error": MessageLookupByLibrary.simpleMessage(
-      "Authentication error: ",
+      "Invalid credentials, please check your password again!",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
       "Sign in with dinnery account",
@@ -67,6 +67,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Category name and at least one item are required",
     ),
     "clear_all": MessageLookupByLibrary.simpleMessage("Clear all"),
+    "complete": MessageLookupByLibrary.simpleMessage("Complete"),
     "confirm_password": MessageLookupByLibrary.simpleMessage(
       "Confirm Password",
     ),
@@ -186,7 +187,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "next": MessageLookupByLibrary.simpleMessage("Next"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
     "no_account_found": MessageLookupByLibrary.simpleMessage(
-      "No account found with that name",
+      "No account found with that email",
     ),
     "no_items": MessageLookupByLibrary.simpleMessage("No Items"),
     "no_orders_found": MessageLookupByLibrary.simpleMessage("No orders found"),
@@ -198,6 +199,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
     "order": MessageLookupByLibrary.simpleMessage("Order"),
+    "order_completed": MessageLookupByLibrary.simpleMessage("Order completed"),
     "order_history": MessageLookupByLibrary.simpleMessage("Order History"),
     "orders": MessageLookupByLibrary.simpleMessage("Orders"),
     "orders_history": MessageLookupByLibrary.simpleMessage("Orders History"),
@@ -211,6 +213,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
       "Passwords don\'t match",
     ),
+    "please_wait": MessageLookupByLibrary.simpleMessage("Please wait..."),
     "price": MessageLookupByLibrary.simpleMessage("Price"),
     "price_of": MessageLookupByLibrary.simpleMessage("Price of"),
     "privacy_policy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),

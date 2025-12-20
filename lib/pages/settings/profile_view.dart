@@ -243,7 +243,7 @@ class UserProfileView extends ConsumerWidget {
                               children: [
                                 TextSpan(
                                   text:
-                                      "${calculateAverageRating(ref.watch(userDocumentsProvider)["rating"])} • ${ref.watch(userDocumentsProvider)["rating"].length}",
+                                      "${calculateAverageRating(ref.watch(userDocumentsProvider)["rating"]).toStringAsFixed(2)} • ${ref.watch(userDocumentsProvider)["rating"].length}",
                                 ),
                                 TextSpan(
                                   text: ref.watch(userDocumentsProvider)["rating"].length == 1
@@ -373,7 +373,8 @@ class UserProfileView extends ConsumerWidget {
                                                                       final TimeOfDay? picked = await pickTimeAppleDialog(context, selectedTime);
                                                                       setState((){
                                                                         if(picked != null){
-                                                                          schedule[index]["opening"] = "${picked.hour}:${picked.minute}";
+                                                                          String formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                                                                          schedule[index]["opening"] = formatted;
                                                                           changeProvider = true;
                                                                         }
                                                                       });
@@ -386,7 +387,8 @@ class UserProfileView extends ConsumerWidget {
                                                                       final TimeOfDay? picked = await pickTimeAppleDialog(context, selectedTime);
                                                                       setState((){
                                                                         if(picked != null){
-                                                                          schedule[index]["closing"] = "${picked.hour}:${picked.minute}";
+                                                                          String formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                                                                          schedule[index]["closing"] = formatted;
                                                                           changeProvider = true;
                                                                         }
                                                                       });
