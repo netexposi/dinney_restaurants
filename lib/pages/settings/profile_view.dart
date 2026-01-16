@@ -881,7 +881,7 @@ class UserProfileView extends ConsumerWidget {
                                                             ?.position;
 
                                                     print(
-                                                      "Save clicked - Marker position: $markerPosition",
+                                                      "Save clicked - Marker position is: $markerPosition",
                                                     );
 
                                                     if (markerPosition !=
