@@ -34,6 +34,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_deleted_successfully": MessageLookupByLibrary.simpleMessage(
       "تم حذف الحساب بنجاح",
     ),
+    "activated": MessageLookupByLibrary.simpleMessage("مفعل"),
     "add_category": MessageLookupByLibrary.simpleMessage("إضافة فئة"),
     "add_image": MessageLookupByLibrary.simpleMessage("إضافة صورة"),
     "add_item": MessageLookupByLibrary.simpleMessage("إضافة عنصر"),
@@ -51,7 +52,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "بيانات اعتماد غير صحيحة، يرجى التحقق من كلمة المرور مرة أخرى!",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
-      "تسجيل الدخول بحساب دينيري",
+      "تسجيل الدخول بحساب ديني",
     ),
     "by": MessageLookupByLibrary.simpleMessage("بواسطة"),
     "cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
@@ -70,6 +71,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "تأكيد كلمة المرور",
     ),
     "confirmed_orders": MessageLookupByLibrary.simpleMessage("الطلبات المؤكدة"),
+    "contact_dinney": MessageLookupByLibrary.simpleMessage(
+      "يرجى الاتصال بفريق ديني للمتابعة مع الاشتراك",
+    ),
     "contact_us": MessageLookupByLibrary.simpleMessage("اتصل بنا"),
     "create_account": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
     "create_restaurant_account": MessageLookupByLibrary.simpleMessage(
@@ -77,6 +81,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "da": MessageLookupByLibrary.simpleMessage("دج"),
     "day_off": MessageLookupByLibrary.simpleMessage("يوم إجازة"),
+    "deactivated": MessageLookupByLibrary.simpleMessage("معطل"),
     "delete": MessageLookupByLibrary.simpleMessage("حذف"),
     "delete_account": MessageLookupByLibrary.simpleMessage("حذف الحساب"),
     "delete_account_warning": MessageLookupByLibrary.simpleMessage(
@@ -148,6 +153,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalid_credentials": MessageLookupByLibrary.simpleMessage(
       "بيانات اعتماد غير صالحة، قد يكون البريد الإلكتروني أو كلمة المرور خاطئة",
     ),
+    "invalid_location": MessageLookupByLibrary.simpleMessage(
+      "الموقع غير صالح، يرجى تحديد موقع داخل الحدود الجزائرية.",
+    ),
     "islam_boussahel": MessageLookupByLibrary.simpleMessage("إسلام بوساهل"),
     "item": MessageLookupByLibrary.simpleMessage("عنصر"),
     "item_name": MessageLookupByLibrary.simpleMessage("اسم العنصر"),
@@ -188,6 +196,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "no_stats_found": MessageLookupByLibrary.simpleMessage(
       "لم يتم العثور على إحصائيات",
     ),
+    "no_subscription": MessageLookupByLibrary.simpleMessage("لا اشتراك"),
     "no_tags_selected": MessageLookupByLibrary.simpleMessage(
       "لم يتم اختيار أي علامات",
     ),
@@ -206,6 +215,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
       "كلمات المرور غير متطابقة",
+    ),
+    "please_check_internet": MessageLookupByLibrary.simpleMessage(
+      "يرجى التحقق من اتصالك بالإنترنت",
     ),
     "please_wait": MessageLookupByLibrary.simpleMessage("يرجى الانتظار..."),
     "price": MessageLookupByLibrary.simpleMessage("السعر"),

@@ -45,6 +45,9 @@ class SettingsBox extends ConsumerWidget {
             onTap: () {
               if (asyncNotifications.hasValue) {
                 showModalBottomSheet(
+                  constraints: BoxConstraints(
+                    minWidth: 100.w
+                  ),
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.white,
@@ -57,97 +60,152 @@ class SettingsBox extends ConsumerWidget {
                       builder:
                           (BuildContext context, WidgetRef ref, Widget? child) {
                         var notifications = ref.watch(notificationListProvider);
-                        return SafeArea(
-                          child: Container(
-                            padding: EdgeInsets.only(
-                                top: 16.sp, left: 16.sp, right: 16.sp),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(24.sp)),
-                              color: backgroundColor,
-                            ),
-                            constraints: BoxConstraints(
-                              maxHeight: 50.h,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Small top handle
-                                Center(
-                                  child: Container(
-                                    width: 40.sp,
-                                    height: 8.sp,
-                                    margin: EdgeInsets.only(bottom: 12.sp),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade300,
-                                      borderRadius:
-                                          BorderRadius.circular(20.sp),
-                                    ),
+                        return Container(
+                          width: 100.w,
+                          padding: EdgeInsets.only(
+                              top: 16.sp, left: 16.sp, right: 16.sp),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(24.sp)),
+                            color: backgroundColor,
+                          ),
+                          constraints: BoxConstraints(
+                            maxHeight: 50.h,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Small top handle
+                              Center(
+                                child: Container(
+                                  width: 40.sp,
+                                  height: 8.sp,
+                                  margin: EdgeInsets.only(bottom: 12.sp),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius:
+                                        BorderRadius.circular(20.sp),
                                   ),
                                 ),
-
-                                // 🔔 Title + "Clear all" button row
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      S.of(context).notifications,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium,
-                                    ),
-                                    if (notifications.value!.isNotEmpty)
-                                      TextButton(
-                                        onPressed: () async {
-                                          final box = await ref.read(
-                                              notificationBoxProvider.future);
-                                          await box.clear();
-                                          ref.invalidate(
-                                              notificationListProvider);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content:
-                                                  Text("All notifications cleared"),
-                                              duration:
-                                                  const Duration(seconds: 2),
+                              ),
+                        
+                              // 🔔 Title + "Clear all" button row
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    S.of(context).notifications,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
+                                  ),
+                                  if (notifications.value!.isNotEmpty)
+                                    TextButton(
+                                      onPressed: () async {
+                                        final box = await ref.read(
+                                            notificationBoxProvider.future);
+                                        await box.clear();
+                                        ref.invalidate(
+                                            notificationListProvider);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text("All notifications cleared"),
+                                            duration:
+                                                const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        S.of(context).clear_all,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              color: Colors.red,
                                             ),
-                                          );
-                                        },
-                                        child: Text(
-                                          S.of(context).clear_all,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                color: Colors.red,
-                                              ),
-                                        ),
                                       ),
-                                  ],
-                                ),
-
-                                SizedBox(height: 16.sp),
-
-                                // Scrollable notification list
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      spacing: 12.sp,
-                                      children: List.generate(
-                                          notifications.value!.length,
-                                          (index) {
-                                        var notification = notifications
-                                            .value!.reversed
-                                            .toList()[index];
-
-                                        return VisibilityDetector(
-                                          key: Key('item-$index'),
-                                          onVisibilityChanged:
-                                              (VisibilityInfo info) async {
-                                            if (info.visibleFraction > 0.5 &&
-                                                !notification.viewed) {
+                                    ),
+                                ],
+                              ),
+                        
+                              SizedBox(height: 16.sp),
+                        
+                              // Scrollable notification list
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    spacing: 12.sp,
+                                    children: List.generate(
+                                        notifications.value!.length,
+                                        (index) {
+                                      var notification = notifications
+                                          .value!.reversed
+                                          .toList()[index];
+                        
+                                      return VisibilityDetector(
+                                        key: Key('item-$index'),
+                                        onVisibilityChanged:
+                                            (VisibilityInfo info) async {
+                                          if (info.visibleFraction > 0.5 &&
+                                              !notification.viewed) {
+                                            final box = await ref.read(
+                                                notificationBoxProvider
+                                                    .future);
+                                            final key = box.keyAt(
+                                                notifications
+                                                        .value!.length -
+                                                    1 -
+                                                    index);
+                                            final updated = notification
+                                                .copyWith(viewed: true);
+                                            await box.put(key, updated);
+                                            ref.invalidate(
+                                                notificationListProvider);
+                                          }
+                                        },
+                                        child: Dismissible(
+                                          key: UniqueKey(),
+                                          direction:
+                                              DismissDirection.startToEnd,
+                                          background: Container(
+                                            alignment: Alignment.centerLeft,
+                                            padding: EdgeInsets.only(
+                                                left: 24.sp),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.red.withOpacity(0.15),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      20.sp),
+                                            ),
+                                            child: Icon(Icons.delete,
+                                                color: Colors.red,
+                                                size: 20.sp),
+                                          ),
+                                          onDismissed: (_) async {
+                                            final box = await ref.read(
+                                                notificationBoxProvider
+                                                    .future);
+                                            final currentKeys =
+                                                box.keys.toList(
+                                                    growable: false);
+                                            if (currentKeys.isNotEmpty &&
+                                                index <
+                                                    currentKeys.length) {
+                                              final key = currentKeys[
+                                                  currentKeys.length -
+                                                      1 -
+                                                      index];
+                                              await box.delete(key);
+                                            }
+                                            ref.invalidate(
+                                                notificationListProvider);
+                                          },
+                                          child: InkWell(
+                                            onTap: () async {
                                               final box = await ref.read(
                                                   notificationBoxProvider
                                                       .future);
@@ -159,134 +217,79 @@ class SettingsBox extends ConsumerWidget {
                                               final updated = notification
                                                   .copyWith(viewed: true);
                                               await box.put(key, updated);
-                                              ref.invalidate(
-                                                  notificationListProvider);
-                                            }
-                                          },
-                                          child: Dismissible(
-                                            key: UniqueKey(),
-                                            direction:
-                                                DismissDirection.startToEnd,
-                                            background: Container(
-                                              alignment: Alignment.centerLeft,
-                                              padding: EdgeInsets.only(
-                                                  left: 24.sp),
+                                              ref
+                                                  .read(selectedIndex.notifier)
+                                                  .state = 0;
+                                              AppNavigation.navRouter
+                                                  .go("/home");
+                                            },
+                                            borderRadius:
+                                                BorderRadius.circular(20.sp),
+                                            child: Container(
+                                              margin: EdgeInsets.only(bottom: index == notifications.value!.length -1? 16.px : 0),
+                                              padding:
+                                                  EdgeInsets.all(16.sp),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    Colors.red.withOpacity(0.15),
                                                 borderRadius:
                                                     BorderRadius.circular(
                                                         20.sp),
+                                                color: Colors.white,
                                               ),
-                                              child: Icon(Icons.delete,
-                                                  color: Colors.red,
-                                                  size: 20.sp),
-                                            ),
-                                            onDismissed: (_) async {
-                                              final box = await ref.read(
-                                                  notificationBoxProvider
-                                                      .future);
-                                              final currentKeys =
-                                                  box.keys.toList(
-                                                      growable: false);
-                                              if (currentKeys.isNotEmpty &&
-                                                  index <
-                                                      currentKeys.length) {
-                                                final key = currentKeys[
-                                                    currentKeys.length -
-                                                        1 -
-                                                        index];
-                                                await box.delete(key);
-                                              }
-                                              ref.invalidate(
-                                                  notificationListProvider);
-                                            },
-                                            child: InkWell(
-                                              onTap: () async {
-                                                final box = await ref.read(
-                                                    notificationBoxProvider
-                                                        .future);
-                                                final key = box.keyAt(
-                                                    notifications
-                                                            .value!.length -
-                                                        1 -
-                                                        index);
-                                                final updated = notification
-                                                    .copyWith(viewed: true);
-                                                await box.put(key, updated);
-                                                ref
-                                                    .read(selectedIndex.notifier)
-                                                    .state = 0;
-                                                AppNavigation.navRouter
-                                                    .go("/home");
-                                              },
-                                              borderRadius:
-                                                  BorderRadius.circular(20.sp),
-                                              child: Container(
-                                                padding:
-                                                    EdgeInsets.all(16.sp),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.sp),
-                                                  color: Colors.white,
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            notification.title,
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyLarge,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                          SizedBox(
-                                                              height: 4.sp),
-                                                          Text(
-                                                            notification.body,
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodySmall,
-                                                          ),
-                                                        ],
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          notification.title,
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .bodyLarge,
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
+                                                        ),
+                                                        SizedBox(
+                                                            height: 4.sp),
+                                                        Text(
+                                                          notification.body,
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .bodySmall,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if (!notification.viewed)
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsets.only(
+                                                              left: 8.sp),
+                                                      child: CircleAvatar(
+                                                        radius: 8.sp,
+                                                        backgroundColor:
+                                                            Colors.red,
                                                       ),
                                                     ),
-                                                    if (!notification.viewed)
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 8.sp),
-                                                        child: CircleAvatar(
-                                                          radius: 8.sp,
-                                                          backgroundColor:
-                                                              Colors.red,
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                        );
-                                      }),
-                                    ),
+                                        ),
+                                      );
+                                    }),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
                       },

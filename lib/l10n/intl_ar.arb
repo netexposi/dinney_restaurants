@@ -2,7 +2,7 @@
     "get_started": "ابدأ",
     "manage_your_orders": "إدارة طلباتك",
     "easily": "\nبسهولة",
-    "authentication_slogan": "تسجيل الدخول بحساب دينيري",
+    "authentication_slogan": "تسجيل الدخول بحساب ديني",
     "sign_in": "تسجيل الدخول",
     "create_account": "إنشاء حساب",
     "email": "البريد الإلكتروني",
@@ -173,5 +173,12 @@
     "error_loading": "خطأ في تحميل المحتوى\nيرجى التحقق من اتصالك بالإنترنت!",
     "order_completed" : "الطلب اكتمل",
     "complete":  "إكمال",
-    "please_wait": "يرجى الانتظار..."
+    "please_wait": "يرجى الانتظار...",
+    "please_check_internet" : "يرجى التحقق من اتصالك بالإنترنت",
+    "activated": "مفعل",
+    "deactivated": "معطل",
+    "no_subscription": "لا اشتراك",
+    "ended_subscription": "انتهى الاشتراك",
+    "contact_dinney": "يرجى الاتصال بفريق ديني للمتابعة مع الاشتراك",
+    "invalid_location" : "الموقع غير صالح، يرجى تحديد موقع داخل الحدود الجزائرية."
 }

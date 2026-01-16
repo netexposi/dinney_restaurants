@@ -2,7 +2,7 @@
     "get_started": "Get Started",
     "manage_your_orders": "Manage Your Orders",
     "easily": "\nEasily",
-    "authentication_slogan": "Sign in with dinnery account",
+    "authentication_slogan": "Sign in with dinney account",
     "sign_in": "Sign In",
     "create_account": "Create An Account",
     "email": "Email",
@@ -173,5 +173,13 @@
     "error_loading" : "Error loading content\nPlease check your internet connection!",
     "order_completed" : "Order completed",
     "complete":  "Complete",
-    "please_wait": "Please wait..."
+    "please_wait": "Please wait...",
+    "please_check_internet" : "Please check your internet connection",
+    "activated": "Activated",
+    "deactivated": "Deactivated",
+    "no_subscription" : "No subscription",
+    "ended_subscribtion" : "The subscription has ended",
+    "contact_dinney" : "Please contact the dinney team to proceed with subscribing",
+    "invalid_location" : "Invalid locaiton, please select within the algerian borders."
+
 }

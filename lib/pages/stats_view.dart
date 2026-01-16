@@ -18,7 +18,7 @@ extension DateTimeExtension on DateTime {
 }
 
 class StatsView extends ConsumerWidget {
-  const StatsView({super.key}); // Add key for proper widget construction
+  const StatsView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,15 +39,21 @@ class StatsView extends ConsumerWidget {
               if (snapshot.hasError) {
                 return Text(S.of(context).error);
               } else if (snapshot.data != null && snapshot.data!.isEmpty) {
-                return Center(child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Lottie.asset("assets/animations/statistics.json", width: 50.w),
-                    Text(S.of(context).no_stats_found , style: Theme.of(context).textTheme.bodySmall!.copyWith(color: tertiaryColor),)
-                  ],
-                ));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Lottie.asset("assets/animations/statistics.json", width: 50.w),
+                      Text(
+                        S.of(context).no_stats_found,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: tertiaryColor),
+                      )
+                    ],
+                  ),
+                );
               } else if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                 final completedOrders = snapshot.data!.where((item) => item['completed'] == true).toList();
+                
                 //SECTION Counting total income and served items
                 int servedItems = 0;
                 int totalIncome = 0;
@@ -57,17 +63,16 @@ class StatsView extends ConsumerWidget {
                     servedItems += item['quantity'] as int;
                   }
                 }
-
+                
                 //SECTION Counting weekly orders
                 final now = DateTime.now();
                 final startOfWeek = now.subtract(Duration(days: 6)).startOfDay();
                 var ordersPerDay = List<int>.filled(7, 0);
-
+                
                 for (var order in completedOrders) {
-                  // Parse and normalize to local time
                   DateTime orderDate = DateTime.parse(order['delivery_at']).toLocal();
                   orderDate = orderDate.startOfDay();
-
+                
                   if (orderDate.isAfter(startOfWeek.subtract(const Duration(seconds: 1))) &&
                       orderDate.isBefore(now.add(const Duration(days: 1)))) {
                     final dayIndex = orderDate.difference(startOfWeek).inDays;
@@ -76,97 +81,24 @@ class StatsView extends ConsumerWidget {
                     }
                   }
                 }
-                //ordersPerDay = [23, 35, 750, 1000, 21, 34, 500];
-
-                // Debug print to verify counts
-                // ignore: avoid_print
+                
                 print('Orders per day: $ordersPerDay');
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(S.of(context).statistics,
-                        style: Theme.of(context).textTheme.headlineLarge),
-                    SizedBox(height: 16.sp),
-                    Expanded(
-                      child: Column(
+                
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        S.of(context).statistics,
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                      SizedBox(height: 16.sp),
+                      
+                      // Stats Cards Row
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: (100.w - 16.sp * 3) / 2,
-                                height: (100.w - 16.sp * 3) / 2,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24.sp),
-                                  boxShadow: [dropShadow],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height: (100.w - 16.sp * 3) / 6,
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.sp),
-                                        child: Text(S.of(context).confirmed_orders,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: (100.w - 16.sp * 3) / 6,
-                                      child: Center(
-                                        child: Text("${completedOrders.length}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineLarge),
-                                      ),
-                                    ),
-                                    SizedBox(height: (100.w - 16.sp * 3) / 6),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 16.sp),
-                              Container(
-                                width: (100.w - 16.sp * 3) / 2,
-                                height: (100.w - 16.sp * 3) / 2,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24.sp),
-                                  boxShadow: [dropShadow],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height: (100.w - 16.sp * 3) / 6,
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.sp),
-                                        child: Text(S.of(context).served_items,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: (100.w - 16.sp * 3) / 6,
-                                      child: Center(
-                                        child: Text("$servedItems",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineLarge),
-                                      ),
-                                    ),
-                                    SizedBox(height: (100.w - 16.sp * 3) / 6),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 16.sp),
                           Container(
-                            width: 100.w,
+                            width: (100.w - 16.sp * 3) / 2,
                             height: (100.w - 16.sp * 3) / 2,
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -180,115 +112,187 @@ class StatsView extends ConsumerWidget {
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Padding(
                                     padding: EdgeInsets.all(16.sp),
-                                    child: Text(S.of(context).total_icnome,
-                                        style:
-                                            Theme.of(context).textTheme.bodySmall),
+                                    child: Text(
+                                      S.of(context).confirmed_orders,
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
                                   ),
                                 ),
                                 SizedBox(
                                   height: (100.w - 16.sp * 3) / 6,
                                   child: Center(
-                                    child: Text("$totalIncome ${S.of(context).da}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineLarge!
-                                            .copyWith(color: Colors.green)),
+                                    child: Text(
+                                      "${completedOrders.length}",
+                                      style: Theme.of(context).textTheme.headlineLarge,
+                                    ),
                                   ),
                                 ),
                                 SizedBox(height: (100.w - 16.sp * 3) / 6),
                               ],
                             ),
                           ),
-                          SizedBox(height: 16.sp),
-                          Expanded(
-                            child: Container(
-                              width: 100.w,
-                              padding: EdgeInsets.symmetric(vertical: 16.sp),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(24.sp),
-                                boxShadow: [dropShadow],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                                    child: Text(S.of(context).weekly_orders,
-                                        style:
-                                            Theme.of(context).textTheme.bodySmall),
+                          SizedBox(width: 16.sp),
+                          Container(
+                            width: (100.w - 16.sp * 3) / 2,
+                            height: (100.w - 16.sp * 3) / 2,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24.sp),
+                              boxShadow: [dropShadow],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: (100.w - 16.sp * 3) / 6,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.sp),
+                                    child: Text(
+                                      S.of(context).served_items,
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
                                   ),
-                                  SizedBox(height: 16.sp),
-
-Expanded(
-  child: Padding(
-    padding: EdgeInsets.symmetric(horizontal: 16.sp),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(7, (index) {
-        final maxOrders = ordersPerDay.isNotEmpty
-            ? ordersPerDay.reduce((a, b) => a > b ? a : b)
-            : 1;
-
-        // Oldest → newest (today is last)
-        final dayDate = today.subtract(Duration(days: 6 - index));
-        final dayLabel = getDayAbbreviation(dayDate, ref.watch(languageStateProvider));
-
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ordersPerDay[index] >= 2
-                ? Container(
-                    alignment: Alignment.center,
-                    width: (100.w - 16.sp * 6) / 7,
-                    height: (ordersPerDay[index] / maxOrders) < 0.1
-                        ? 22.sp
-                        : (ordersPerDay[index] / maxOrders) * 55.sp,
-                    decoration: BoxDecoration(
-                      color: index != ordersPerDay.length - 1
-                          ? secondaryColor.withOpacity(0.8)
-                          : secondaryColor,
-                      borderRadius: BorderRadius.circular(8.sp),
-                    ),
-                    child: Text(
-                      "${ordersPerDay[index]}",
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  )
-                : Text(
-                    "${ordersPerDay[index]}",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: secondaryColor,
-                        ),
-                  ),
-
-            SizedBox(height: 6.sp),
-
-            Text(
-              dayLabel,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
-          ],
-        );
-      }),
-    ),
-  ),
-),
-
-                                ],
-                              ),
+                                ),
+                                SizedBox(
+                                  height: (100.w - 16.sp * 3) / 6,
+                                  child: Center(
+                                    child: Text(
+                                      "$servedItems",
+                                      style: Theme.of(context).textTheme.headlineLarge,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: (100.w - 16.sp * 3) / 6),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.sp),
+                      
+                      // Total Income Card
+                      Container(
+                        width: 100.w,
+                        height: (100.w - 16.sp * 3) / 2,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24.sp),
+                          boxShadow: [dropShadow],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: (100.w - 16.sp * 3) / 6,
+                              child: Padding(
+                                padding: EdgeInsets.all(16.sp),
+                                child: Text(
+                                  S.of(context).total_icnome,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: (100.w - 16.sp * 3) / 6,
+                              child: Center(
+                                child: Text(
+                                  "$totalIncome ${S.of(context).da}",
+                                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                                        color: Colors.green,
+                                      ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: (100.w - 16.sp * 3) / 6),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.sp),
+                      
+                      // Weekly Orders Chart
+                      Container(
+                        width: 100.w,
+                        height: 60.h, // Fixed height for the chart
+                        padding: EdgeInsets.symmetric(vertical: 16.sp),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24.sp),
+                          boxShadow: [dropShadow],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                              child: Text(
+                                S.of(context).weekly_orders,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                            SizedBox(height: 16.sp),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: List.generate(7, (index) {
+                                    final maxOrders = ordersPerDay.isNotEmpty
+                                        ? ordersPerDay.reduce((a, b) => a > b ? a : b)
+                                        : 1;
+                                    
+                                    final dayDate = today.subtract(Duration(days: 6 - index));
+                                    final dayLabel = getDayAbbreviation(dayDate, ref.watch(languageStateProvider));
+                                    
+                                    return Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        ordersPerDay[index] >= 2
+                                            ? Container(
+                                                alignment: Alignment.center,
+                                                width: (100.w - 16.sp * 6) / 7,
+                                                height: (ordersPerDay[index] / maxOrders) < 0.1
+                                                    ? 22.sp
+                                                    : (ordersPerDay[index] / maxOrders) * 55.sp,
+                                                decoration: BoxDecoration(
+                                                  color: index != ordersPerDay.length - 1
+                                                      ? secondaryColor.withOpacity(0.8)
+                                                      : secondaryColor,
+                                                  borderRadius: BorderRadius.circular(8.sp),
+                                                ),
+                                                child: Text(
+                                                  "${ordersPerDay[index]}",
+                                                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                ),
+                                              )
+                                            : Text(
+                                                "${ordersPerDay[index]}",
+                                                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                                      color: secondaryColor,
+                                                    ),
+                                              ),
+                                        SizedBox(height: 6.sp),
+                                        Text(
+                                          dayLabel,
+                                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                                color: Colors.grey,
+                                              ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.sp), // Bottom padding
+                    ],
+                  ),
                 );
               } else {
                 return LoadingSpinner();

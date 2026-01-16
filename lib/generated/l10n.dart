@@ -74,10 +74,10 @@ class S {
     return Intl.message('\nEasily', name: 'easily', desc: '', args: []);
   }
 
-  /// `Sign in with dinnery account`
+  /// `Sign in with dinney account`
   String get authentication_slogan {
     return Intl.message(
-      'Sign in with dinnery account',
+      'Sign in with dinney account',
       name: 'authentication_slogan',
       desc: '',
       args: [],
@@ -1399,6 +1399,66 @@ class S {
     return Intl.message(
       'Please wait...',
       name: 'please_wait',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please check your internet connection`
+  String get please_check_internet {
+    return Intl.message(
+      'Please check your internet connection',
+      name: 'please_check_internet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Activated`
+  String get activated {
+    return Intl.message('Activated', name: 'activated', desc: '', args: []);
+  }
+
+  /// `Deactivated`
+  String get deactivated {
+    return Intl.message('Deactivated', name: 'deactivated', desc: '', args: []);
+  }
+
+  /// `No subscription`
+  String get no_subscription {
+    return Intl.message(
+      'No subscription',
+      name: 'no_subscription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The subscription has ended`
+  String get ended_subscribtion {
+    return Intl.message(
+      'The subscription has ended',
+      name: 'ended_subscribtion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please contact the dinney team to proceed with subscribing`
+  String get contact_dinney {
+    return Intl.message(
+      'Please contact the dinney team to proceed with subscribing',
+      name: 'contact_dinney',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid locaiton, please select within the algerian borders.`
+  String get invalid_location {
+    return Intl.message(
+      'Invalid locaiton, please select within the algerian borders.',
+      name: 'invalid_location',
       desc: '',
       args: [],
     );

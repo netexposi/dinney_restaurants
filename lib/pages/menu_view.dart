@@ -169,8 +169,8 @@ class MenuView extends ConsumerWidget {
                 children: List.generate(ref.watch(userDocumentsProvider)['tags'].length,(index){
                   return Container(
                     alignment: Alignment.bottomCenter,
-                    width: 30.w,
-                    height: 30.w,
+                    width: 25.w,
+                    height: 25.w,
                     margin: EdgeInsets.only(left: 16.sp),
                     decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24.sp),
@@ -753,88 +753,113 @@ class RefDialog extends ConsumerWidget{
     return Dialog(
       insetPadding: EdgeInsets.all(8.sp),
       backgroundColor: backgroundColor,
-      child: Padding(
-        padding: EdgeInsets.all(8.sp),
-        child: SingleChildScrollView(
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: 80.h, // Limit dialog height
+          maxWidth: 90.w,  // Limit dialog width
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(8.sp),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16.sp,
             children: [
-              Text(S.of(context).tags),
-              GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 8.sp,
-                  crossAxisSpacing: 8.sp,
-                  childAspectRatio: 1,
-                ),
-                itemCount: tagImages.entries.length,
-                itemBuilder: (context, ind) {
-                  final tagKey = tagImages.entries.elementAt(ind).key;
-                  return InkWell(
-                    onTap: () async{
-                      if(ref.watch(userDocumentsProvider)['tags'].contains(tagKey)){
-                        final currentState = ref.read(userDocumentsProvider.notifier).state;
-                        final updatedTags = List<String>.from(currentState['tags'] ?? [])..remove(tagKey);
-                        ref.read(userDocumentsProvider.notifier).state = {
-                          ...currentState,
-                          'tags': updatedTags,
-                        };
-                      } else {
-                        final currentState = ref.read(userDocumentsProvider.notifier).state;
-                        final updatedTags = List<String>.from(currentState['tags'] ?? [])..add(tagKey);
-                        ref.read(userDocumentsProvider.notifier).state = {
-                          ...currentState,
-                          'tags': updatedTags,
-                        };
-                      }
-                      final query = await supabase.from("restaurants").update({"tags" : ref.watch(userDocumentsProvider)['tags']})
-                        .eq('id', ref.watch(userDocumentsProvider)['id']);
-                    },
-                    child: Container(
-                      alignment: Alignment.bottomCenter,
-                      decoration: BoxDecoration(
-                      border: BoxBorder.all(
-                        color: primaryColor,
-                        width: ref.watch(userDocumentsProvider)['tags'].contains(tagKey)? 8.sp : 0.sp,
-                      ),
-                      borderRadius: BorderRadius.circular(24.sp),
-                      image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(8.sp),
-                        child: BlurryContainer(
-                          width: 70.w,
-                          height: 10.w,
-                          borderRadius: BorderRadius.circular(24.sp),
-                          child: Center(
-                            child: FutureBuilder(
-                              future: translator.translate(tagImages.entries.elementAt(ind).key, to: languages[ref.watch(languageStateProvider)]), 
-                              builder: (context, translation){
-                                if(translation.data != null && translation.hasData){
-                                  return Text(
-                                  "${translation.data!.text}",
-                                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600, shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.4),
-                                      offset: Offset(2, 2),
-                                      blurRadius: 24,
-                                    ),
-                                  ]),
-                                  );
-                                }else {
-                                  return SizedBox.shrink();
-                                }
-                              }
-                            )
+              Text(
+                S.of(context).tags,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              SizedBox(height: 16.sp),
+              
+              // Scrollable grid
+              Flexible(
+                child: SingleChildScrollView(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(), // Disable GridView's own scrolling
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 8.sp,
+                      crossAxisSpacing: 8.sp,
+                      childAspectRatio: 1,
+                    ),
+                    itemCount: tagImages.entries.length,
+                    itemBuilder: (context, ind) {
+                      final tagKey = tagImages.entries.elementAt(ind).key;
+                      return InkWell(
+                        onTap: () async{
+                          if(ref.watch(userDocumentsProvider)['tags'].contains(tagKey)){
+                            final currentState = ref.read(userDocumentsProvider.notifier).state;
+                            final updatedTags = List<String>.from(currentState['tags'] ?? [])..remove(tagKey);
+                            ref.read(userDocumentsProvider.notifier).state = {
+                              ...currentState,
+                              'tags': updatedTags,
+                            };
+                          } else {
+                            final currentState = ref.read(userDocumentsProvider.notifier).state;
+                            final updatedTags = List<String>.from(currentState['tags'] ?? [])..add(tagKey);
+                            ref.read(userDocumentsProvider.notifier).state = {
+                              ...currentState,
+                              'tags': updatedTags,
+                            };
+                          }
+                          await supabase.from("restaurants").update({"tags" : ref.watch(userDocumentsProvider)['tags']})
+                            .eq('id', ref.watch(userDocumentsProvider)['id']);
+                        },
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: primaryColor,
+                              width: ref.watch(userDocumentsProvider)['tags'].contains(tagKey)? 8.sp : 0.sp,
+                            ),
+                            borderRadius: BorderRadius.circular(24.sp),
+                            image: DecorationImage(
+                              image: AssetImage(tagImages.entries.elementAt(ind).value), 
+                              fit: BoxFit.cover
                             )
                           ),
-                      ),
-                    ),
-                  );
-                },
+                          child: Padding(
+                            padding: EdgeInsets.all(8.sp),
+                            child: BlurryContainer(
+                              width: 70.w,
+                              height: 10.w,
+                              borderRadius: BorderRadius.circular(24.sp),
+                              child: Center(
+                                child: FutureBuilder(
+                                  future: translator.translate(
+                                    tagImages.entries.elementAt(ind).key, 
+                                    to: languages[ref.watch(languageStateProvider)]
+                                  ), 
+                                  builder: (context, translation){
+                                    if(translation.data != null && translation.hasData){
+                                      return Text(
+                                        "${translation.data!.text}",
+                                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                          color: Colors.white, 
+                                          fontSize: 14.sp, 
+                                          fontWeight: FontWeight.w600, 
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withOpacity(0.4),
+                                              offset: Offset(2, 2),
+                                              blurRadius: 24,
+                                            ),
+                                          ]
+                                        ),
+                                      );
+                                    }else {
+                                      return SizedBox.shrink();
+                                    }
+                                  }
+                                )
+                              )
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ],
           ),
@@ -842,5 +867,4 @@ class RefDialog extends ConsumerWidget{
       ),
     );
   }
-
 }

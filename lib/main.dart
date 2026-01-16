@@ -40,7 +40,7 @@ Future<void> main() async{
     }
   });
   final session = supabase.auth.currentSession;
-  if (session != null && session.isExpired == false) {
+  if (session != null) {
     await supabase.from("restaurants").select().eq("email", session.user.email!).single().then((response){
       print("The response is : $response");
       final id = response['id'];

@@ -10,12 +10,14 @@ import 'package:dinney_restaurant/utils/constants.dart';
 import 'package:dinney_restaurant/utils/styles.dart';
 import 'package:dinney_restaurant/utils/variables.dart';
 import 'package:dinney_restaurant/widgets/blurry_container.dart';
+import 'package:dinney_restaurant/widgets/pop_up_message.dart';
 import 'package:dinney_restaurant/widgets/privacy_policy_content.dart';
 import 'package:dinney_restaurant/widgets/settings_element.dart';
 import 'package:dinney_restaurant/widgets/spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -74,6 +76,70 @@ class SettingsView extends ConsumerWidget{
                         ),
                       ),
                       SizedBox(height: 16.sp,),
+                      if(ref.watch(userDocumentsProvider)['active']) StreamBuilder(
+                        stream: supabase.from("restaurants").select("at_table, to_go").eq("id", ref.watch(userDocumentsProvider)['id']).single().asStream(), 
+                        builder: (context, availability){
+                          if(availability.connectionState == ConnectionState.waiting){
+                            return Center(child: LoadingSpinner(),);
+                          }
+                          if(availability.data != null && availability.hasData){
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () async{
+                                  await supabase.from("restaurants").update({"at_table": !availability.data!['at_table']}).eq("id", ref.watch(userDocumentsProvider)['id']);
+                                },
+                                borderRadius: BorderRadius.horizontal(left: Radius.circular(16.sp)),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.all(16.sp),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.horizontal(left: Radius.circular(16.sp)),
+                                        color: availability.data!['at_table'] ? Colors.green : Colors.grey
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(S.of(context).at_table, style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),),
+                                          Text(availability.data!['at_table'] ? S.of(context).activated : S.of(context).deactivated, style: TextStyle(color: Colors.white),)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () async{
+                                      await supabase.from("restaurants").update({"to_go": !availability.data!['to_go']}).eq("id", ref.watch(userDocumentsProvider)['id']);
+                                    },
+                                    borderRadius: BorderRadius.horizontal(right: Radius.circular(16.sp)),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.all(16.sp),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.horizontal(right: Radius.circular(16.sp)),
+                                        color: availability.data!['to_go'] ? Colors.green : Colors.grey
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(S.of(context).to_go, style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),),
+                                          Text(availability.data!['to_go'] ? S.of(context).activated : S.of(context).deactivated, style: TextStyle(color: Colors.white),)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }else {
+                            return SizedBox.shrink();
+                          }
+                        }
+                      ),
+                      SizedBox(height: 16.sp,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -89,7 +155,8 @@ class SettingsView extends ConsumerWidget{
                                     actionsAlignment: MainAxisAlignment.center,
                                     content: Text(S.of(context).emergency_stop_message, textAlign: TextAlign.center,),
                                     actions: [
-                                      ref.watch(savingLoadingButton)? LoadingSpinner() : Row(
+                                      Consumer(builder: (context, ref, child){
+                                        return ref.watch(savingLoadingButton)? LoadingSpinner() : Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                                         children: [
                                           TextButton(
@@ -106,6 +173,7 @@ class SettingsView extends ConsumerWidget{
                                               final response = await supabase.from("orders").select("client_fcm").match({
                                                 "restaurant_id" : ref.watch(userDocumentsProvider)['id'],
                                                 "completed" : false,
+                                                
                                               });
                                               if(response.isNotEmpty){
                                                 for (var element in response) {
@@ -115,10 +183,14 @@ class SettingsView extends ConsumerWidget{
                                                     element['client_fcm']
                                                   );
                                                 }
-                                                await supabase.from("orders").delete().match(
+                                                DateTime earlierToday = DateTime.now().copyWith(hour: 0, minute: 0);
+                                                await supabase.from("orders").delete()
+                                                .gt("created_at", earlierToday.toIso8601String())
+                                                .match(
                                                   {
                                                     "restaurant_id" : ref.watch(userDocumentsProvider)['id'],
                                                     "completed" : false,
+
                                                   }
                                                 ).whenComplete(() async{
                                                   await supabase.from("restaurants").update({
@@ -148,7 +220,8 @@ class SettingsView extends ConsumerWidget{
                                             child: Text(S.of(context).yes_cancel, style: TextStyle(color: Colors.red),)
                                           ),
                                         ],
-                                      ),
+                                      );
+                                      })
                                     ],
                                   );
                                 });
@@ -173,7 +246,7 @@ class SettingsView extends ConsumerWidget{
                                   ref.watch(savingLoadingButton.notifier).state = false;
                                 });
                               },
-                              child: Container(
+                              child: ref.watch(savingLoadingButton)? LoadingSpinner() : Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(horizontal: 22.sp, vertical: 12.sp),
                                 decoration: BoxDecoration(
@@ -366,6 +439,70 @@ class SettingsView extends ConsumerWidget{
                       AppNavigation.navRouter.go("/");
                     });
                   }, icon: HugeIcons.strokeRoundedLogout03, title: S.of(context).sign_out,),
+                  FutureBuilder<Map<String, dynamic>?>(
+                  future: Supabase.instance.client.from('info').select().single(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) return const SizedBox.shrink();
+                    if (snapshot.hasError) return const SizedBox.shrink();
+                    final info = snapshot.data;
+                    final String? facebook = info?['facebook'] as String?;
+                    final String? instagram = info?['instagram'] as String?;
+                    final String? tiktok = info?['tiktok'] as String?;
+                    if ((facebook ?? '').isEmpty && (instagram ?? '').isEmpty && (tiktok ?? '').isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.sp),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if ((facebook ?? '').isNotEmpty)
+                            IconButton(
+                              icon: Icon(Icons.facebook, color: Colors.blue),
+                              onPressed: () async {
+                                final uri = Uri.parse(facebook!);
+                                try {
+                                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                  }
+                                } catch (_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                }
+                              },
+                            ),
+                          if ((instagram ?? '').isNotEmpty)
+                            IconButton(
+                              icon: Icon(Iconsax.instagram, color: Colors.deepOrange),
+                              onPressed: () async {
+                                final uri = Uri.parse(instagram!);
+                                try {
+                                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                  }
+                                } catch (_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                }
+                              },
+                            ),
+                          if ((tiktok ?? '').isNotEmpty)
+                            IconButton(
+                              icon: Icon(Icons.tiktok, color: Colors.black),
+                              onPressed: () async {
+                                final uri = Uri.parse(tiktok!);
+                                try {
+                                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                  }
+                                } catch (_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 ],
               ),
             ),

@@ -39,7 +39,7 @@ class MainWrapper extends ConsumerWidget {
       backgroundColor: Colors.white,
       extendBody: true, 
       body: ref.watch(errorProvider)['status']? SafeArea(
-        bottom: false,
+        bottom: true,
         child: SizedBox.expand(
           child: navigationShell,
         ),
@@ -50,7 +50,7 @@ class MainWrapper extends ConsumerWidget {
           children: [
             Lottie.asset('assets/animations/no_internet.json', width: 50.w),
             Text(
-              "Error loading content\nPlease check your internet connection!",
+              "${S.of(context).error_loading}\n${S.of(context).please_check_internet}",
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme

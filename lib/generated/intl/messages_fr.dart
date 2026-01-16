@@ -34,6 +34,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_deleted_successfully": MessageLookupByLibrary.simpleMessage(
       "Compte supprimé avec succès",
     ),
+    "activated": MessageLookupByLibrary.simpleMessage("Activé"),
     "add_category": MessageLookupByLibrary.simpleMessage(
       "Ajouter une catégorie",
     ),
@@ -57,7 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Identifiants invalides, veuillez vérifier à nouveau votre mot de passe !",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
-      "Connectez-vous avec un compte Dinnery",
+      "Connectez-vous avec un compte Dinney",
     ),
     "by": MessageLookupByLibrary.simpleMessage("Par"),
     "cancel": MessageLookupByLibrary.simpleMessage("Annuler"),
@@ -82,6 +83,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "confirmed_orders": MessageLookupByLibrary.simpleMessage(
       "Commandes confirmées",
     ),
+    "contact_dinney": MessageLookupByLibrary.simpleMessage(
+      "Veuillez contacter l\'équipe dinney pour procéder à l\'abonnement",
+    ),
     "contact_us": MessageLookupByLibrary.simpleMessage("Contactez-nous"),
     "create_account": MessageLookupByLibrary.simpleMessage("Créer un compte"),
     "create_restaurant_account": MessageLookupByLibrary.simpleMessage(
@@ -89,6 +93,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "da": MessageLookupByLibrary.simpleMessage("DA"),
     "day_off": MessageLookupByLibrary.simpleMessage("Jour de congé"),
+    "deactivated": MessageLookupByLibrary.simpleMessage("Désactivé"),
     "delete": MessageLookupByLibrary.simpleMessage("Supprimer"),
     "delete_account": MessageLookupByLibrary.simpleMessage(
       "Supprimer le compte",
@@ -178,6 +183,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalid_credentials": MessageLookupByLibrary.simpleMessage(
       "Identifiants invalides, l\'email ou le mot de passe pourrait être erroné",
     ),
+    "invalid_location": MessageLookupByLibrary.simpleMessage(
+      "Emplacement invalide, veuillez sélectionner un emplacement situé à l\'intérieur des frontières algériennes.",
+    ),
     "islam_boussahel": MessageLookupByLibrary.simpleMessage("Islam Boussahel"),
     "item": MessageLookupByLibrary.simpleMessage("Article"),
     "item_name": MessageLookupByLibrary.simpleMessage("Nom de l\'article"),
@@ -224,6 +232,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "no_stats_found": MessageLookupByLibrary.simpleMessage(
       "Aucune statistique trouvée",
     ),
+    "no_subscription": MessageLookupByLibrary.simpleMessage("Aucun abonnement"),
     "no_tags_selected": MessageLookupByLibrary.simpleMessage(
       "Aucune étiquette n\'est sélectionnée",
     ),
@@ -248,6 +257,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
       "Les mots de passe ne correspondent pas",
+    ),
+    "please_check_internet": MessageLookupByLibrary.simpleMessage(
+      "Veuillez vérifier votre connexion Internet.",
     ),
     "please_wait": MessageLookupByLibrary.simpleMessage(
       "Veuillez patienter...",

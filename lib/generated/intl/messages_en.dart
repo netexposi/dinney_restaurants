@@ -34,6 +34,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_deleted_successfully": MessageLookupByLibrary.simpleMessage(
       "Account deleted successfully",
     ),
+    "activated": MessageLookupByLibrary.simpleMessage("Activated"),
     "add_category": MessageLookupByLibrary.simpleMessage("Add Category"),
     "add_image": MessageLookupByLibrary.simpleMessage("Add Image"),
     "add_item": MessageLookupByLibrary.simpleMessage("Add Item"),
@@ -53,7 +54,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Invalid credentials, please check your password again!",
     ),
     "authentication_slogan": MessageLookupByLibrary.simpleMessage(
-      "Sign in with dinnery account",
+      "Sign in with dinney account",
     ),
     "by": MessageLookupByLibrary.simpleMessage("By"),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
@@ -74,6 +75,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "confirmed_orders": MessageLookupByLibrary.simpleMessage(
       "Confirmed Orders",
     ),
+    "contact_dinney": MessageLookupByLibrary.simpleMessage(
+      "Please contact the dinney team to proceed with subscribing",
+    ),
     "contact_us": MessageLookupByLibrary.simpleMessage("Contact Us"),
     "create_account": MessageLookupByLibrary.simpleMessage("Create An Account"),
     "create_restaurant_account": MessageLookupByLibrary.simpleMessage(
@@ -81,6 +85,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "da": MessageLookupByLibrary.simpleMessage("DA"),
     "day_off": MessageLookupByLibrary.simpleMessage("Day Off"),
+    "deactivated": MessageLookupByLibrary.simpleMessage("Deactivated"),
     "delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "delete_account": MessageLookupByLibrary.simpleMessage("Delete Account"),
     "delete_account_warning": MessageLookupByLibrary.simpleMessage(
@@ -123,6 +128,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to cancel all bookings and stop?",
     ),
     "empty": MessageLookupByLibrary.simpleMessage("Empty"),
+    "ended_subscribtion": MessageLookupByLibrary.simpleMessage(
+      "The subscription has ended",
+    ),
     "english": MessageLookupByLibrary.simpleMessage("English"),
     "error": MessageLookupByLibrary.simpleMessage("Error"),
     "error_loading": MessageLookupByLibrary.simpleMessage(
@@ -153,6 +161,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "invalid_credentials": MessageLookupByLibrary.simpleMessage(
       "Invalid credentials, email or password could be wrong",
+    ),
+    "invalid_location": MessageLookupByLibrary.simpleMessage(
+      "Invalid locaiton, please select within the algerian borders.",
     ),
     "islam_boussahel": MessageLookupByLibrary.simpleMessage("Islam Boussahel"),
     "item": MessageLookupByLibrary.simpleMessage("Item"),
@@ -194,6 +205,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "no_stats_found": MessageLookupByLibrary.simpleMessage(
       "No statistics found",
     ),
+    "no_subscription": MessageLookupByLibrary.simpleMessage("No subscription"),
     "no_tags_selected": MessageLookupByLibrary.simpleMessage(
       "No tags are selected",
     ),
@@ -212,6 +224,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "passwords_dont_match": MessageLookupByLibrary.simpleMessage(
       "Passwords don\'t match",
+    ),
+    "please_check_internet": MessageLookupByLibrary.simpleMessage(
+      "Please check your internet connection",
     ),
     "please_wait": MessageLookupByLibrary.simpleMessage("Please wait..."),
     "price": MessageLookupByLibrary.simpleMessage("Price"),

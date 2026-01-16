@@ -2,7 +2,7 @@
     "get_started": "Commencer",
     "manage_your_orders": "Gérer vos commandes",
     "easily": "\nFacilement",
-    "authentication_slogan": "Connectez-vous avec un compte Dinnery",
+    "authentication_slogan": "Connectez-vous avec un compte Dinney",
     "sign_in": "Se connecter",
     "create_account": "Créer un compte",
     "email": "Email",
@@ -173,5 +173,12 @@
     "error_loading": "Erreur de chargement du contenu\nVeuillez vérifier votre connexion internet !",
     "order_completed" : "Commande terminée",
     "complete":  "Compléter",
-    "please_wait": "Veuillez patienter..."
+    "please_wait": "Veuillez patienter...",
+    "please_check_internet" : "Veuillez vérifier votre connexion Internet.",
+    "activated": "Activé",
+    "deactivated": "Désactivé",
+    "no_subscription": "Aucun abonnement",
+    "ended_subscription": "L'abonnement a pris fin",
+    "contact_dinney": "Veuillez contacter l'équipe dinney pour procéder à l'abonnement",
+    "invalid_location" : "Emplacement invalide, veuillez sélectionner un emplacement situé à l'intérieur des frontières algériennes."
 }
