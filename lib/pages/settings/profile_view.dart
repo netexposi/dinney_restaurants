@@ -19,7 +19,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore: must_be_immutable
 class UserProfileView extends ConsumerWidget {
@@ -67,12 +66,6 @@ class UserProfileView extends ConsumerWidget {
                                     userDocumentsProvider,
                                   )["name"],
                                 );
-                            TextEditingController emailController =
-                                TextEditingController(
-                                  text: ref.watch(
-                                    userDocumentsProvider,
-                                  )["email"],
-                                );
 
                             return StatefulBuilder(
                               builder: (context, setState) {
@@ -81,11 +74,7 @@ class UserProfileView extends ConsumerWidget {
                                     changeProvider = true;
                                   });
                                 });
-                                emailController.addListener(() {
-                                  setState(() {
-                                    changeProvider = true;
-                                  });
-                                });
+
                                 return Dialog(
                                   backgroundColor: Colors.white,
                                   insetPadding: EdgeInsets.all(8.sp),
@@ -109,10 +98,7 @@ class UserProfileView extends ConsumerWidget {
                                               controller: nameController,
                                               hintText: S.of(context).name,
                                             ),
-                                            InputField(
-                                              controller: emailController,
-                                              hintText: "Email",
-                                            ),
+
                                             if (changeProvider)
                                               Align(
                                                 alignment: Alignment.center,
@@ -121,183 +107,7 @@ class UserProfileView extends ConsumerWidget {
                                                     setState(() {
                                                       loading = true;
                                                     });
-                                                    if (emailController.text !=
-                                                            ref.watch(
-                                                              userDocumentsProvider,
-                                                            )["email"] &&
-                                                        nameController.text !=
-                                                            ref.watch(
-                                                              userDocumentsProvider,
-                                                            )["name"]) {
-                                                      // TODO change email and name at the same time
-                                                      try {
-                                                        await supabase.auth
-                                                            .updateUser(
-                                                              UserAttributes(
-                                                                email:
-                                                                    emailController
-                                                                        .text,
-                                                              ),
-                                                            )
-                                                            .whenComplete(() async {
-                                                              await supabase
-                                                                  .from(
-                                                                    "restaurants",
-                                                                  )
-                                                                  .update({
-                                                                    "email":
-                                                                        emailController
-                                                                            .text,
-                                                                    "name":
-                                                                        nameController
-                                                                            .text,
-                                                                  })
-                                                                  .eq(
-                                                                    "id",
-                                                                    ref.watch(
-                                                                      userDocumentsProvider,
-                                                                    )["id"],
-                                                                  )
-                                                                  .whenComplete(() async {
-                                                                    final newUserData = await supabase
-                                                                        .from(
-                                                                          "restaurants",
-                                                                        )
-                                                                        .select()
-                                                                        .eq(
-                                                                          "id",
-                                                                          ref.watch(
-                                                                            userDocumentsProvider,
-                                                                          )["id"],
-                                                                        )
-                                                                        .single();
-                                                                    if (newUserData
-                                                                        .isNotEmpty) {
-                                                                      ref
-                                                                              .read(
-                                                                                userDocumentsProvider.notifier,
-                                                                              )
-                                                                              .state =
-                                                                          newUserData;
-                                                                    }
-                                                                    setState(() {
-                                                                      loading =
-                                                                          false;
-                                                                    });
-                                                                    Navigator.of(
-                                                                      context,
-                                                                    ).pop();
-                                                                    ScaffoldMessenger.of(
-                                                                      context,
-                                                                    ).showSnackBar(
-                                                                      SuccessMessage(
-                                                                        S
-                                                                            .of(
-                                                                              context,
-                                                                            )
-                                                                            .info_changed_successfully,
-                                                                      ),
-                                                                    );
-                                                                  });
-                                                            });
-                                                      } catch (e) {
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop();
-                                                        ScaffoldMessenger.of(
-                                                          context,
-                                                        ).showSnackBar(
-                                                          ErrorMessage(
-                                                            "${S.of(context).unexpected_error} {$e}",
-                                                          ),
-                                                        );
-                                                      }
-                                                    } else if (emailController
-                                                            .text !=
-                                                        ref.watch(
-                                                          userDocumentsProvider,
-                                                        )["email"]) {
-                                                      try {
-                                                        await supabase.auth
-                                                            .updateUser(
-                                                              UserAttributes(
-                                                                email:
-                                                                    emailController
-                                                                        .text,
-                                                              ),
-                                                            )
-                                                            .whenComplete(() async {
-                                                              await supabase
-                                                                  .from(
-                                                                    "restaurants",
-                                                                  )
-                                                                  .update({
-                                                                    "email":
-                                                                        emailController
-                                                                            .text,
-                                                                  })
-                                                                  .eq(
-                                                                    "id",
-                                                                    ref.watch(
-                                                                      userDocumentsProvider,
-                                                                    )["id"],
-                                                                  )
-                                                                  .whenComplete(() async {
-                                                                    final newUserData = await supabase
-                                                                        .from(
-                                                                          "restaurants",
-                                                                        )
-                                                                        .select()
-                                                                        .eq(
-                                                                          "id",
-                                                                          ref.watch(
-                                                                            userDocumentsProvider,
-                                                                          )["id"],
-                                                                        )
-                                                                        .single();
-                                                                    if (newUserData
-                                                                        .isNotEmpty) {
-                                                                      ref
-                                                                              .read(
-                                                                                userDocumentsProvider.notifier,
-                                                                              )
-                                                                              .state =
-                                                                          newUserData;
-                                                                    }
-                                                                    setState(() {
-                                                                      loading =
-                                                                          false;
-                                                                    });
-                                                                    Navigator.of(
-                                                                      context,
-                                                                    ).pop();
-                                                                    ScaffoldMessenger.of(
-                                                                      context,
-                                                                    ).showSnackBar(
-                                                                      SuccessMessage(
-                                                                        S
-                                                                            .of(
-                                                                              context,
-                                                                            )
-                                                                            .email_changed_successfully,
-                                                                      ),
-                                                                    );
-                                                                  });
-                                                            });
-                                                      } catch (e) {
-                                                        Navigator.of(
-                                                          context,
-                                                        ).pop();
-                                                        ScaffoldMessenger.of(
-                                                          context,
-                                                        ).showSnackBar(
-                                                          ErrorMessage(
-                                                            "${S.of(context).unexpected_error} {$e}",
-                                                          ),
-                                                        );
-                                                      }
-                                                    } else if (nameController
-                                                            .text !=
+                                                    if (nameController.text !=
                                                         ref.watch(
                                                           userDocumentsProvider,
                                                         )["name"]) {
@@ -1521,12 +1331,12 @@ class UserProfileView extends ConsumerWidget {
                                                             )["id"],
                                                           )
                                                           .whenComplete(() async {
-                                                            supabase.auth.admin
-                                                                .deleteUser(
-                                                                  ref.watch(
-                                                                    userDocumentsProvider,
-                                                                  )["uid"],
-                                                                );
+                                                            // supabase.auth.admin
+                                                            //     .deleteUser(
+                                                            //       ref.watch(
+                                                            //         userDocumentsProvider,
+                                                            //       )["uid"],
+                                                            //     );
                                                             AppNavigation
                                                                 .navRouter
                                                                 .go("/");

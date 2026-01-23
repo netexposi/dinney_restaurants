@@ -25,168 +25,232 @@ class MenuCreationView extends ConsumerWidget {
   final SupabaseClient supabase = Supabase.instance.client;
   final translator = GoogleTranslator();
   final languages = ["en", "ar", "fr"];
-  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final menu = ref.watch(menuProvider);
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          spacing: 16.sp,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 16.sp),
-              child: ThreeDotsIndicator(index: 2,),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.sp),
-              child: menu.isEmpty
-                ? Text(S.of(context).menu_empty)
-                : GridView.builder(
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 8.sp,
-                      crossAxisSpacing: 8.sp,
-                      childAspectRatio: 4,
-                    ),
-                    itemCount: menu.length,
-                    itemBuilder: (context, ind) {
-                      return InkWell(
-                        onTap: () {
-                          _showEditCategoryDialog(context, ref, ind, menu[ind]);
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(16.sp),
-                          ),
-                          child: Text(menu[ind]["name"]),
-                        ),
-                      );
-                    },
-                  ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                onPressed: () {
-                  _showAddCategoryDialog(context, ref);
-                },
-                child: Text(S.of(context).add_category),
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 16.sp,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 16.sp),
+                child: ThreeDotsIndicator(index: 2),
               ),
-            ),
-            ref.watch(tagsProvider).isNotEmpty? Column(
-              spacing: 16.sp,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                  child: Text(S.of(context).tags, style: Theme.of(context).textTheme.headlineLarge,),
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                    child: Row(
-                    children: List.generate(ref.watch(tagsProvider).length,(index){
-                      return Container(
-                        alignment: Alignment.bottomCenter,
-                        width: 30.w,
-                        height: 30.w,
-                        margin: EdgeInsets.only(left: 16.sp),
-                        decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24.sp),
-                        image: DecorationImage(image: AssetImage(tagImages[ref.watch(tagsProvider)[index]]!))
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                child: menu.isEmpty
+                    ? Text(S.of(context).menu_empty)
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 8.sp,
+                          crossAxisSpacing: 8.sp,
+                          childAspectRatio: 4,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.all(8.sp),
-                          child: BlurryContainer(
-                            padding: 4.sp,
-                            borderRadius: BorderRadius.circular(24.sp),
-                            child: Center(
-                              child: FutureBuilder(
-                                future: translator.translate(ref.watch(tagsProvider)[index], to: languages[ref.watch(languageStateProvider)]), 
-                                builder: (context, translation){
-                                  if(translation.data != null && translation.hasData){
-                                    return Text(
-                                      translation.data!.text,
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 14.sp, shadows: [
-                                        Shadow(
-                                          color: Colors.black.withOpacity(0.4),
-                                          offset: Offset(2, 2),
-                                          blurRadius: 24,
-                                        ),
-                                      ]),
-                                    );
-                                  }else{
-                                    return SizedBox.shrink();
-                                  }
-                                }
-                                )
-                              )
+                        itemCount: menu.length,
+                        itemBuilder: (context, ind) {
+                          return InkWell(
+                            onTap: () {
+                              _showEditCategoryDialog(
+                                context,
+                                ref,
+                                ind,
+                                menu[ind],
+                              );
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(16.sp),
+                              ),
+                              child: Text(menu[ind]["name"]),
                             ),
-                        ),
-                      );
-                    }),
-                    )
-                  ),
-              ],
-            ) : Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 16.sp),
-              child: Text(S.of(context).no_tags_selected),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                onPressed: (){
-                  showDialog(context: context, builder: (contetx){
-                    return TagsDialog();
-                  });
-                }, 
-                child: ref.watch(tagsProvider).isEmpty? Text(S.of(context).add_tags) : Text(S.of(context).edit_tags)
+                          );
+                        },
+                      ),
               ),
-            ),
-            if(ref.watch(menuProvider).isNotEmpty && ref.watch(tagsProvider).isNotEmpty) Align(
-              alignment: Alignment.bottomCenter,
-              child: !ref.watch(savingLoadingButton)? ElevatedButton(
-                onPressed: () async{
-                  ref.read(savingLoadingButton.notifier).state = true;
-                  final table = MenuModel(
-                    restaurantId: restaurantId, 
-                    menu: menu);
-                  final supabase = Supabase.instance.client;
-                      try {
-                        final response = await supabase
-                          .from('menu')
-                          .insert(table.toJson()).select();
-                        if(response.isNotEmpty){
-                          await supabase.from("restaurants")
-                          .update({
-                            "tags": List.from(ref.read(tagsProvider)),
-                            "menu_id" : response[0]['id']
-                            })
-                          .eq("id", restaurantId)
-                          .whenComplete((){
-                            ref.read(signUpProvider.notifier).state = 3; // update the sign up state to 3
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ScheduleView(id: restaurantId,)));
-                          });
-                        }
-                        // You can return or use the insertedClient if needed
-                      } on PostgrestException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).failed_add_restaurant} ${e.message}"));
-                      } catch (e) {
-                        
-                        ScaffoldMessenger.of(context).showSnackBar(ErrorMessage("${S.of(context).unexpected_error} $e"));
-                      }
-                      ref.read(savingLoadingButton.notifier).state = false;
-                }, 
-                child: Text(S.of(context).save)
-              ) : LoadingSpinner(),
-            )
-          ],
+              Align(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  onPressed: () {
+                    _showAddCategoryDialog(context, ref);
+                  },
+                  child: Text(S.of(context).add_category),
+                ),
+              ),
+              ref.watch(tagsProvider).isNotEmpty
+                  ? Column(
+                      spacing: 16.sp,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                          child: Text(
+                            S.of(context).tags,
+                            style: Theme.of(context).textTheme.headlineLarge,
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(
+                              ref.watch(tagsProvider).length,
+                              (index) {
+                                return Container(
+                                  alignment: Alignment.bottomCenter,
+                                  width: 30.w,
+                                  height: 30.w,
+                                  margin: EdgeInsets.only(left: 16.sp),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24.sp),
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        tagImages[ref.watch(
+                                          tagsProvider,
+                                        )[index]]!,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8.sp),
+                                    child: BlurryContainer(
+                                      padding: 4.sp,
+                                      borderRadius: BorderRadius.circular(
+                                        24.sp,
+                                      ),
+                                      child: Center(
+                                        child: FutureBuilder(
+                                          future: translator.translate(
+                                            ref.watch(tagsProvider)[index],
+                                            to:
+                                                languages[ref.watch(
+                                                  languageStateProvider,
+                                                )],
+                                          ),
+                                          builder: (context, translation) {
+                                            if (translation.data != null &&
+                                                translation.hasData) {
+                                              return Text(
+                                                translation.data!.text,
+                                                textAlign: TextAlign.center,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineSmall
+                                                    ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 14.sp,
+                                                      shadows: [
+                                                        Shadow(
+                                                          color: Colors.black
+                                                              .withOpacity(0.4),
+                                                          offset: Offset(2, 2),
+                                                          blurRadius: 24,
+                                                        ),
+                                                      ],
+                                                    ),
+                                              );
+                                            } else {
+                                              return SizedBox.shrink();
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                      child: Text(S.of(context).no_tags_selected),
+                    ),
+              Align(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (contetx) {
+                        return TagsDialog();
+                      },
+                    );
+                  },
+                  child: ref.watch(tagsProvider).isEmpty
+                      ? Text(S.of(context).add_tags)
+                      : Text(S.of(context).edit_tags),
+                ),
+              ),
+              if (ref.watch(menuProvider).isNotEmpty &&
+                  ref.watch(tagsProvider).isNotEmpty)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: !ref.watch(savingLoadingButton)
+                      ? ElevatedButton(
+                          onPressed: () async {
+                            ref.read(savingLoadingButton.notifier).state = true;
+                            final table = MenuModel(
+                              restaurantId: restaurantId,
+                              menu: menu,
+                            );
+                            final supabase = Supabase.instance.client;
+                            try {
+                              final response = await supabase
+                                  .from('menu')
+                                  .insert(table.toJson())
+                                  .select();
+                              if (response.isNotEmpty) {
+                                await supabase
+                                    .from("restaurants")
+                                    .update({
+                                      "tags": List.from(ref.read(tagsProvider)),
+                                      "menu_id": response[0]['id'],
+                                    })
+                                    .eq("id", restaurantId)
+                                    .whenComplete(() {
+                                      ref.read(signUpProvider.notifier).state =
+                                          3; // update the sign up state to 3
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ScheduleView(id: restaurantId),
+                                        ),
+                                      );
+                                    });
+                              }
+                              // You can return or use the insertedClient if needed
+                            } on PostgrestException catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                ErrorMessage(
+                                  "${S.of(context).failed_add_restaurant} ${e.message}",
+                                ),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                ErrorMessage(
+                                  "${S.of(context).unexpected_error} $e",
+                                ),
+                              );
+                            }
+                            ref.read(savingLoadingButton.notifier).state =
+                                false;
+                          },
+                          child: Text(S.of(context).save),
+                        )
+                      : LoadingSpinner(),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -221,69 +285,102 @@ class MenuCreationView extends ConsumerWidget {
                         controller: categoryController,
                         hintText: S.of(context).caregory_name,
                       ),
-                      if(currentItems.isEmpty) Row(
-                        children: [
-                          Text(S.of(context).multi_sizes),
-                          Checkbox(
-                            value: multiSizes,
-                            onChanged: (value) {
-                              setState(() {
-                                multiSizes = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      if(currentItems.isEmpty) Row(
-                        children: [
-                          Text(S.of(context).accept_notes),
-                          Checkbox(
-                            value: notable,
-                            onChanged: (value) {
-                              setState(() {
-                                notable = value!;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                      if (currentItems.isEmpty)
+                        Row(
+                          children: [
+                            Text(S.of(context).multi_sizes),
+                            Transform.scale(
+                              scale: 1.5,
+                              child: Checkbox(
+                                value: multiSizes,
+                                onChanged: (value) {
+                                  setState(() {
+                                    multiSizes = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (currentItems.isEmpty)
+                        Row(
+                          children: [
+                            Text(S.of(context).accept_notes),
+                            Transform.scale(
+                              scale: 1.5,
+                              child: Checkbox(
+                                value: notable,
+                                onChanged: (value) {
+                                  setState(() {
+                                    notable = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       currentItems.isEmpty
                           ? Text(S.of(context).no_items)
                           : SizedBox(
-                            height: 50.h,
-                            child: SingleChildScrollView(
-                              child: Column(
+                              height: 50.h,
+                              child: SingleChildScrollView(
+                                child: Column(
                                   spacing: 16.sp,
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: List.generate(currentItems.length, (index) {
+                                  children: List.generate(currentItems.length, (
+                                    index,
+                                  ) {
                                     return Container(
                                       padding: EdgeInsets.all(16.sp),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20.sp),
-                                        color: tertiaryColor.withOpacity(0.1)
+                                        borderRadius: BorderRadius.circular(
+                                          20.sp,
+                                        ),
+                                        color: tertiaryColor.withOpacity(0.1),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                          Text(currentItems[index]["name"],
-                                          style: Theme.of(context).textTheme.headlineSmall,
+                                          Text(
+                                            currentItems[index]["name"],
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall,
                                           ),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
                                             children: [
                                               if (multiSizes)
                                                 ...List.generate(
-                                                  currentItems[index]["sizes"].length,
+                                                  currentItems[index]["sizes"]
+                                                      .length,
                                                   (i) => Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8.0,
+                                                        ),
                                                     child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
                                                       children: [
-                                                        Text(sizes[i]), // e.g. "L", "XL", "XXL"
+                                                        Text(
+                                                          sizes[i],
+                                                        ), // e.g. "L", "XL", "XXL"
                                                         Text(
                                                           "${currentItems[index]["sizes"][i]} ${S.of(context).da}",
-                                                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge!
+                                                              .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),
@@ -291,35 +388,51 @@ class MenuCreationView extends ConsumerWidget {
                                                 )
                                               else
                                                 Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
                                                   children: [
                                                     Text(
                                                       "${currentItems[index]["sizes"][0]} ${S.of(context).da}",
-                                                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .bodyLarge!
+                                                          .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
                                             ],
                                           ),
-                                      
                                         ],
                                       ),
                                     );
                                   }),
                                 ),
+                              ),
                             ),
-                          ),
                       OutlinedButton(
                         onPressed: () {
-                          _showAddItemDialog(context, setState, multiSizes, currentItems);
+                          _showAddItemDialog(
+                            context,
+                            setState,
+                            multiSizes,
+                            currentItems,
+                          );
                         },
                         child: Text(S.of(context).add_item),
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                          if (categoryController.text.isEmpty ||
+                              currentItems.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Category name and at least one item are required")),
+                              SnackBar(
+                                content: Text(
+                                  "Category name and at least one item are required",
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -327,10 +440,12 @@ class MenuCreationView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
-                            "notable": notable
+                            "notable": notable,
                           };
                           //await _saveToSupabase(newCategory, restaurantId);
-                          ref.read(menuProvider.notifier).update((state) => [...state, newCategory]);
+                          ref
+                              .read(menuProvider.notifier)
+                              .update((state) => [...state, newCategory]);
                           Navigator.pop(context1);
                         },
                         child: Text(S.of(context).save),
@@ -346,10 +461,19 @@ class MenuCreationView extends ConsumerWidget {
     );
   }
 
-  void _showEditCategoryDialog(BuildContext context, WidgetRef ref, int categoryIndex, Map<String, dynamic> category) {
-    TextEditingController categoryController = TextEditingController(text: category["name"]);
+  void _showEditCategoryDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int categoryIndex,
+    Map<String, dynamic> category,
+  ) {
+    TextEditingController categoryController = TextEditingController(
+      text: category["name"],
+    );
     final bool multiSizes = category["multiSizes"]; // Make multiSizes immutable
-    List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(category["items"] ?? []);
+    List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(
+      category["items"] ?? [],
+    );
     final bool notable = category["notable"];
 
     showDialog(
@@ -378,42 +502,67 @@ class MenuCreationView extends ConsumerWidget {
                       currentItems.isEmpty
                           ? Text(S.of(context).no_items)
                           : SizedBox(
-                            height: 50.h,
-                            child: SingleChildScrollView(
-                              child: Column(
+                              height: 50.h,
+                              child: SingleChildScrollView(
+                                child: Column(
                                   spacing: 16.sp,
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: List.generate(currentItems.length, (index) {
+                                  children: List.generate(currentItems.length, (
+                                    index,
+                                  ) {
                                     return Container(
                                       padding: EdgeInsets.all(16.sp),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(24.sp),
-                                        color: tertiaryColor.withOpacity(0.1)
+                                        borderRadius: BorderRadius.circular(
+                                          24.sp,
+                                        ),
+                                        color: tertiaryColor.withOpacity(0.1),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(currentItems[index]["name"],
-                                              style: Theme.of(context).textTheme.headlineSmall
-                                              ),
+                                          Text(
+                                            currentItems[index]["name"],
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall,
+                                          ),
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
                                             children: [
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
                                                 children: [
                                                   if (multiSizes)
                                                     ...List.generate(
-                                                      currentItems[index]["sizes"].length,
+                                                      currentItems[index]["sizes"]
+                                                          .length,
                                                       (i) => Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8.0,
+                                                            ),
                                                         child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .end,
                                                           children: [
-                                                            Text(sizes[i]), // e.g. "L", "XL", "XXL"
+                                                            Text(
+                                                              sizes[i],
+                                                            ), // e.g. "L", "XL", "XXL"
                                                             Text(
                                                               "${currentItems[index]["sizes"][i]} ${S.of(context).da}",
-                                                              style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                              style: Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyLarge!
+                                                                  .copyWith(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
                                                             ),
                                                           ],
                                                         ),
@@ -421,40 +570,68 @@ class MenuCreationView extends ConsumerWidget {
                                                     )
                                                   else
                                                     Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
                                                       children: [
                                                         Text(sizes[0]),
                                                         Text(
                                                           "${currentItems[index]["sizes"][0]} ${S.of(context).da}",
-                                                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge!
+                                                              .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),
                                                 ],
                                               ),
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
                                                 children: [
                                                   Switch(
                                                     activeColor: secondaryColor,
-                                                    value: currentItems[index]["isActive"] ?? true,
+                                                    value:
+                                                        currentItems[index]["isActive"] ??
+                                                        true,
                                                     onChanged: (value) {
                                                       setState(() {
-                                                        currentItems[index]["isActive"] = value;
+                                                        currentItems[index]["isActive"] =
+                                                            value;
                                                       });
                                                     },
                                                   ),
                                                   IconButton(
-                                                    icon: Icon(Icons.edit, size: 16.sp),
+                                                    icon: Icon(
+                                                      Icons.edit,
+                                                      size: 16.sp,
+                                                    ),
                                                     onPressed: () {
-                                                      _showEditItemDialog(context, setState, multiSizes, currentItems, index);
+                                                      _showEditItemDialog(
+                                                        context,
+                                                        setState,
+                                                        multiSizes,
+                                                        currentItems,
+                                                        index,
+                                                      );
                                                     },
                                                   ),
                                                   IconButton(
-                                                    icon: Icon(Icons.delete, size: 16.sp, color: Colors.red,),
+                                                    icon: Icon(
+                                                      Icons.delete,
+                                                      size: 16.sp,
+                                                      color: Colors.red,
+                                                    ),
                                                     onPressed: () {
                                                       setState(() {
-                                                        currentItems.removeAt(index);
+                                                        currentItems.removeAt(
+                                                          index,
+                                                        );
                                                       });
                                                     },
                                                   ),
@@ -467,19 +644,29 @@ class MenuCreationView extends ConsumerWidget {
                                     );
                                   }),
                                 ),
+                              ),
                             ),
-                          ),
                       OutlinedButton(
                         onPressed: () {
-                          _showAddItemDialog(context, setState, multiSizes, currentItems);
+                          _showAddItemDialog(
+                            context,
+                            setState,
+                            multiSizes,
+                            currentItems,
+                          );
                         },
                         child: Text(S.of(context).add_item),
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          if (categoryController.text.isEmpty || currentItems.isEmpty) {
+                          if (categoryController.text.isEmpty ||
+                              currentItems.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(S.of(context).category_name_item_required)),
+                              SnackBar(
+                                content: Text(
+                                  S.of(context).category_name_item_required,
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -487,11 +674,13 @@ class MenuCreationView extends ConsumerWidget {
                             "name": categoryController.text,
                             "multiSizes": multiSizes,
                             "items": currentItems,
-                            "notable": notable
+                            "notable": notable,
                           };
                           //await _updateCategoryInSupabase(category, updatedCategory, restaurantId);
                           ref.read(menuProvider.notifier).update((state) {
-                            final newState = List<Map<String, dynamic>>.from(state);
+                            final newState = List<Map<String, dynamic>>.from(
+                              state,
+                            );
                             newState[categoryIndex] = updatedCategory;
                             return newState;
                           });
@@ -506,13 +695,18 @@ class MenuCreationView extends ConsumerWidget {
                         onPressed: () async {
                           //await _deleteCategoryFromSupabase(category, restaurantId);
                           ref.read(menuProvider.notifier).update((state) {
-                            final newState = List<Map<String, dynamic>>.from(state);
+                            final newState = List<Map<String, dynamic>>.from(
+                              state,
+                            );
                             newState.removeAt(categoryIndex);
                             return newState;
                           });
                           Navigator.pop(context1);
                         },
-                        child: Text(S.of(context).delete_category, style: TextStyle(color: Colors.red)),
+                        child: Text(
+                          S.of(context).delete_category,
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     ],
                   ),
@@ -526,7 +720,11 @@ class MenuCreationView extends ConsumerWidget {
   }
 
   void _showAddItemDialog(
-      BuildContext context, StateSetter setState, bool multiSizes, List<Map<String, dynamic>> currentItems) {
+    BuildContext context,
+    StateSetter setState,
+    bool multiSizes,
+    List<Map<String, dynamic>> currentItems,
+  ) {
     TextEditingController itemController = TextEditingController();
     List<TextEditingController> sizeControllers = [
       TextEditingController(),
@@ -562,22 +760,29 @@ class MenuCreationView extends ConsumerWidget {
                         return InputField(
                           keyboard: true,
                           controller: sizeControllers[index],
-                          hintText: multiSizes ? "${S.of(context).price_of} ${sizes[index]}" : S.of(context).price,
+                          hintText: multiSizes
+                              ? "${S.of(context).price_of} ${sizes[index]}"
+                              : S.of(context).price,
                         );
                       }),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         if (itemController.text.isEmpty ||
-                            (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                            (multiSizes &&
+                                sizeControllers.any(
+                                  (controller) => controller.text.isEmpty,
+                                )) ||
                             (!multiSizes && sizeControllers[0].text.isEmpty)) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(S.of(context).items_must_be_filled)),
+                            SnackBar(
+                              content: Text(S.of(context).items_must_be_filled),
+                            ),
                           );
                           return;
                         }
                         setState(() {
-                          try{
+                          try {
                             currentItems.add({
                               "name": itemController.text,
                               "sizes": multiSizes
@@ -588,10 +793,11 @@ class MenuCreationView extends ConsumerWidget {
                                     ]
                                   : [int.parse(sizeControllers[0].text)],
                               "isActive": true,
-                            });                       
-                            
-                          }catch (e){
-                            ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(ErrorMessage(S.of(context).error));
                           }
                           print(currentItems);
                           Navigator.pop(context2);
@@ -610,12 +816,20 @@ class MenuCreationView extends ConsumerWidget {
   }
 
   void _showEditItemDialog(
-      BuildContext context, StateSetter setState, bool multiSizes, List<Map<String, dynamic>> currentItems, int itemIndex) {
+    BuildContext context,
+    StateSetter setState,
+    bool multiSizes,
+    List<Map<String, dynamic>> currentItems,
+    int itemIndex,
+  ) {
     final item = currentItems[itemIndex];
-    TextEditingController itemController = TextEditingController(text: item["name"]);
+    TextEditingController itemController = TextEditingController(
+      text: item["name"],
+    );
     List<TextEditingController> sizeControllers = List.generate(
       multiSizes ? 3 : 1,
-      (index) => TextEditingController(text: item["sizes"][index]?.toString() ?? ""),
+      (index) =>
+          TextEditingController(text: item["sizes"][index]?.toString() ?? ""),
     );
 
     showDialog(
@@ -646,34 +860,41 @@ class MenuCreationView extends ConsumerWidget {
                         controller: sizeControllers[index],
                         hintText: sizes[index],
                       );
-                    },
-                    )
+                    }),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       if (itemController.text.isEmpty ||
-                          (multiSizes && sizeControllers.any((controller) => controller.text.isEmpty)) ||
+                          (multiSizes &&
+                              sizeControllers.any(
+                                (controller) => controller.text.isEmpty,
+                              )) ||
                           (!multiSizes && sizeControllers[0].text.isEmpty)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(S.of(context).items_must_be_filled)),
+                          SnackBar(
+                            content: Text(S.of(context).items_must_be_filled),
+                          ),
                         );
                         return;
                       }
                       setState(() {
-                        try{
+                        try {
                           currentItems[itemIndex] = {
-                          "name": itemController.text,
-                          "sizes": multiSizes
-                              ? [
-                                  int.parse(sizeControllers[0].text),
-                                  int.parse(sizeControllers[1].text),
-                                  int.parse(sizeControllers[2].text),
-                                ]
-                              : [int.parse(sizeControllers[0].text)],
-                          "isActive": currentItems[itemIndex]["isActive"] ?? true,
-                        };
-                        }catch(e){
-                          ScaffoldMessenger.of(context).showSnackBar(ErrorMessage(S.of(context).error));
+                            "name": itemController.text,
+                            "sizes": multiSizes
+                                ? [
+                                    int.parse(sizeControllers[0].text),
+                                    int.parse(sizeControllers[1].text),
+                                    int.parse(sizeControllers[2].text),
+                                  ]
+                                : [int.parse(sizeControllers[0].text)],
+                            "isActive":
+                                currentItems[itemIndex]["isActive"] ?? true,
+                          };
+                        } catch (e) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(ErrorMessage(S.of(context).error));
                         }
                         Navigator.pop(context2);
                       });
@@ -689,7 +910,8 @@ class MenuCreationView extends ConsumerWidget {
     );
   }
 }
-class TagsDialog extends ConsumerWidget{
+
+class TagsDialog extends ConsumerWidget {
   TagsDialog({super.key});
 
   final supabase = Supabase.instance.client;
@@ -701,8 +923,9 @@ class TagsDialog extends ConsumerWidget{
     return Dialog(
       insetPadding: EdgeInsets.all(8.sp),
       backgroundColor: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.all(8.sp),
+      child: Container(
+        constraints: BoxConstraints(maxHeight: 80.h, maxWidth: 90.w),
+        padding: EdgeInsets.all(16.sp),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -711,49 +934,73 @@ class TagsDialog extends ConsumerWidget{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(S.of(context).tags),
-                if(ref.watch(tagsProvider).isNotEmpty)TextButton(
-                    onPressed: (){
+                Text(
+                  S.of(context).tags,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                if (ref.watch(tagsProvider).isNotEmpty)
+                  TextButton(
+                    onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text(S.of(context).save),
+                    child: Text(
+                      S.of(context).save,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium!.copyWith(color: secondaryColor),
+                    ),
                   ),
               ],
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
+            Flexible(
               child: GridView.builder(
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  mainAxisSpacing: 8.sp,
-                  crossAxisSpacing: 8.sp,
+                  mainAxisSpacing: 16.sp,
+                  crossAxisSpacing: 16.sp,
                   childAspectRatio: 1,
                 ),
                 itemCount: tagImages.entries.length,
                 itemBuilder: (context, ind) {
                   final tagKey = tagImages.entries.elementAt(ind).key;
                   return InkWell(
-                    onTap: () async{
-                      if(ref.watch(tagsProvider).contains(tagKey)){
-                        final currentState = ref.read(tagsProvider.notifier).state;
-                        final updatedTags = List<String>.from(currentState ?? [])..remove(tagKey);
+                    borderRadius: BorderRadius.circular(24.sp),
+                    onTap: () async {
+                      if (ref.watch(tagsProvider).contains(tagKey)) {
+                        final currentState = ref
+                            .read(tagsProvider.notifier)
+                            .state;
+                        final updatedTags = List<String>.from(
+                          currentState ?? [],
+                        )..remove(tagKey);
                         ref.read(tagsProvider.notifier).state = updatedTags;
                       } else {
-                        final currentState = ref.read(tagsProvider.notifier).state;
-                        final updatedTags = List<String>.from(currentState ?? [])..add(tagKey);
+                        final currentState = ref
+                            .read(tagsProvider.notifier)
+                            .state;
+                        final updatedTags = List<String>.from(
+                          currentState ?? [],
+                        )..add(tagKey);
                         ref.read(tagsProvider.notifier).state = updatedTags;
                       }
                     },
                     child: Container(
                       alignment: Alignment.bottomCenter,
                       decoration: BoxDecoration(
-                      border: BoxBorder.all(
-                        color: primaryColor,
-                        width: ref.watch(tagsProvider).contains(tagKey)? 8.sp : 0.sp,
-                      ),
-                      borderRadius: BorderRadius.circular(24.sp),
-                      image: DecorationImage(image: AssetImage(tagImages.entries.elementAt(ind).value), fit: BoxFit.cover)
+                        border: BoxBorder.all(
+                          color: primaryColor,
+                          width: ref.watch(tagsProvider).contains(tagKey)
+                              ? 8.sp
+                              : 0.sp,
+                        ),
+                        borderRadius: BorderRadius.circular(24.sp),
+                        image: DecorationImage(
+                          image: AssetImage(
+                            tagImages.entries.elementAt(ind).value,
+                          ),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       child: Padding(
                         padding: EdgeInsets.all(8.sp),
@@ -762,27 +1009,40 @@ class TagsDialog extends ConsumerWidget{
                           borderRadius: BorderRadius.circular(24.sp),
                           child: Center(
                             child: FutureBuilder(
-                              future: translator.translate(tagImages.entries.elementAt(ind).key, to: languages[ref.watch(languageStateProvider)]), 
-                              builder: (context, translation){
-                                if(translation.data != null && translation.hasData){
+                              future: translator.translate(
+                                tagImages.entries.elementAt(ind).key,
+                                to: languages[ref.watch(languageStateProvider)],
+                              ),
+                              builder: (context, translation) {
+                                if (translation.data != null &&
+                                    translation.hasData) {
                                   return Text(
                                     translation.data!.text,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontSize: 14.sp, shadows: [
-                                      Shadow(
-                                        color: Colors.black.withOpacity(0.4),
-                                        offset: Offset(2, 2),
-                                        blurRadius: 24,
-                                      ),
-                                    ]),
-                                    );
-                                }else{
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withOpacity(
+                                                0.4,
+                                              ),
+                                              offset: Offset(2, 2),
+                                              blurRadius: 24,
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                } else {
                                   return SizedBox.shrink();
                                 }
-                              }
-                            )
-                            )
+                              },
+                            ),
                           ),
+                        ),
                       ),
                     ),
                   );
@@ -794,5 +1054,4 @@ class TagsDialog extends ConsumerWidget{
       ),
     );
   }
-
 }
